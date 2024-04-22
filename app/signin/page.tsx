@@ -1,16 +1,43 @@
+"use client";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Metadata } from "next";
+import { useFormik } from "formik";
+import { loginSchema } from "@/schema";
+import { error } from "console";
 
-export const metadata: Metadata = {
-  title: "Next.js SignIn Page | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Signin Page TailAdmin Dashboard Template",
+interface FormValues {
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
+const initialValues: FormValues = {
+  email: "",
+  password: "",
+  confirmPassword: "",
 };
-const page = () => {
+const page: React.FC = () => {
+  const {
+    values,
+    errors,
+    touched,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+  } = useFormik<FormValues>({
+    initialValues: initialValues,
+    validationSchema: loginSchema,
+    onSubmit: (values: FormValues,action) => {
+      console.log("Form values", values);
+      action.resetForm();
+    },
+  });
+  console.log(errors);
+
   return (
     <>
-     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
+      <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center h-screen">
           <div className="hidden w-full xl:block xl:w-1/2">
             <div className="px-26 py-17.5 text-center">
@@ -165,10 +192,10 @@ const page = () => {
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <span className="mb-1.5 block font-medium">Start for free</span>
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign In to TailAdmin
+                Sign In to CareerForge
               </h2>
 
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Email
@@ -178,8 +205,15 @@ const page = () => {
                       type="email"
                       placeholder="Enter your email"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="email"
+                      id="email"
+                      value={values.email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-
+                    {errors.email && touched.email ? 
+                    <p className="text-red">{errors.email}</p>
+                    : null}
                     <span className="absolute right-4 top-4">
                       <svg
                         className="fill-current"
@@ -209,8 +243,15 @@ const page = () => {
                       type="password"
                       placeholder="Enter your password"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="password"
+                      id="password"
+                      value={values.password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-
+                     {errors.password && touched.password ? 
+                    <p className="text-red">{errors.password}</p>
+                    : null}
                     <span className="absolute right-4 top-4">
                       <svg
                         className="fill-current"
@@ -237,15 +278,22 @@ const page = () => {
 
                 <div className="mb-6">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Re-type Password
+                    Confirm Password
                   </label>
                   <div className="relative">
                     <input
                       type="password"
                       placeholder="Re-enter your password"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="confirmPassword"
+                      id="confirmPassword"
+                      value={values.confirmPassword}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-
+                     {errors.confirmPassword && touched.confirmPassword ? 
+                    <p className="text-red">{errors.confirmPassword}</p>
+                    : null}
                     <span className="absolute right-4 top-4">
                       <svg
                         className="fill-current"
@@ -269,7 +317,6 @@ const page = () => {
                     </span>
                   </div>
                 </div>
-
 
                 <div className="mb-5">
                   <input
@@ -330,7 +377,7 @@ const page = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default page
+export default page;
