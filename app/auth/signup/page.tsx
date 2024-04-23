@@ -1,22 +1,121 @@
+"use client";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { useFormik } from "formik";
+import { signUpSchema } from "@/schema";
+import axios from "axios";
+import { useState } from "react";
 
-import { Metadata } from "next";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
+interface FormValues {
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  Password: string;
+  ConfirmPassword: string;
+  Address: string;
+  Website: string;
+  Image?: string;
+  Role: string;
+}
 
-export const metadata: Metadata = {
-  title: "Next.js SignUp Page | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js SignUp Page TailAdmin Dashboard Template",
-  // other metadata
+const initialValues: FormValues = {
+  FirstName: "",
+  LastName: "",
+  Email: "",
+  Password: "",
+  ConfirmPassword: "",
+  Address: "",
+  Website: "",
+  Image: "",
+  Role: "",
 };
 
-const SignUp: React.FC = () => {
-  return (
-    <DefaultLayout>
-      <Breadcrumb pageName="Sign Up" />
+// Convert a file to base64 string
+const toBase64 = (file: File) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
 
+    fileReader.readAsDataURL(file);
+
+    fileReader.onload = () => {
+      resolve(fileReader.result);
+    };
+
+    fileReader.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
+const page = () => {
+  const [file, setFile] = useState<File | null>(null);
+
+  // State to store the base64
+  const [base64, setBase64] = useState<string | null>(null);
+
+  // When the file is selected, set the file state
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) {
+      return;
+    }
+    setFile(e.target.files[0]);
+  };
+  const onClick = (e: React.MouseEvent<HTMLInputElement>) => {
+    e.currentTarget.value = "";
+  };
+
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
+    useFormik<FormValues>({
+      initialValues,
+      validationSchema: signUpSchema,
+      onSubmit: async (values: FormValues, { resetForm }) => {
+        console.log("form values", values);
+
+        const base64 = await toBase64(file as File);
+        setBase64(base64 as string);
+
+        const formData = new FormData();
+        formData.append("FirstName", values.FirstName);
+        formData.append("LastName", values.LastName);
+        formData.append("Email", values.Email);
+        formData.append("Password", values.Password);
+        formData.append("ConfirmPassword", values.ConfirmPassword);
+        formData.append("Address", values.Address);
+        formData.append("Website", values.Website);
+        if (base64) {
+          console.log(values.Image);
+          formData.append("Image", base64 as string); // Append the Image file to the form data
+        }
+        formData.append("Role", values.Role);
+        try {
+          const response = await fetch(
+            "https://localhost:44396/api/Account/register-user/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(values),
+            }
+          );
+
+          if (response.ok) {
+            console.log("Registration successful");
+            resetForm();
+            setFile(null);
+            setBase64(null);
+          } else {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+        } catch (error) {
+          console.error("Registration error", error);
+        }
+      },
+    });
+  console.log(errors);
+  return (
+    <>
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -24,14 +123,14 @@ const SignUp: React.FC = () => {
               <Link className="mb-5.5 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
-                  src={"/images/logo/logo.svg"}
+                  src={"/Images/logo/logo.svg"}
                   alt="Logo"
                   width={176}
                   height={32}
                 />
                 <Image
                   className="dark:hidden"
-                  src={"/images/logo/logo-dark.svg"}
+                  src={"/Images/logo/logo-dark.svg"}
                   alt="Logo"
                   width={176}
                   height={32}
@@ -169,44 +268,53 @@ const SignUp: React.FC = () => {
 
           <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-              <span className="mb-1.5 block font-medium">Start for free</span>
-              <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2">
-                Sign Up to TailAdmin
+              {/* <span className="mb-1.5 block font-medium">Start for free</span> */}
+              <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2 text-center">
+                Sign Up to CareerForge
               </h2>
 
-              <form>
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Name
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Enter your full name"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    />
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-2">
+                  <div className="mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      First Name
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your first name"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="FirstName"
+                        id="FirstName"
+                        value={values.FirstName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.FirstName && touched.FirstName ? (
+                        <p className="text-red">{errors.FirstName}</p>
+                      ) : null}
+                    </div>
+                  </div>
 
-                    <span className="absolute right-4 top-4">
-                      <svg
-                        className="fill-current"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 22 22"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g opacity="0.5">
-                          <path
-                            d="M11.0008 9.52185C13.5445 9.52185 15.607 7.5281 15.607 5.0531C15.607 2.5781 13.5445 0.584351 11.0008 0.584351C8.45703 0.584351 6.39453 2.5781 6.39453 5.0531C6.39453 7.5281 8.45703 9.52185 11.0008 9.52185ZM11.0008 2.1656C12.6852 2.1656 14.0602 3.47185 14.0602 5.08748C14.0602 6.7031 12.6852 8.00935 11.0008 8.00935C9.31641 8.00935 7.94141 6.7031 7.94141 5.08748C7.94141 3.47185 9.31641 2.1656 11.0008 2.1656Z"
-                            fill=""
-                          />
-                          <path
-                            d="M13.2352 11.0687H8.76641C5.08828 11.0687 2.09766 14.0937 2.09766 17.7719V20.625C2.09766 21.0375 2.44141 21.4156 2.88828 21.4156C3.33516 21.4156 3.67891 21.0719 3.67891 20.625V17.7719C3.67891 14.9531 5.98203 12.6156 8.83516 12.6156H13.2695C16.0883 12.6156 18.4258 14.9187 18.4258 17.7719V20.625C18.4258 21.0375 18.7695 21.4156 19.2164 21.4156C19.6633 21.4156 20.007 21.0719 20.007 20.625V17.7719C19.9039 14.0937 16.9133 11.0687 13.2352 11.0687Z"
-                            fill=""
-                          />
-                        </g>
-                      </svg>
-                    </span>
+                  <div className="ms-2 mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Last Name
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your last name"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="LastName"
+                        id="LastName"
+                        value={values.LastName}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.LastName && touched.LastName ? (
+                        <p className="text-red">{errors.LastName}</p>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
 
@@ -217,10 +325,17 @@ const SignUp: React.FC = () => {
                   <div className="relative">
                     <input
                       type="email"
-                      placeholder="Enter your email"
+                      placeholder="Enter your Email"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="Email"
+                      id="Email"
+                      value={values.Email}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-
+                    {errors.Email && touched.Email ? (
+                      <p className="text-red">{errors.Email}</p>
+                    ) : null}
                     <span className="absolute right-4 top-4">
                       <svg
                         className="fill-current"
@@ -247,11 +362,18 @@ const SignUp: React.FC = () => {
                   </label>
                   <div className="relative">
                     <input
-                      type="password"
-                      placeholder="Enter your password"
+                      type="Password"
+                      placeholder="Enter your Password"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="Password"
+                      id="Password"
+                      value={values.Password}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-
+                    {errors.Password && touched.Password ? (
+                      <p className="text-red">{errors.Password}</p>
+                    ) : null}
                     <span className="absolute right-4 top-4">
                       <svg
                         className="fill-current"
@@ -278,15 +400,22 @@ const SignUp: React.FC = () => {
 
                 <div className="mb-6">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Re-type Password
+                    Confirm Password
                   </label>
                   <div className="relative">
                     <input
                       type="password"
                       placeholder="Re-enter your password"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="ConfirmPassword"
+                      id="ConfirmPassword"
+                      value={values.ConfirmPassword}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-
+                    {errors.ConfirmPassword && touched.ConfirmPassword ? (
+                      <p className="text-red">{errors.ConfirmPassword}</p>
+                    ) : null}
                     <span className="absolute right-4 top-4">
                       <svg
                         className="fill-current"
@@ -311,6 +440,172 @@ const SignUp: React.FC = () => {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-2">
+                  <div className="mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Address
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your full name"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="Address"
+                        id="Address"
+                        value={values.Address}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.Address && touched.Address ? (
+                        <p className="text-red">{errors.Address}</p>
+                      ) : null}
+                      <span className="absolute right-4 top-4">
+                        <svg
+                          className="w-6 h-6 text-gray-800 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M11.906 1.994a8.002 8.002 0 0 1 8.09 8.421 7.996 7.996 0 0 1-1.297 3.957.996.996 0 0 1-.133.204l-.108.129c-.178.243-.37.477-.573.699l-5.112 6.224a1 1 0 0 1-1.545 0L5.982 15.26l-.002-.002a18.146 18.146 0 0 1-.309-.38l-.133-.163a.999.999 0 0 1-.13-.202 7.995 7.995 0 0 1 6.498-12.518ZM15 9.997a3 3 0 1 1-5.999 0 3 3 0 0 1 5.999 0Z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="ms-2 mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Website
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your full name"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="Website"
+                        id="Website"
+                        value={values.Website}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.Website && touched.Website ? (
+                        <p className="text-red">{errors.Website}</p>
+                      ) : null}
+                      <span className="absolute right-4 top-4">
+                        <svg
+                          className="w-6 h-6 text-gray-800 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeWidth="2"
+                            d="M4.37 7.657c2.063.528 2.396 2.806 3.202 3.87 1.07 1.413 2.075 1.228 3.192 2.644 1.805 2.289 1.312 5.705 1.312 6.705M20 15h-1a4 4 0 0 0-4 4v1M8.587 3.992c0 .822.112 1.886 1.515 2.58 1.402.693 2.918.351 2.918 2.334 0 .276 0 2.008 1.972 2.008 2.026.031 2.026-1.678 2.026-2.008 0-.65.527-.9 1.177-.9H20M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                          />
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="ms-2 mb-4">
+                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                    Image
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="file"
+                      placeholder="Plese select an Image"
+                      className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                      name="Image"
+                      id="Image"
+                      value={values.Image}
+                      onChange={onFileChange}
+                      onClick={onClick}
+                    />
+                    {errors.Image && touched.Image ? (
+                      <p className="text-red">{errors.Image}</p>
+                    ) : null}
+                    <span className="absolute right-4 top-4">
+                      {base64 ? (
+                        <Image
+                          src={base64}
+                          width={100}
+                          height={100}
+                          alt="Uploaded Image"
+                        />
+                      ) : (
+                        <svg
+                          className="w-6 h-6 text-gray-800 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
+                          />
+                        </svg>
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div className="ms-2 mb-4">
+                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                    Role
+                  </label>
+                  <div className="relative">
+                    <select
+                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="Role"
+                      id="Role"
+                      value={values.Role}
+                      onChange={handleChange}
+                    >
+                      <option value="" disabled>
+                        Select Role
+                      </option>
+                      <option value="collage">Collage</option>
+                      <option value="company">Company</option>
+                    </select>
+                    {errors.Role && touched.Role ? (
+                      <p className="text-red">{errors.Role}</p>
+                    ) : null}
+                    <span className="absolute right-4 top-4">
+                      <svg
+                        className="w-6 h-6 text-gray-800 dark:text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M17 10v1.126c.367.095.714.24 1.032.428l.796-.797 1.415 1.415-.797.796c.188.318.333.665.428 1.032H21v2h-1.126c-.095.367-.24.714-.428 1.032l.797.796-1.415 1.415-.796-.797a3.979 3.979 0 0 1-1.032.428V20h-2v-1.126a3.977 3.977 0 0 1-1.032-.428l-.796.797-1.415-1.415.797-.796A3.975 3.975 0 0 1 12.126 16H11v-2h1.126c.095-.367.24-.714.428-1.032l-.797-.796 1.415-1.415.796.797A3.977 3.977 0 0 1 15 11.126V10h2Zm.406 3.578.016.016c.354.358.574.85.578 1.392v.028a2 2 0 0 1-3.409 1.406l-.01-.012a2 2 0 0 1 2.826-2.83ZM5 8a4 4 0 1 1 7.938.703 7.029 7.029 0 0 0-3.235 3.235A4 4 0 0 1 5 8Zm4.29 5H7a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h6.101A6.979 6.979 0 0 1 9 15c0-.695.101-1.366.29-2Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
                 <div className="mb-5">
                   <input
                     type="submit"
@@ -359,7 +654,7 @@ const SignUp: React.FC = () => {
                 <div className="mt-6 text-center">
                   <p>
                     Already have an account?{" "}
-                    <Link href="/auth/signin" className="text-primary">
+                    <Link href="/signin" className="text-primary">
                       Sign in
                     </Link>
                   </p>
@@ -369,8 +664,8 @@ const SignUp: React.FC = () => {
           </div>
         </div>
       </div>
-    </DefaultLayout>
+    </>
   );
 };
 
-export default SignUp;
+export default page;
