@@ -4,11 +4,36 @@ import DropdownMessage from "./DropdownMessage";
 import DropdownNotification from "./DropdownNotification";
 import DropdownUser from "./DropdownUser";
 import Image from "next/image";
+import {useEffect}  from 'react'
+import { useDispatch, useSelector} from 'react-redux';
+import { useRouter } from 'next/router';
+import { RootState } from '@/store';
+import { setUser } from '@/store/auth-slice';
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
+
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const route = useRouter();
+
+  useEffect(() => {
+    // Redirect to login page if user is not authenticated
+    if (!isAuthenticated) {
+      route.push('/login');
+    }
+  }, [isAuthenticated, route]);
+
+  const handleLogout = () => {
+    // Clear user data from localStorage and Redux store
+    localStorage.removeItem('token');
+    // dispatch(setUser(null));
+    // Redirect to the login page
+    route.push('/login');
+  };
+
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">
       <div className="flex flex-grow items-center justify-between px-4 py-4 shadow-2 md:px-6 2xl:px-11">

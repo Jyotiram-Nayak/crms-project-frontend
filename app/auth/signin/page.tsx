@@ -5,6 +5,10 @@ import Image from "next/image";
 import { useFormik } from "formik";
 import { loginSchema } from "@/schema";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useDispatch } from 'react-redux';
+import { setUser } from '@/store/auth-slice';
+
 interface FormValues {
   Email: string;
   Password: string;
@@ -15,6 +19,8 @@ const initialValues: FormValues = {
   Password: "",
 };
 const page: React.FC = () => {
+  const dispatch = useDispatch();
+  const route = useRouter()
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
     useFormik<FormValues>({
       initialValues: initialValues,
@@ -33,9 +39,10 @@ const page: React.FC = () => {
           const { token } = response.data.data;
             console.log(token)
           localStorage.setItem("token", token);
-          const tokenPayload = JSON.parse(atob(token.split(".")[1]));
-          const { sub: userId, role } = tokenPayload; // Assuming 'sub' represents user ID
+          const user = extractUserFromToken(token);
+      dispatch(setUser(user));
           console.log("Login successful", response.data);
+          route.push("/")
           resetForm();
         } catch (error: any) {
           if (error.response) {
