@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <Provider store={store}>
+      {/* <Provider store={store}> */}
         <DefaultLayout>
           <Dashboard />
         </DefaultLayout>
-      </Provider>
+      {/* </Provider> */}
     </>
   );
 }

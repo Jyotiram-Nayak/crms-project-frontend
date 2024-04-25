@@ -1,16 +1,15 @@
+"use client"
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "Next.js Profile | TailAdmin - Next.js Dashboard Template",
-  description:
-    "This is Next.js Profile page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
-};
+import { useDispatch, useSelector } from "react-redux";
+import { getUserProfile } from "@/lib/UserSlice/UserSlice";
+import { useEffect } from "react";
 
 const Profile = () => {
+  const dispatch = useDispatch();
+
   return (
     <DefaultLayout>
       <div className="mx-auto max-w-242.5">
@@ -28,6 +27,7 @@ const Profile = () => {
                 width: "auto",
                 height: "auto",
               }}
+              priority
             />
             <div className="absolute bottom-1 right-1 z-10 xsm:bottom-4 xsm:right-4">
               <label

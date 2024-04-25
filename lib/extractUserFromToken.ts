@@ -2,6 +2,7 @@
 interface User {
     id: number;
     email: string;
+    role:string;
     // Add other user properties as needed
   }
   
@@ -10,6 +11,7 @@ interface User {
     const user: User = {
       id: tokenPayload.id,
       email: tokenPayload.email,
+      role:tokenPayload.role,
       // Extract other user properties from the token payload
     };
     return user;

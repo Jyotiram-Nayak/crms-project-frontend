@@ -2,12 +2,20 @@ import flatpickr from "flatpickr";
 import React, { ChangeEventHandler, useEffect } from "react";
 
 interface DatePickerProps {
-  value: string;
+  value: any;
   label: string;
-  onChange:ChangeEventHandler<HTMLElement>
+  onChange: ChangeEventHandler<HTMLElement>;
+  error: any;
+  touched: any;
 }
 
-const DatePicker:React.FC<DatePickerProps> = ({value,label,onChange}) => {
+const DatePicker: React.FC<DatePickerProps> = ({
+  value,
+  label,
+  onChange,
+  error,
+  touched,
+}) => {
   useEffect(() => {
     // Init flatpickr
     flatpickr(".form-datepicker", {
@@ -25,7 +33,7 @@ const DatePicker:React.FC<DatePickerProps> = ({value,label,onChange}) => {
   return (
     <div>
       <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-      {label}
+        {label}
       </label>
       <div className="relative">
         <input
@@ -37,9 +45,6 @@ const DatePicker:React.FC<DatePickerProps> = ({value,label,onChange}) => {
           value={value}
           onChange={onChange}
         />
-         {/* {errors.Address && touched.Address ? (
-                      <p className="text-red">{errors.Address}</p>
-                    ) : null} */}
         <div className="pointer-events-none absolute inset-0 left-auto right-5 flex items-center">
           <svg
             width="18"
@@ -54,6 +59,7 @@ const DatePicker:React.FC<DatePickerProps> = ({value,label,onChange}) => {
             />
           </svg>
         </div>
+        {error && touched ? <p className="text-red">{error}</p> : null}
       </div>
     </div>
   );

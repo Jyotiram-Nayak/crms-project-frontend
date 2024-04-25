@@ -4,8 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useFormik } from "formik";
 import { signUpSchema } from "@/schema";
-import axios from "axios";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { userRegister } from "@/lib/UserSlice/UserSlice";
 
 interface FormValues {
   FirstName: string;
@@ -35,9 +36,7 @@ const initialValues: FormValues = {
 const toBase64 = (file: File) => {
   return new Promise((resolve, reject) => {
     const fileReader = new FileReader();
-
     fileReader.readAsDataURL(file);
-
     fileReader.onload = () => {
       resolve(fileReader.result);
     };
@@ -49,6 +48,7 @@ const toBase64 = (file: File) => {
 };
 
 const page: React.FC  = () => {
+  const dispatch = useDispatch();
   const [file, setFile] = useState<File | null>(null);
 
   // State to store the base64
@@ -71,46 +71,13 @@ const page: React.FC  = () => {
       validationSchema: signUpSchema,
       onSubmit: async (values: FormValues, { resetForm }) => {
         console.log("form values", values);
-
-        const base64 = await toBase64(file as File);
-        setBase64(base64 as string);
-
-        const formData = new FormData();
-        formData.append("FirstName", values.FirstName);
-        formData.append("LastName", values.LastName);
-        formData.append("Email", values.Email);
-        formData.append("Password", values.Password);
-        formData.append("ConfirmPassword", values.ConfirmPassword);
-        formData.append("Address", values.Address);
-        formData.append("Website", values.Website);
-        if (base64) {
-          console.log(values.Image);
-          formData.append("Image", base64 as string); // Append the Image file to the form data
+        if(values.Image){
+          const base64 = await toBase64(file as File);
+          setBase64(base64 as string);
         }
-        formData.append("Role", values.Role);
-        try {
-          const response = await fetch(
-            "https://localhost:44396/api/Account/register-user/",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(values),
-            }
-          );
-
-          if (response.ok) {
-            console.log("Registration successful");
-            resetForm();
-            setFile(null);
-            setBase64(null);
-          } else {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-        } catch (error) {
-          console.error("Registration error", error);
-        }
+        console.log("Form values", values);
+        dispatch(userRegister(values));
+        resetForm();
       },
     });
   console.log(errors);
@@ -654,7 +621,7 @@ const page: React.FC  = () => {
                 <div className="mt-6 text-center">
                   <p>
                     Already have an account?{" "}
-                    <Link href="/signin" className="text-primary">
+                    <Link href="./signin" className="text-primary">
                       Sign in
                     </Link>
                   </p>

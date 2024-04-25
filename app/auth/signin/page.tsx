@@ -4,10 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { useFormik } from "formik";
 import { loginSchema } from "@/schema";
-import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useDispatch } from 'react-redux';
-import { setUser } from '@/store/auth-slice';
+import { useDispatch } from "react-redux";
+import { userLogin } from "@/lib/UserSlice/UserSlice";
 
 interface FormValues {
   Email: string;
@@ -20,43 +19,14 @@ const initialValues: FormValues = {
 };
 const page: React.FC = () => {
   const dispatch = useDispatch();
-  const route = useRouter()
+  const route = useRouter();
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
     useFormik<FormValues>({
       initialValues: initialValues,
       validationSchema: loginSchema,
       onSubmit: async (values: FormValues, { resetForm }) => {
         console.log("Form values", values);
-        const formData = new FormData();
-        formData.append("Email", values.Email);
-        formData.append("Password", values.Password);
-
-        try {
-          const response = await axios.post(
-            "https://localhost:44396/api/Account/login-user/",
-            values
-          );
-          const { token } = response.data.data;
-            console.log(token)
-          localStorage.setItem("token", token);
-          const user = extractUserFromToken(token);
-      dispatch(setUser(user));
-          console.log("Login successful", response.data);
-          route.push("/")
-          resetForm();
-        } catch (error: any) {
-          if (error.response) {
-            console.error(
-              "Server Error:",
-              error.response.status,
-              error.response.data
-            );
-          } else if (error.request) {
-            console.error("No response received:", error.request);
-          } else {
-            console.error("Error:", error.message);
-          }
-        }
+        dispatch(userLogin(values));
         resetForm();
       },
     });
@@ -351,7 +321,7 @@ const page: React.FC = () => {
                 <div className="mt-6 text-center">
                   <p>
                     Don’t have any account?{" "}
-                    <Link href="/signup" className="text-primary">
+                    <Link href="./signup" className="text-primary">
                       Sign Up
                     </Link>
                   </p>
