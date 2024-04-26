@@ -1,8 +1,8 @@
 import * as Yup from 'yup';
 
 export const loginSchema = Yup.object({
-    Email:Yup.string().email().required("Please enter Email"),
-    Password:Yup.string().min(8,"Please enter a strong password").required("Please enter Password"),
+    email:Yup.string().email().required("Please enter Email"),
+    password:Yup.string().min(8,"Please enter a strong password").required("Please enter Password"),
 })
 
 export const signUpSchema = Yup.object({
@@ -18,16 +18,16 @@ export const signUpSchema = Yup.object({
 })
 
 export const studentSchema = Yup.object({
-    FirstName:Yup.string().required("Please enter First Name"),
-    LastName:Yup.string().required("Please enter Last Name"),
-    Email:Yup.string().email().required("Please enter Email"),
-    Password:Yup.string().min(8,"Please enter a strong password").required("Please enter Password"),
-    ConfirmPassword:Yup.string().required("Please enter Confirm Password").oneOf([Yup.ref("Password"),"","Password must match"]),
-    RollNo: Yup.string().required('Please enter Roll number'),
-    // Dob: Yup.string().nullable(),
-    Gender: Yup.string().required('Please select Gender').oneOf(['Male', 'Female', 'Other']),
-    MaritalStatus: Yup.string().required('Please select Marital status').oneOf(['Married', 'Unmarried']),
-    Address: Yup.string().required('Please select Address'),
-    // JoiningDate: Yup.string().required('Please select Joining date'),
-    // GraduationDate: Yup.string().nullable()
-  });
+    firstName: Yup.string().required("Please enter First Name"),
+    lastName: Yup.string().required("Please enter Last Name"),
+    email: Yup.string().email().required("Please enter Email"),
+    password: Yup.string().min(8,"Please enter a strong password").required("Please enter Password"),
+    confirmPassword: Yup.string().required("Please enter Confirm Password").oneOf([Yup.ref("password"),"","Password must match"]),
+    rollNo: Yup.string().required('Please enter Roll number'),
+    // dob: Yup.string().nullable(),
+    gender: Yup.string().required('Please select Gender'),
+    maritalStatus: Yup.string().required('Please select Marital status'),
+    address: Yup.string().required('Please enter Address'),
+    // joiningDate: Yup.string().required('Please select Joining date'),
+    // graduationDate: Yup.string().nullable()
+});

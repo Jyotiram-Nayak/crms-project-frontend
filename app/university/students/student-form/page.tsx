@@ -9,35 +9,36 @@ import { useDispatch } from "react-redux";
 import { addStudent } from "@/lib/StudentSlice/StudentSlice";
 import { studentSchema } from "@/schema";
 
-// interface FormValues {
-//   FirstName: string;
-//   LastName: string;
-//   Email: string;
-//   Password: string;
-//   ConfirmPassword: string;
-//   RollNo: string;
-//   Dob: string;
-//   Gender: number;
-//   MaritalStatus: number;
-//   Address: string;
-//   JoiningDate: string;
-//   GraduationDate: string;
-// }
+interface FormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  rollNo: string;
+  dob: string;
+  gender: number;
+  maritalStatus: number;
+  address: string;
+  joiningDate: string;
+  graduationDate: string;
+}
 
-const initialValues = {
-  FirstName: "",
-  LastName: "",
-  Email: "",
-  Password: "",
-  ConfirmPassword: "",
-  RollNo: "",
-  Dob: "",
-  Gender: 0,
-  MaritalStatus: 0,
-  Address: "",
-  JoiningDate: "",
-  GraduationDate: "",
+const initialValues: FormValues = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  rollNo: "",
+  dob: "",
+  gender: 0,
+  maritalStatus: 0,
+  address: "",
+  joiningDate: "",
+  graduationDate: "",
 };
+
 
 const Students: React.FC = () => {
   
@@ -48,7 +49,8 @@ const Students: React.FC = () => {
       validationSchema: studentSchema,
       onSubmit: async (values, { resetForm }) => {
         console.log("form values", values);
-        dispatch(addStudent(values));
+        const response =await dispatch(addStudent(values));
+        console.log(response)
         resetForm();
       },
     });
@@ -77,14 +79,14 @@ const Students: React.FC = () => {
                       type="text"
                       placeholder="Enter your First Name"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="FirstName"
-                      id="FirstName"
-                      value={values.FirstName}
+                      name="firstName"
+                      id="firstName"
+                      value={values.firstName}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.FirstName && touched.FirstName ? (
-                      <p className="text-red">{errors.FirstName}</p>
+                    {errors.firstName && touched.firstName ? (
+                      <p className="text-red">{errors.firstName}</p>
                     ) : null}
                   </div>
 
@@ -96,32 +98,32 @@ const Students: React.FC = () => {
                       type="text"
                       placeholder="Enter your Last Name"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="LastName"
-                      id="LastName"
-                      value={values.LastName}
+                      name="lastName"
+                      id="lastName"
+                      value={values.lastName}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.LastName && touched.LastName ? (
-                      <p className="text-red">{errors.LastName}</p>
+                    {errors.lastName && touched.lastName ? (
+                      <p className="text-red">{errors.lastName}</p>
                     ) : null}
                   </div>
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Email
+                      email
                     </label>
                     <input
                       type="email"
-                      placeholder="Enter your Email"
+                      placeholder="Enter your email"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Email"
-                      id="Email"
-                      value={values.Email}
+                      name="email"
+                      id="email"
+                      value={values.email}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.Email && touched.Email ? (
-                      <p className="text-red">{errors.Email}</p>
+                    {errors.email && touched.email ? (
+                      <p className="text-red">{errors.email}</p>
                     ) : null}
                   </div>
                 </div>
@@ -134,14 +136,14 @@ const Students: React.FC = () => {
                       type="password"
                       placeholder="Enter your Password"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Password"
-                      id="Password"
-                      value={values.Password}
+                      name="password"
+                      id="password"
+                      value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.Password && touched.Password ? (
-                      <p className="text-red">{errors.Password}</p>
+                    {errors.password && touched.password ? (
+                      <p className="text-red">{errors.password}</p>
                     ) : null}
                   </div>
 
@@ -153,14 +155,14 @@ const Students: React.FC = () => {
                       type="password"
                       placeholder="Enter your Confirm Password"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="ConfirmPassword"
-                      id="ConfirmPassword"
-                      value={values.ConfirmPassword}
+                      name="confirmPassword"
+                      id="confirmPassword"
+                      value={values.confirmPassword}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.ConfirmPassword && touched.ConfirmPassword ? (
-                      <p className="text-red">{errors.ConfirmPassword}</p>
+                    {errors.confirmPassword && touched.confirmPassword ? (
+                      <p className="text-red">{errors.confirmPassword}</p>
                     ) : null}
                   </div>
                   <div className="w-full xl:w-1/3">
@@ -171,14 +173,14 @@ const Students: React.FC = () => {
                       type="text"
                       placeholder="Enter your Roll No"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="RollNo"
-                      id="RollNo"
-                      value={values.RollNo}
+                      name="rollNo"
+                      id="rollNo"
+                      value={values.rollNo}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.RollNo && touched.RollNo ? (
-                      <p className="text-red">{errors.RollNo}</p>
+                    {errors.rollNo && touched.rollNo ? (
+                      <p className="text-red">{errors.rollNo}</p>
                     ) : null}
                   </div>
                 </div>
@@ -188,16 +190,17 @@ const Students: React.FC = () => {
                       Date Of Birth
                     </label>
                     <input
-                      className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                      placeholder="mm/dd/yyyy"
-                      data-class="flatpickr-right"
-                      id="Dob"
-                      name="Dob"
-                      value={values.Dob}
+                      type="text"
+                      placeholder="Enter your Dob formate:'yyyy-mm-dd'"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="dob"
+                      id="dob"
+                      value={values.dob}
                       onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-                    {errors.Dob && touched.Dob ? (
-                      <p className="text-red">{errors.Dob.toString()}</p>
+                    {errors.dob && touched.dob ? (
+                      <p className="text-red">{errors.dob.toString()}</p>
                     ) : null}
                   </div>
 
@@ -209,18 +212,18 @@ const Students: React.FC = () => {
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="Gender"
                       id="Gender"
-                      value={values.Gender}
+                      value={values.gender}
                       onChange={handleChange}
                     >
                       <option value="" disabled>
-                        Select Gender
+                        Select gender
                       </option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
+                      <option value="0">Male</option>
+                      <option value="1">Female</option>
+                      <option value="2">Other</option>
                     </select>
-                    {errors.Gender && touched.Gender ? (
-                      <p className="text-red">{errors.Gender}</p>
+                    {errors.gender && touched.gender ? (
+                      <p className="text-red">{errors.gender}</p>
                     ) : null}
                   </div>
                   <div className="w-full xl:w-1/3">
@@ -231,17 +234,17 @@ const Students: React.FC = () => {
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="MaritalStatus"
                       id="MaritalStatus"
-                      value={values.MaritalStatus}
+                      value={values.maritalStatus}
                       onChange={handleChange}
                     >
                       <option value="" disabled>
                         Select Marital Status
                       </option>
-                      <option value="Married">Married</option>
-                      <option value="Unmarried">Unmarried</option>
+                      <option value="0">Married</option>
+                      <option value="1">Unmarried</option>
                     </select>
-                    {errors.MaritalStatus && touched.MaritalStatus ? (
-                      <p className="text-red">{errors.MaritalStatus}</p>
+                    {errors.maritalStatus && touched.maritalStatus ? (
+                      <p className="text-red">{errors.maritalStatus}</p>
                     ) : null}
                   </div>
                 </div>
@@ -255,14 +258,14 @@ const Students: React.FC = () => {
                       type="text"
                       placeholder="Enter your Address"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Address"
-                      id="Address"
-                      value={values.Address}
+                      name="address"
+                      id="address"
+                      value={values.address}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.Address && touched.Address ? (
-                      <p className="text-red">{errors.Address}</p>
+                    {errors.address && touched.address ? (
+                      <p className="text-red">{errors.address}</p>
                     ) : null}
                   </div>
 
@@ -270,34 +273,54 @@ const Students: React.FC = () => {
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Joining Date
                     </label>
-                    <input
+                    {/* <input
                       className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                       placeholder="mm/dd/yyyy"
                       data-class="flatpickr-right"
-                      id="JoiningDate"
-                      name="JoiningDate"
-                      value={values.JoiningDate}
+                      id="joiningDate"
+                      name="joiningDate"
+                      value={values.joiningDate ? values.joiningDate.toISOString().substr(0, 10) : ''}
                       onChange={handleChange}
+                    /> */}
+                    <input
+                      type="text"
+                      placeholder="Enter your Joining Date formate:'yyyy-mm-dd'"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="joiningDate"
+                      id="joiningDate"
+                      value={values.joiningDate}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-                    {errors.Dob && touched.Dob ? (
-                      <p className="text-red">{errors.Dob.toString()}</p>
+                    {errors.joiningDate && touched.joiningDate ? (
+                      <p className="text-red">{errors.joiningDate}</p>
                     ) : null}
                   </div>
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Graduation Date
                     </label>
-                    <input
+                    {/* <input
                       className="form-datepicker w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 font-normal outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                       placeholder="mm/dd/yyyy"
                       data-class="flatpickr-right"
-                      id="GraduationDate"
-                      name="GraduationDate"
-                      value={values.GraduationDate}
+                      id="graduationDate"
+                      name="graduationDate"
+                      value={values.graduationDate ? values.graduationDate.toISOString().substr(0, 10) : ''}
                       onChange={handleChange}
+                    /> */}
+                    <input
+                      type="text"
+                      placeholder="Enter your Graduation Date formate:'yyyy-mm-dd'"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="graduationDate"
+                      id="graduationDate"
+                      value={values.graduationDate}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
                     />
-                    {errors.Dob && touched.Dob ? (
-                      <p className="text-red">{errors.Dob.toString()}</p>
+                    {errors.graduationDate && touched.graduationDate ? (
+                      <p className="text-red">{errors.graduationDate.toString()}</p>
                     ) : null}
                   </div>
                 </div>

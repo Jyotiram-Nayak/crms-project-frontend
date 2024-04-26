@@ -45,7 +45,7 @@ export const getUserProfile = createAsyncThunk('getUser', async () => {
         { headers: { Authorization: `Bearer ${userToken}`} }
         )
 		const data = await existingUser.data
-		return data.data
+		return data
 	} catch (error: any) {
 		
 		throw error?.response?.data
@@ -68,6 +68,29 @@ export const updateUserProfile = createAsyncThunk(
 	}
 )
 
+export const getAllUniversity = createAsyncThunk('getAllUniversity', async () => {
+	try {
+		const existingUser = await axios.get(`${BASE_URL}/Account/get-all-university`,
+        { headers: { Authorization: `Bearer ${userToken}`} }
+        )
+		const data = await existingUser.data
+		return data
+	} catch (error: any) {
+		throw error?.response?.data
+	}
+})
+
+export const getAllCompany = createAsyncThunk('getAllCompany', async () => {
+	try {
+		const existingUser = await axios.get(`${BASE_URL}/Account/get-all-company`,
+        { headers: { Authorization: `Bearer ${userToken}`} }
+        )
+		const data = await existingUser.data
+		return data
+	} catch (error: any) {
+		throw error?.response?.data
+	}
+})
 
 
 //user initial state
@@ -85,7 +108,6 @@ const UserSlice = createSlice({
 			state.user = null
 			state.error = null
 			deleteCookie('token')
-			deleteCookie('role')
 		},
 	},
 	extraReducers: (builder: any) => {

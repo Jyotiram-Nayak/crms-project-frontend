@@ -3,12 +3,40 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import { getUserProfile } from "@/lib/UserSlice/UserSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+
+interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  address: string;
+  role: string;
+  website: string;
+  image: string;
+  isApproved: boolean;
+  createOn: string;
+  updateOn: string | null;
+}
 
 const Profile = () => {
   const dispatch = useDispatch();
+  const [user, setUser] = useState<User | null>(null);
+  const fetchData = async () => {
+    try {
+      const response = await dispatch(getUserProfile());
+      console.log(response.payload.data); // This should contain the data from your API response
+      response.payload.data && setUser(response.payload.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <DefaultLayout>
@@ -116,9 +144,9 @@ const Profile = () => {
             </div>
             <div className="mt-4">
               <h3 className="mb-1.5 text-2xl font-semibold text-black dark:text-white">
-                Danish Heilium
+                {user?.firstName}
               </h3>
-              <p className="font-medium">Ui/Ux Designer</p>
+              <p className="font-medium">{user?.role.toUpperCase()}</p>
               <div className="mx-auto mb-5.5 mt-4.5 grid max-w-94 grid-cols-3 rounded-md border border-stroke py-2.5 shadow-1 dark:border-strokedark dark:bg-[#37404F]">
                 <div className="flex flex-col items-center justify-center gap-1 border-r border-stroke px-4 dark:border-strokedark xsm:flex-row">
                   <span className="font-semibold text-black dark:text-white">

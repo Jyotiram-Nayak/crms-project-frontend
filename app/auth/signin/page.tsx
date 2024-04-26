@@ -4,18 +4,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { useFormik } from "formik";
 import { loginSchema } from "@/schema";
-import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
+import { useRouter } from "next/navigation";
+import { ToastContainer } from "react-toastify";
 import { userLogin } from "@/lib/UserSlice/UserSlice";
+import { ToastError, ToastSuccess } from "@/components/ToastMessage/ToastMessage";
 
 interface FormValues {
-  Email: string;
-  Password: string;
+  email: string;
+  password: string;
 }
 
 const initialValues: FormValues = {
-  Email: "",
-  Password: "",
+  email: "",
+  password: "",
 };
 const page: React.FC = () => {
   const dispatch = useDispatch();
@@ -24,16 +26,24 @@ const page: React.FC = () => {
     useFormik<FormValues>({
       initialValues: initialValues,
       validationSchema: loginSchema,
-      onSubmit: async (values: FormValues, { resetForm }) => {
+      onSubmit: async (values: FormValues) => {
         console.log("Form values", values);
-        dispatch(userLogin(values));
-        resetForm();
+        const response =await dispatch(userLogin(values));
+        console.log(response);
+        
+        if(response.payload.success){
+          route.push("/")
+          ToastSuccess(response.payload?.message)
+        }else if(!response.payload.success){
+          ToastError(response.error.message)
+        }
       },
     });
   console.log(errors);
 
   return (
     <>
+    <ToastContainer/>
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center h-screen">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -195,21 +205,21 @@ const page: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Email
+                    email
                   </label>
                   <div className="relative">
                     <input
-                      type="Email"
-                      placeholder="Enter your Email"
+                      type="email"
+                      placeholder="Enter your email"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Email"
-                      id="Email"
-                      value={values.Email}
+                      name="email"
+                      id="email"
+                      value={values.email}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.Email && touched.Email ? (
-                      <p className="text-red">{errors.Email}</p>
+                    {errors.email && touched.email ? (
+                      <p className="text-red">{errors.email}</p>
                     ) : null}
                     <span className="absolute right-4 top-4">
                       <svg
@@ -233,21 +243,21 @@ const page: React.FC = () => {
 
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Password
+                    password
                   </label>
                   <div className="relative">
                     <input
-                      type="Password"
-                      placeholder="Enter your Password"
+                      type="password"
+                      placeholder="Enter your password"
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Password"
-                      id="Password"
-                      value={values.Password}
+                      name="password"
+                      id="password"
+                      value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
                     />
-                    {errors.Password && touched.Password ? (
-                      <p className="text-red">{errors.Password}</p>
+                    {errors.password && touched.password ? (
+                      <p className="text-red">{errors.password}</p>
                     ) : null}
                     <span className="absolute right-4 top-4">
                       <svg
