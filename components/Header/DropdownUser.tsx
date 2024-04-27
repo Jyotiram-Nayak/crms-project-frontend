@@ -14,6 +14,7 @@ const DropdownUser = () => {
   const handleLogout =async () => {
     await dispatch(logout());
     route.push('/auth/signin');
+    console.log("logout")
   };
   // close on click outside
   useEffect(() => {

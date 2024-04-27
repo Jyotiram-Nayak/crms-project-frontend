@@ -35,6 +35,20 @@ export const fetchAllStudent = createAsyncThunk(
   }
 );
 
+export const deleteStudent = createAsyncThunk(
+  "deleteStudent",
+  async (studentId:string) => {
+    try {
+      const deleteStudent = await axios.delete(`${BASE_URL}/Student/delete-student/${studentId}`,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return deleteStudent.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
 //user initial state
 const initialState = {
   student: [],
@@ -69,7 +83,18 @@ const StudentSlice = createSlice({
       .addCase(fetchAllStudent.rejected, (state: any, action: any) => {
         state.status = "failed";
         state.error = action.error.message;
-      });
+      })
+      .addCase(deleteStudent.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(deleteStudent.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(deleteStudent.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
   },
 });
 

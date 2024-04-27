@@ -12,7 +12,8 @@ export const addApplication = createAsyncThunk(
   async (universityId: string) => {
     try {
       const createApplication = await axios.post(
-        `${BASE_URL}/application/add-application/${universityId}`, null,
+        `${BASE_URL}/application/add-application/${universityId}`,
+        null,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
       return createApplication.data;
@@ -26,10 +27,45 @@ export const fetchAllApplication = createAsyncThunk(
   "fetchAllApplication",
   async () => {
     try {
-      const getApplication = await axios.get(`${BASE_URL}/application/get-all-applications/`,
+      const getApplication = await axios.get(
+        `${BASE_URL}/application/get-all-applications/`,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
       return getApplication.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
+export const approveApplication = createAsyncThunk(
+  "approveApplication",
+  async (applicationId: string) => {
+    try {
+      const approveApplication = await axios.put(
+        `${BASE_URL}/application/approve/${applicationId}`,
+        null,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      const data = approveApplication.data;
+      console.log(data);
+      return data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
+export const rejectApplication = createAsyncThunk(
+  "rejectApplication",
+  async (applicationId: string) => {
+    try {
+      const rejectApplication = await axios.put(
+        `${BASE_URL}/application/reject/${applicationId}`,
+        null,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return rejectApplication.data;
     } catch (error: any) {
       throw error.response.data;
     }
@@ -71,6 +107,28 @@ const AppicationSlice = createSlice({
         state.status = "failed";
         state.error = action.error.message;
       })
+      .addCase(approveApplication.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(approveApplication.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(approveApplication.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(rejectApplication.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(rejectApplication.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(rejectApplication.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      });
   },
 });
 

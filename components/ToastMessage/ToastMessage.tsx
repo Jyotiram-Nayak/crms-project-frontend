@@ -6,14 +6,15 @@ export const ToastError = (error: string) => {
   return (
     <>
       {toast.error(error, {
-        position: "top-center",
-        autoClose: 3000,
+        position: "bottom-right",
+        autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
         theme: "colored",
+        transition: Bounce,
       })}
     </>
   );
@@ -23,15 +24,15 @@ export const ToastSuccess = (message: string) => {
   return (
     <>
       {toast.success(message, {
-        position: "top-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
+       position: "bottom-right",
+       autoClose: 3000,
+       hideProgressBar: false,
+       closeOnClick: true,
+       pauseOnHover: true,
+       draggable: true,
+       progress: undefined,
+       theme: "colored",
+       transition: Bounce,
       })}
     </>
   );

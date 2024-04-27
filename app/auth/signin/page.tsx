@@ -6,9 +6,11 @@ import { useFormik } from "formik";
 import { loginSchema } from "@/schema";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { ToastContainer } from "react-toastify";
 import { userLogin } from "@/lib/UserSlice/UserSlice";
-import { ToastError, ToastSuccess } from "@/components/ToastMessage/ToastMessage";
+import {
+  ToastError,
+  ToastSuccess,
+} from "@/components/ToastMessage/ToastMessage";
 
 interface FormValues {
   email: string;
@@ -28,22 +30,20 @@ const page: React.FC = () => {
       validationSchema: loginSchema,
       onSubmit: async (values: FormValues) => {
         console.log("Form values", values);
-        const response =await dispatch(userLogin(values));
-        console.log(response);
-        
-        if(response.payload.success){
-          route.push("/")
-          ToastSuccess(response.payload?.message)
-        }else if(!response.payload.success){
-          ToastError(response.error.message)
+        const response = await dispatch(userLogin(values));
+        console.log("Response :", response);
+
+        if (response.payload.success) {
+          route.push("/");
+          ToastSuccess(response.payload?.message);
+        } else if (response.error.message) {
+          ToastError(response.error.message || "An error occurred.");
         }
       },
     });
-  console.log(errors);
 
   return (
     <>
-    <ToastContainer/>
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center h-screen">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -205,7 +205,7 @@ const page: React.FC = () => {
               <form onSubmit={handleSubmit}>
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    email
+                    Email
                   </label>
                   <div className="relative">
                     <input
@@ -243,7 +243,7 @@ const page: React.FC = () => {
 
                 <div className="mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    password
+                    Password
                   </label>
                   <div className="relative">
                     <input

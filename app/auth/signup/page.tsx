@@ -7,29 +7,42 @@ import { signUpSchema } from "@/schema";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { userRegister } from "@/lib/UserSlice/UserSlice";
+import {
+  ToastError,
+  ToastSuccess,
+} from "@/components/ToastMessage/ToastMessage";
+import { ToastContainer } from "react-toastify";
 
-interface FormValues {
-  FirstName: string;
-  LastName: string;
-  Email: string;
-  Password: string;
-  ConfirmPassword: string;
-  Address: string;
-  Website: string;
-  Image?: string;
-  Role: string;
+interface SignUpValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  confirmPassword: string;
+  address: string;
+  city: string;
+  state: string;
+  website?: string;
+  bio?: string;
+  image?: string;
+  role: string;
 }
 
-const initialValues: FormValues = {
-  FirstName: "",
-  LastName: "",
-  Email: "",
-  Password: "",
-  ConfirmPassword: "",
-  Address: "",
-  Website: "",
-  Image: "",
-  Role: "",
+const initialValues: SignUpValues = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phoneNumber: "",
+  password: "",
+  confirmPassword: "",
+  address: "",
+  city: "",
+  state: "",
+  website: undefined,
+  bio: undefined,
+  image: undefined,
+  role: "",
 };
 
 // Convert a file to base64 string
@@ -40,14 +53,13 @@ const toBase64 = (file: File) => {
     fileReader.onload = () => {
       resolve(fileReader.result);
     };
-
     fileReader.onerror = (error) => {
       reject(error);
     };
   });
 };
 
-const page: React.FC  = () => {
+const page: React.FC = () => {
   const dispatch = useDispatch();
   const [file, setFile] = useState<File | null>(null);
 
@@ -66,23 +78,33 @@ const page: React.FC  = () => {
   };
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
-    useFormik<FormValues>({
+    useFormik<SignUpValues>({
       initialValues,
       validationSchema: signUpSchema,
-      onSubmit: async (values: FormValues, { resetForm }) => {
+      onSubmit: async (values: SignUpValues, { resetForm }) => {
         console.log("form values", values);
-        if(values.Image){
-          const base64 = await toBase64(file as File);
-          setBase64(base64 as string);
+        // if (values.image) {
+        //   const base64:string = await toBase64(file as File);
+        //   console.log(base64);
+        //   setBase64(base64 as string);
+        //   values.image = base64;
+        // }
+        const response = await dispatch(userRegister(values));
+        console.log(response);
+
+        if (response.payload.success) {
+          ToastSuccess(response.payload.success);
         }
-        console.log("Form values", values);
-        dispatch(userRegister(values));
+        if (response?.error?.message) {
+          ToastError(response?.payload?.error);
+        }
         resetForm();
       },
     });
   console.log(errors);
   return (
     <>
+      <ToastContainer />
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center">
           <div className="hidden w-full xl:block xl:w-1/2">
@@ -251,14 +273,14 @@ const page: React.FC  = () => {
                         type="text"
                         placeholder="Enter your first name"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        name="FirstName"
-                        id="FirstName"
-                        value={values.FirstName}
+                        name="firstName"
+                        id="firstName"
+                        value={values.firstName}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
-                      {errors.FirstName && touched.FirstName ? (
-                        <p className="text-red">{errors.FirstName}</p>
+                      {errors.firstName && touched.firstName ? (
+                        <p className="text-red">{errors.firstName}</p>
                       ) : null}
                     </div>
                   </div>
@@ -272,138 +294,239 @@ const page: React.FC  = () => {
                         type="text"
                         placeholder="Enter your last name"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        name="LastName"
-                        id="LastName"
-                        value={values.LastName}
+                        name="lastName"
+                        id="lastName"
+                        value={values.lastName}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
-                      {errors.LastName && touched.LastName ? (
-                        <p className="text-red">{errors.LastName}</p>
+                      {errors.lastName && touched.lastName ? (
+                        <p className="text-red">{errors.lastName}</p>
                       ) : null}
                     </div>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Email
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      placeholder="Enter your Email"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Email"
-                      id="Email"
-                      value={values.Email}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                    {errors.Email && touched.Email ? (
-                      <p className="text-red">{errors.Email}</p>
-                    ) : null}
-                    <span className="absolute right-4 top-4">
-                      <svg
-                        className="fill-current"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 22 22"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g opacity="0.5">
-                          <path
-                            d="M19.2516 3.30005H2.75156C1.58281 3.30005 0.585938 4.26255 0.585938 5.46567V16.6032C0.585938 17.7719 1.54844 18.7688 2.75156 18.7688H19.2516C20.4203 18.7688 21.4172 17.8063 21.4172 16.6032V5.4313C21.4172 4.26255 20.4203 3.30005 19.2516 3.30005ZM19.2516 4.84692C19.2859 4.84692 19.3203 4.84692 19.3547 4.84692L11.0016 10.2094L2.64844 4.84692C2.68281 4.84692 2.71719 4.84692 2.75156 4.84692H19.2516ZM19.2516 17.1532H2.75156C2.40781 17.1532 2.13281 16.8782 2.13281 16.5344V6.35942L10.1766 11.5157C10.4172 11.6875 10.6922 11.7563 10.9672 11.7563C11.2422 11.7563 11.5172 11.6875 11.7578 11.5157L19.8016 6.35942V16.5688C19.8703 16.9125 19.5953 17.1532 19.2516 17.1532Z"
-                            fill=""
-                          />
-                        </g>
-                      </svg>
-                    </span>
+                <div className="grid grid-cols-2">
+                  <div className="mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Email
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        placeholder="Enter your Email"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="email"
+                        id="email"
+                        value={values.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.email && touched.email ? (
+                        <p className="text-red">{errors.email}</p>
+                      ) : null}
+                      <span className="absolute right-4 top-4">
+                        <svg
+                          className="fill-current"
+                          width="22"
+                          height="22"
+                          viewBox="0 0 22 22"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g opacity="0.5">
+                            <path
+                              d="M19.2516 3.30005H2.75156C1.58281 3.30005 0.585938 4.26255 0.585938 5.46567V16.6032C0.585938 17.7719 1.54844 18.7688 2.75156 18.7688H19.2516C20.4203 18.7688 21.4172 17.8063 21.4172 16.6032V5.4313C21.4172 4.26255 20.4203 3.30005 19.2516 3.30005ZM19.2516 4.84692C19.2859 4.84692 19.3203 4.84692 19.3547 4.84692L11.0016 10.2094L2.64844 4.84692C2.68281 4.84692 2.71719 4.84692 2.75156 4.84692H19.2516ZM19.2516 17.1532H2.75156C2.40781 17.1532 2.13281 16.8782 2.13281 16.5344V6.35942L10.1766 11.5157C10.4172 11.6875 10.6922 11.7563 10.9672 11.7563C11.2422 11.7563 11.5172 11.6875 11.7578 11.5157L19.8016 6.35942V16.5688C19.8703 16.9125 19.5953 17.1532 19.2516 17.1532Z"
+                              fill=""
+                            />
+                          </g>
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="ms-2 mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your Phone Number"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="phoneNumber"
+                        id="phoneNumber"
+                        value={values.phoneNumber}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.phoneNumber && touched.phoneNumber ? (
+                        <p className="text-red">{errors.phoneNumber}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2">
+                  <div className="mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="Password"
+                        placeholder="Enter your Password"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="password"
+                        id="password"
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.password && touched.password ? (
+                        <p className="text-red">{errors.password}</p>
+                      ) : null}
+                      <span className="absolute right-4 top-4">
+                        <svg
+                          className="fill-current"
+                          width="22"
+                          height="22"
+                          viewBox="0 0 22 22"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g opacity="0.5">
+                            <path
+                              d="M16.1547 6.80626V5.91251C16.1547 3.16251 14.0922 0.825009 11.4797 0.618759C10.0359 0.481259 8.59219 0.996884 7.52656 1.95938C6.46094 2.92188 5.84219 4.29688 5.84219 5.70626V6.80626C3.84844 7.18438 2.33594 8.93751 2.33594 11.0688V17.2906C2.33594 19.5594 4.19219 21.3813 6.42656 21.3813H15.5016C17.7703 21.3813 19.6266 19.525 19.6266 17.2563V11C19.6609 8.93751 18.1484 7.21876 16.1547 6.80626ZM8.55781 3.09376C9.31406 2.40626 10.3109 2.06251 11.3422 2.16563C13.1641 2.33751 14.6078 3.98751 14.6078 5.91251V6.70313H7.38906V5.67188C7.38906 4.70938 7.80156 3.78126 8.55781 3.09376ZM18.1141 17.2906C18.1141 18.7 16.9453 19.8688 15.5359 19.8688H6.46094C5.05156 19.8688 3.91719 18.7344 3.91719 17.325V11.0688C3.91719 9.52189 5.15469 8.28438 6.70156 8.28438H15.2953C16.8422 8.28438 18.1141 9.52188 18.1141 11V17.2906Z"
+                              fill=""
+                            />
+                            <path
+                              d="M10.9977 11.8594C10.5852 11.8594 10.207 12.2031 10.207 12.65V16.2594C10.207 16.6719 10.5508 17.05 10.9977 17.05C11.4102 17.05 11.7883 16.7063 11.7883 16.2594V12.6156C11.7883 12.2031 11.4102 11.8594 10.9977 11.8594Z"
+                              fill=""
+                            />
+                          </g>
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="ms-2 mb-6">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      Confirm Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        placeholder="Re-enter your password"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="confirmPassword"
+                        id="confirmPassword"
+                        value={values.confirmPassword}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.confirmPassword && touched.confirmPassword ? (
+                        <p className="text-red">{errors.confirmPassword}</p>
+                      ) : null}
+                      <span className="absolute right-4 top-4">
+                        <svg
+                          className="fill-current"
+                          width="22"
+                          height="22"
+                          viewBox="0 0 22 22"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <g opacity="0.5">
+                            <path
+                              d="M16.1547 6.80626V5.91251C16.1547 3.16251 14.0922 0.825009 11.4797 0.618759C10.0359 0.481259 8.59219 0.996884 7.52656 1.95938C6.46094 2.92188 5.84219 4.29688 5.84219 5.70626V6.80626C3.84844 7.18438 2.33594 8.93751 2.33594 11.0688V17.2906C2.33594 19.5594 4.19219 21.3813 6.42656 21.3813H15.5016C17.7703 21.3813 19.6266 19.525 19.6266 17.2563V11C19.6609 8.93751 18.1484 7.21876 16.1547 6.80626ZM8.55781 3.09376C9.31406 2.40626 10.3109 2.06251 11.3422 2.16563C13.1641 2.33751 14.6078 3.98751 14.6078 5.91251V6.70313H7.38906V5.67188C7.38906 4.70938 7.80156 3.78126 8.55781 3.09376ZM18.1141 17.2906C18.1141 18.7 16.9453 19.8688 15.5359 19.8688H6.46094C5.05156 19.8688 3.91719 18.7344 3.91719 17.325V11.0688C3.91719 9.52189 5.15469 8.28438 6.70156 8.28438H15.2953C16.8422 8.28438 18.1141 9.52188 18.1141 11V17.2906Z"
+                              fill=""
+                            />
+                            <path
+                              d="M10.9977 11.8594C10.5852 11.8594 10.207 12.2031 10.207 12.65V16.2594C10.207 16.6719 10.5508 17.05 10.9977 17.05C11.4102 17.05 11.7883 16.7063 11.7883 16.2594V12.6156C11.7883 12.2031 11.4102 11.8594 10.9977 11.8594Z"
+                              fill=""
+                            />
+                          </g>
+                        </svg>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="Password"
-                      placeholder="Enter your Password"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Password"
-                      id="Password"
-                      value={values.Password}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                    {errors.Password && touched.Password ? (
-                      <p className="text-red">{errors.Password}</p>
-                    ) : null}
-                    <span className="absolute right-4 top-4">
-                      <svg
-                        className="fill-current"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 22 22"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g opacity="0.5">
+                <div className="grid grid-cols-2">
+                  <div className="mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      State
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your State"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="state"
+                        id="state"
+                        value={values.state}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.state && touched.state ? (
+                        <p className="text-red">{errors.state}</p>
+                      ) : null}
+                      <span className="absolute right-4 top-4">
+                        <svg
+                          className="w-6 h-6 text-gray-800 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
                           <path
-                            d="M16.1547 6.80626V5.91251C16.1547 3.16251 14.0922 0.825009 11.4797 0.618759C10.0359 0.481259 8.59219 0.996884 7.52656 1.95938C6.46094 2.92188 5.84219 4.29688 5.84219 5.70626V6.80626C3.84844 7.18438 2.33594 8.93751 2.33594 11.0688V17.2906C2.33594 19.5594 4.19219 21.3813 6.42656 21.3813H15.5016C17.7703 21.3813 19.6266 19.525 19.6266 17.2563V11C19.6609 8.93751 18.1484 7.21876 16.1547 6.80626ZM8.55781 3.09376C9.31406 2.40626 10.3109 2.06251 11.3422 2.16563C13.1641 2.33751 14.6078 3.98751 14.6078 5.91251V6.70313H7.38906V5.67188C7.38906 4.70938 7.80156 3.78126 8.55781 3.09376ZM18.1141 17.2906C18.1141 18.7 16.9453 19.8688 15.5359 19.8688H6.46094C5.05156 19.8688 3.91719 18.7344 3.91719 17.325V11.0688C3.91719 9.52189 5.15469 8.28438 6.70156 8.28438H15.2953C16.8422 8.28438 18.1141 9.52188 18.1141 11V17.2906Z"
-                            fill=""
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeWidth="2"
+                            d="M4.37 7.657c2.063.528 2.396 2.806 3.202 3.87 1.07 1.413 2.075 1.228 3.192 2.644 1.805 2.289 1.312 5.705 1.312 6.705M20 15h-1a4 4 0 0 0-4 4v1M8.587 3.992c0 .822.112 1.886 1.515 2.58 1.402.693 2.918.351 2.918 2.334 0 .276 0 2.008 1.972 2.008 2.026.031 2.026-1.678 2.026-2.008 0-.65.527-.9 1.177-.9H20M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
                           />
-                          <path
-                            d="M10.9977 11.8594C10.5852 11.8594 10.207 12.2031 10.207 12.65V16.2594C10.207 16.6719 10.5508 17.05 10.9977 17.05C11.4102 17.05 11.7883 16.7063 11.7883 16.2594V12.6156C11.7883 12.2031 11.4102 11.8594 10.9977 11.8594Z"
-                            fill=""
-                          />
-                        </g>
-                      </svg>
-                    </span>
+                        </svg>
+                      </span>
+                    </div>
                   </div>
-                </div>
-
-                <div className="mb-6">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="password"
-                      placeholder="Re-enter your password"
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="ConfirmPassword"
-                      id="ConfirmPassword"
-                      value={values.ConfirmPassword}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
-                    {errors.ConfirmPassword && touched.ConfirmPassword ? (
-                      <p className="text-red">{errors.ConfirmPassword}</p>
-                    ) : null}
-                    <span className="absolute right-4 top-4">
-                      <svg
-                        className="fill-current"
-                        width="22"
-                        height="22"
-                        viewBox="0 0 22 22"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <g opacity="0.5">
+                  <div className="ms-2 mb-4">
+                    <label className="mb-2.5 block font-medium text-black dark:text-white">
+                      City
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Enter your City"
+                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        name="city"
+                        id="city"
+                        value={values.city}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
+                      {errors.city && touched.city ? (
+                        <p className="text-red">{errors.city}</p>
+                      ) : null}
+                      <span className="absolute right-4 top-4">
+                        <svg
+                          className="w-6 h-6 text-gray-800 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
                           <path
-                            d="M16.1547 6.80626V5.91251C16.1547 3.16251 14.0922 0.825009 11.4797 0.618759C10.0359 0.481259 8.59219 0.996884 7.52656 1.95938C6.46094 2.92188 5.84219 4.29688 5.84219 5.70626V6.80626C3.84844 7.18438 2.33594 8.93751 2.33594 11.0688V17.2906C2.33594 19.5594 4.19219 21.3813 6.42656 21.3813H15.5016C17.7703 21.3813 19.6266 19.525 19.6266 17.2563V11C19.6609 8.93751 18.1484 7.21876 16.1547 6.80626ZM8.55781 3.09376C9.31406 2.40626 10.3109 2.06251 11.3422 2.16563C13.1641 2.33751 14.6078 3.98751 14.6078 5.91251V6.70313H7.38906V5.67188C7.38906 4.70938 7.80156 3.78126 8.55781 3.09376ZM18.1141 17.2906C18.1141 18.7 16.9453 19.8688 15.5359 19.8688H6.46094C5.05156 19.8688 3.91719 18.7344 3.91719 17.325V11.0688C3.91719 9.52189 5.15469 8.28438 6.70156 8.28438H15.2953C16.8422 8.28438 18.1141 9.52188 18.1141 11V17.2906Z"
-                            fill=""
+                            fillRule="evenodd"
+                            d="M11.906 1.994a8.002 8.002 0 0 1 8.09 8.421 7.996 7.996 0 0 1-1.297 3.957.996.996 0 0 1-.133.204l-.108.129c-.178.243-.37.477-.573.699l-5.112 6.224a1 1 0 0 1-1.545 0L5.982 15.26l-.002-.002a18.146 18.146 0 0 1-.309-.38l-.133-.163a.999.999 0 0 1-.13-.202 7.995 7.995 0 0 1 6.498-12.518ZM15 9.997a3 3 0 1 1-5.999 0 3 3 0 0 1 5.999 0Z"
+                            clipRule="evenodd"
                           />
-                          <path
-                            d="M10.9977 11.8594C10.5852 11.8594 10.207 12.2031 10.207 12.65V16.2594C10.207 16.6719 10.5508 17.05 10.9977 17.05C11.4102 17.05 11.7883 16.7063 11.7883 16.2594V12.6156C11.7883 12.2031 11.4102 11.8594 10.9977 11.8594Z"
-                            fill=""
-                          />
-                        </g>
-                      </svg>
-                    </span>
+                        </svg>
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -415,16 +538,16 @@ const page: React.FC  = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your full name"
+                        placeholder="Enter your Address"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        name="Address"
-                        id="Address"
-                        value={values.Address}
+                        name="address"
+                        id="address"
+                        value={values.address}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
-                      {errors.Address && touched.Address ? (
-                        <p className="text-red">{errors.Address}</p>
+                      {errors.address && touched.address ? (
+                        <p className="text-red">{errors.address}</p>
                       ) : null}
                       <span className="absolute right-4 top-4">
                         <svg
@@ -453,16 +576,16 @@ const page: React.FC  = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your full name"
+                        placeholder="Enter your Website Url"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        name="Website"
-                        id="Website"
-                        value={values.Website}
+                        name="website"
+                        id="website"
+                        value={values.website}
                         onChange={handleChange}
                         onBlur={handleBlur}
                       />
-                      {errors.Website && touched.Website ? (
-                        <p className="text-red">{errors.Website}</p>
+                      {errors.website && touched.website ? (
+                        <p className="text-red">{errors.website}</p>
                       ) : null}
                       <span className="absolute right-4 top-4">
                         <svg
@@ -485,6 +608,7 @@ const page: React.FC  = () => {
                     </div>
                   </div>
                 </div>
+
                 <div className="ms-2 mb-4">
                   <label className="mb-2.5 block font-medium text-black dark:text-white">
                     Image
@@ -494,14 +618,14 @@ const page: React.FC  = () => {
                       type="file"
                       placeholder="Plese select an Image"
                       className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                      name="Image"
-                      id="Image"
-                      value={values.Image}
+                      name="image"
+                      id="image"
+                      value={values.image}
                       onChange={onFileChange}
                       onClick={onClick}
                     />
-                    {errors.Image && touched.Image ? (
-                      <p className="text-red">{errors.Image}</p>
+                    {errors.image && touched.image ? (
+                      <p className="text-red">{errors.image}</p>
                     ) : null}
                     <span className="absolute right-4 top-4">
                       {base64 ? (
@@ -540,9 +664,9 @@ const page: React.FC  = () => {
                   <div className="relative">
                     <select
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Role"
-                      id="Role"
-                      value={values.Role}
+                      name="role"
+                      id="role"
+                      value={values.role}
                       onChange={handleChange}
                     >
                       <option value="" disabled>
@@ -551,8 +675,8 @@ const page: React.FC  = () => {
                       <option value="collage">Collage</option>
                       <option value="company">Company</option>
                     </select>
-                    {errors.Role && touched.Role ? (
-                      <p className="text-red">{errors.Role}</p>
+                    {errors.role && touched.role ? (
+                      <p className="text-red">{errors.role}</p>
                     ) : null}
                     <span className="absolute right-4 top-4">
                       <svg

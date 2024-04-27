@@ -9,6 +9,10 @@ import Link from "next/link";
 import { addApplication } from "@/lib/ApplicationSlice/ApplicationSlice";
 import { log } from "console";
 import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
+import {
+  ToastError,
+  ToastSuccess,
+} from "@/components/ToastMessage/ToastMessage";
 
 interface User {
   id: string;
@@ -16,6 +20,8 @@ interface User {
   lastName: string;
   email: string;
   address: string;
+  city: string;
+  state: string;
   role: string;
   website: string;
   image: string;
@@ -42,15 +48,17 @@ const UniversityTable: React.FC = () => {
     fetchData();
   }, []); // Run once on component mount
 
-  const apply = async (universityId:string) => {
+  const apply = async (universityId: string) => {
     try {
-      console.log(universityId)
+      console.log(universityId);
       const response = await dispatch(addApplication(universityId));
       console.log(response);
-      
-    } catch (error) {
-      
-    }
+      if (response.payload.success) {
+        ToastSuccess(response.payload?.message);
+      } else {
+        ToastError(response.payload?.message);
+      }
+    } catch (error) {}
   };
   // console.log(students)
   return (
@@ -64,7 +72,7 @@ const UniversityTable: React.FC = () => {
                 University Table
               </h3>
               {/* <Addbutton path="./student-form/" text="Add Student" /> */}
-              <Displaybutton path="application" text="All Applications"/>
+              <Displaybutton path="application" text="All Applications" />
             </div>
             <div className="max-w-full overflow-x-auto">
               <table className="w-full table-auto">
@@ -73,14 +81,20 @@ const UniversityTable: React.FC = () => {
                     <th className="px-4 py-4 font-medium text-black dark:text-white">
                       #Sr.No
                     </th>
-                    <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white">
+                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Name
                     </th>
-                    <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Email
                     </th>
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Address
+                    </th>
+                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                      City
+                    </th>
+                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                      State
                     </th>
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Website
@@ -94,7 +108,7 @@ const UniversityTable: React.FC = () => {
                   {universitys.map((university, index) => (
                     <tr key={index}>
                       <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark">
-                        <p className="text-sm">{index+1}</p>
+                        <p className="text-sm">{index + 1}</p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
@@ -113,7 +127,22 @@ const UniversityTable: React.FC = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {university.website}
+                          {university.city}
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                        <p className="text-black dark:text-white">
+                          {university.state}
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                        <p className="text-black dark:text-white">
+                          <Link
+                            href={university.website}
+                            className="text-blue-500 dark:text-blue-300 hover:underline"
+                          >
+                            visit website
+                          </Link>
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
@@ -121,8 +150,10 @@ const UniversityTable: React.FC = () => {
                           <Link
                             href="#"
                             className="bg-primary font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
-                            onClick={()=>apply(university.id)}
-                          >Apply</Link>
+                            onClick={() => apply(university.id)}
+                          >
+                            Apply
+                          </Link>
                         </p>
                       </td>
                     </tr>
