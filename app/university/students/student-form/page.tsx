@@ -8,6 +8,7 @@ import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
 import { useDispatch } from "react-redux";
 import { addStudent } from "@/lib/StudentSlice/StudentSlice";
 import { studentSchema } from "@/schema";
+import { ToastError, ToastSuccess } from "@/components/ToastMessage/ToastMessage";
 
 interface FormValues {
   firstName: string;
@@ -51,7 +52,12 @@ const Students: React.FC = () => {
         console.log("form values", values);
         const response =await dispatch(addStudent(values));
         console.log(response)
-        resetForm();
+        if (response.payload?.success) {
+          ToastSuccess(response.payload?.message);
+          resetForm();
+        } else if (response.error?.message) {
+          ToastError(response.error?.message || "An error occurred.");
+        }
       },
     });
   console.log(errors);
@@ -210,8 +216,8 @@ const Students: React.FC = () => {
                     </label>
                     <select
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="Gender"
-                      id="Gender"
+                      name="gender"
+                      id="gender"
                       value={values.gender}
                       onChange={handleChange}
                     >
@@ -232,8 +238,8 @@ const Students: React.FC = () => {
                     </label>
                     <select
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                      name="MaritalStatus"
-                      id="MaritalStatus"
+                      name="maritalStatus"
+                      id="maritalStatus"
                       value={values.maritalStatus}
                       onChange={handleChange}
                     >

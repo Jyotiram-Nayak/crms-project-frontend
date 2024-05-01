@@ -33,10 +33,10 @@ const page: React.FC = () => {
         const response = await dispatch(userLogin(values));
         console.log("Response :", response);
 
-        if (response.payload.success) {
-          route.push("/");
+        if (response.payload?.success) {
           ToastSuccess(response.payload?.message);
-        } else if (response.error.message) {
+          route.push("/");
+        } else if (response.error?.message) {
           ToastError(response.error.message || "An error occurred.");
         }
       },

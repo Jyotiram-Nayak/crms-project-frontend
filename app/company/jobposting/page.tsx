@@ -1,11 +1,12 @@
-import UniversityTable from "@/components/Pages/UniversityTable";
+import JobPoasting from "@/components/Pages/JobPosting";
 import React from "react";
 
 const page = () => {
   return (
     <>
-      <UniversityTable />
+      <JobPoasting />
     </>
   );
 };
+
 export default page;

@@ -72,6 +72,22 @@ export const rejectApplication = createAsyncThunk(
   }
 );
 
+export const fetchAllUniversity = createAsyncThunk(
+  "fetchAllUniversity",
+  async () => {
+    try {
+      const universitys = await axios.get(
+        `${BASE_URL}/application/get-approved-universitys/`,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return universitys.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
+
 //user initial state
 const initialState = {
   application: [],
@@ -126,6 +142,17 @@ const AppicationSlice = createSlice({
         state.status = "succeeded";
       })
       .addCase(rejectApplication.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchAllUniversity.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchAllUniversity.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(fetchAllUniversity.rejected, (state: any, action: any) => {
         state.status = "failed";
         state.error = action.error.message;
       });

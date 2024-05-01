@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import Link from "next/link";
 import {
-  addApplication,
   approveApplication,
   fetchAllApplication,
   rejectApplication,
@@ -47,7 +46,7 @@ const ApplicationTable = () => {
       console.error("Error fetching data:", error);
     }
   };
-
+  const token = getCookie("token");
   const onApproveReject = async (
     applicationId: string,
     status: number,

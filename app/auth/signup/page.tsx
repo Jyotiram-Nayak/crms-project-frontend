@@ -12,6 +12,8 @@ import {
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
 import { ToastContainer } from "react-toastify";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/firebase/firebase";
 
 interface SignUpValues {
   firstName: string;
@@ -45,26 +47,9 @@ const initialValues: SignUpValues = {
   role: "",
 };
 
-// Convert a file to base64 string
-const toBase64 = (file: File) => {
-  return new Promise((resolve, reject) => {
-    const fileReader = new FileReader();
-    fileReader.readAsDataURL(file);
-    fileReader.onload = () => {
-      resolve(fileReader.result);
-    };
-    fileReader.onerror = (error) => {
-      reject(error);
-    };
-  });
-};
-
 const page: React.FC = () => {
   const dispatch = useDispatch();
   const [file, setFile] = useState<File | null>(null);
-
-  // State to store the base64
-  const [base64, setBase64] = useState<string | null>(null);
 
   // When the file is selected, set the file state
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,9 +57,28 @@ const page: React.FC = () => {
       return;
     }
     setFile(e.target.files[0]);
+    console.log("file set" + file);
   };
   const onClick = (e: React.MouseEvent<HTMLInputElement>) => {
     e.currentTarget.value = "";
+  };
+
+  //function to upload an image in firebase
+  const uploadImage = async () => {
+    if (file == null) return;
+    const randomId = Math.random().toString(36).substring(2);
+    const fileExtension = file.name.split(".").pop();
+    const imagePath = `image/${randomId}.${fileExtension}`;
+    const imageRef = ref(storage, imagePath);
+    try {
+      await uploadBytes(imageRef, file);
+      console.log("imgae uploaded");
+      const downloadURL = await getDownloadURL(imageRef);
+      values.image = downloadURL;
+      console.log("Image URL:", downloadURL);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
   };
 
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
@@ -83,20 +87,14 @@ const page: React.FC = () => {
       validationSchema: signUpSchema,
       onSubmit: async (values: SignUpValues, { resetForm }) => {
         console.log("form values", values);
-        // if (values.image) {
-        //   const base64:string = await toBase64(file as File);
-        //   console.log(base64);
-        //   setBase64(base64 as string);
-        //   values.image = base64;
-        // }
+        uploadImage();
         const response = await dispatch(userRegister(values));
         console.log(response);
 
-        if (response.payload.success) {
-          ToastSuccess(response.payload.success);
-        }
-        if (response?.error?.message) {
-          ToastError(response?.payload?.error);
+        if (response.payload?.success) {
+          ToastSuccess(response.payload?.message);
+        } else if (response.error?.message) {
+          ToastError(response.error.message || "An error occurred.");
         }
         resetForm();
       },
@@ -292,8 +290,8 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your last name"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        placeholder="Enter your last name"
                         name="lastName"
                         id="lastName"
                         value={values.lastName}
@@ -315,8 +313,8 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="email"
-                        placeholder="Enter your Email"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        placeholder="Enter your Email"
                         name="email"
                         id="email"
                         value={values.email}
@@ -352,8 +350,8 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your Phone Number"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        placeholder="Enter your Phone Number"
                         name="phoneNumber"
                         id="phoneNumber"
                         value={values.phoneNumber}
@@ -460,8 +458,8 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your State"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        placeholder="Enter your State"
                         name="state"
                         id="state"
                         value={values.state}
@@ -498,8 +496,8 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your City"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        placeholder="Enter your City"
                         name="city"
                         id="city"
                         value={values.city}
@@ -538,8 +536,8 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your Address"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        placeholder="Enter your Address"
                         name="address"
                         id="address"
                         value={values.address}
@@ -576,8 +574,8 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="Enter your Website Url"
                         className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        placeholder="Enter your Website Url"
                         name="website"
                         id="website"
                         value={values.website}
@@ -616,11 +614,10 @@ const page: React.FC = () => {
                   <div className="relative">
                     <input
                       type="file"
-                      placeholder="Plese select an Image"
                       className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                      name="image"
-                      id="image"
-                      value={values.image}
+                      placeholder="Plese select an Image"
+                      name="file"
+                      id="file"
                       onChange={onFileChange}
                       onClick={onClick}
                     />
@@ -628,32 +625,23 @@ const page: React.FC = () => {
                       <p className="text-red">{errors.image}</p>
                     ) : null}
                     <span className="absolute right-4 top-4">
-                      {base64 ? (
-                        <Image
-                          src={base64}
-                          width={100}
-                          height={100}
-                          alt="Uploaded Image"
+                      <svg
+                        className="w-6 h-6 text-gray-800 dark:text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
                         />
-                      ) : (
-                        <svg
-                          className="w-6 h-6 text-gray-800 dark:text-white"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="m3 16 5-7 6 6.5m6.5 2.5L16 13l-4.286 6M14 10h.01M4 19h16a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1Z"
-                          />
-                        </svg>
-                      )}
+                      </svg>
                     </span>
                   </div>
                 </div>

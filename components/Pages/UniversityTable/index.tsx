@@ -53,10 +53,10 @@ const UniversityTable: React.FC = () => {
       console.log(universityId);
       const response = await dispatch(addApplication(universityId));
       console.log(response);
-      if (response.payload.success) {
+      if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-      } else {
-        ToastError(response.payload?.message);
+      } else if (response.error?.message) {
+        ToastError(response.error.message || "An error occurred.");
       }
     } catch (error) {}
   };
@@ -138,6 +138,7 @@ const UniversityTable: React.FC = () => {
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
                           <Link
+                            target="blanck"
                             href={university.website}
                             className="text-blue-500 dark:text-blue-300 hover:underline"
                           >

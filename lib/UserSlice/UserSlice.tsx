@@ -61,9 +61,12 @@ export const updateUserProfile = createAsyncThunk(
   "updateUserProfile",
   async (updatedata: object) => {
     try {
-      const existingUser = await axios.patch("/user/update", updatedata);
-      const data = await existingUser.data;
+      const existingUser = await axios.put(
+        `${BASE_URL}/Account/update-user`,updatedata,
 
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      const data = await existingUser.data;
       return data;
     } catch (error: any) {
       throw error?.response?.data;
