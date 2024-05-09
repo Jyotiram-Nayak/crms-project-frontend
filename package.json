@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.3",
+    "@zegocloud/zego-uikit-prebuilt": "^2.0.1",
     "apexcharts": "^3.45.2",
     "axios": "^1.6.8",
     "cookies-next": "^4.1.1",

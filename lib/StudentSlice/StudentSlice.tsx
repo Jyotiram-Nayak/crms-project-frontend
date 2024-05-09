@@ -35,6 +35,36 @@ export const fetchAllStudent = createAsyncThunk(
   }
 );
 
+export const fetchStudentById = createAsyncThunk(
+  "fetchStudentById",
+  async (studentId:string) => {
+    try {
+      const student = await axios.get(`${BASE_URL}/Student/get-student-details/${studentId}`,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return student.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
+export const updateStudent = createAsyncThunk(
+  "updateStudent",
+  async ({studentId, val} :{studentId:string, val:object} ) => {
+    console.log(val);
+    try {
+      const student = await axios.put(`${BASE_URL}/Student/update-student/${studentId}`,val,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      console.log(student.data);
+      return student.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
 export const deleteStudent = createAsyncThunk(
   "deleteStudent",
   async (studentId:string) => {
@@ -75,12 +105,37 @@ const StudentSlice = createSlice({
       })
       .addCase(fetchAllStudent.pending, (state: any) => {
         state.status = "loading";
+        state.student = null;
         state.error = null;
       })
       .addCase(fetchAllStudent.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
+        console.log("<<<", action.payload.data)
+        state.student = action.payload.data
       })
       .addCase(fetchAllStudent.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchStudentById.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchStudentById.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(fetchStudentById.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(updateStudent.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(updateStudent.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(updateStudent.rejected, (state: any, action: any) => {
         state.status = "failed";
         state.error = action.error.message;
       })
@@ -90,6 +145,7 @@ const StudentSlice = createSlice({
       })
       .addCase(deleteStudent.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
+        state.student = state.student.filter((student:any) => student.userId !== action.payload);
       })
       .addCase(deleteStudent.rejected, (state: any, action: any) => {
         state.status = "failed";

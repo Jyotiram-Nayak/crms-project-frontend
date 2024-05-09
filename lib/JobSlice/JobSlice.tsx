@@ -38,6 +38,21 @@ export const fetchAllJob = createAsyncThunk(
   }
 );
 
+export const fetchAllJobByUniversityId = createAsyncThunk(
+  "fetchAllJobByUniversityId",
+  async (universityId:string) => {
+    try {
+      const getjob = await axios.get(
+        `${BASE_URL}/job/get-all-jobs-by-university/${universityId}`,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return getjob.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
 export const approveJob = createAsyncThunk(
   "approveJob",
   async (jobId: string) => {
@@ -98,10 +113,13 @@ const JobSlice = createSlice({
       })
       .addCase(fetchAllJob.pending, (state: any) => {
         state.status = "loading";
+        state.job = null;
         state.error = null;
       })
       .addCase(fetchAllJob.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
+        console.log("<<<", action.payload.data)
+        state.job = {...action.payload.data}
       })
       .addCase(fetchAllJob.rejected, (state: any, action: any) => {
         state.status = "failed";
@@ -126,6 +144,19 @@ const JobSlice = createSlice({
         state.status = "succeeded";
       })
       .addCase(rejectjob.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(fetchAllJobByUniversityId.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(fetchAllJobByUniversityId.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+        // console.log("<<<", action.payload.data)
+        state.job = action.payload.data;
+      })
+      .addCase(fetchAllJobByUniversityId.rejected, (state: any, action: any) => {
         state.status = "failed";
         state.error = action.error.message;
       })

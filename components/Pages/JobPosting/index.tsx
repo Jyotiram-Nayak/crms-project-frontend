@@ -1,5 +1,6 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import MultiSelect from "@/components/FormElements/MultiSelect/MultiSelect";
 import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import {
@@ -7,16 +8,18 @@ import {
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
 import { storage } from "@/firebase/firebase";
-import { fetchAllUniversity } from "@/lib/ApplicationSlice/ApplicationSlice";
 import { addJob } from "@/lib/JobSlice/JobSlice";
+import { getAllUniversity } from "@/lib/UserSlice/UserSlice";
 import { jobSchema } from "@/schema";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 interface FormValues {
   universityId: string;
+  courses: number[];
   title: string;
   description: string;
   deadline: string;
@@ -25,6 +28,7 @@ interface FormValues {
 
 const initialValues: FormValues = {
   universityId: "",
+  courses: [],
   title: "",
   description: "",
   deadline: "",
@@ -32,24 +36,22 @@ const initialValues: FormValues = {
 };
 
 interface University {
-  universityId: string;
-  fullName: string;
+  id: string;
+  firstName: string;
+  lastName: string;
 }
 
 const JobPoasting = () => {
   const dispatch = useDispatch();
   const [file, setFile] = useState<File | null>(null);
   const [universities, setUniversities] = useState<University[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
 
-  // When the file is selected, set the file state
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
       return;
     }
     setFile(e.target.files[0]);
-  };
-  const onClick = (e: React.MouseEvent<HTMLInputElement>) => {
-    e.currentTarget.value = "";
   };
 
   //function to upload an image in firebase
@@ -57,20 +59,21 @@ const JobPoasting = () => {
     if (file == null) return;
     const randomId = Math.random().toString(36).substring(2);
     const fileExtension = file.name.split(".").pop();
-    const imagePath = `image/${randomId}.${fileExtension}`;
+    const imagePath = `jobpost-pdf/${randomId}.${fileExtension}`;
     const imageRef = ref(storage, imagePath);
     try {
       await uploadBytes(imageRef, file);
-      console.log("imgae uploaded");
+      console.log("pdf uploaded");
       const downloadURL = await getDownloadURL(imageRef);
       if (downloadURL != null) {
-        console.log("Image URL:", downloadURL);
+        console.log("pdf URL:", downloadURL);
         values.document = downloadURL;
-        ToastSuccess("Image Uploaded successfully.");
+        ToastSuccess("pdf Uploaded successfully.");
+        setFile(null)
       }
     } catch (error) {
-      console.error("Error uploading image:", error);
-      ToastError("Failed to Uploaded Image.");
+      console.error("Error uploading pdf:", error);
+      ToastError("Failed to Uploaded pdf.");
       return null;
     }
   };
@@ -80,30 +83,24 @@ const JobPoasting = () => {
       initialValues,
       validationSchema: jobSchema,
       onSubmit: async (values, { resetForm }) => {
+        values.courses = selected;
         console.log("form values", values);
         const response = await dispatch(addJob(values));
         console.log(response);
         if (response.payload?.success) {
           ToastSuccess(response.payload?.message);
+          resetForm();
+          setFile(null);
         } else if (response.error?.message) {
           ToastError(response.error.message || "An error occurred.");
         }
-        resetForm();
-        setFile(null);
       },
     });
   console.log(errors);
-
-  useEffect(() => {
-    if (file) {
-      uploadPdf();
-    }
-  }, [file]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await dispatch(fetchAllUniversity());
+        const response = await dispatch(getAllUniversity());
         response?.payload?.data && setUniversities(response?.payload?.data);
         console.log("all university", response?.payload?.data);
       } catch (error) {
@@ -113,6 +110,7 @@ const JobPoasting = () => {
 
     fetchData();
   }, []);
+
 
   return (
     <>
@@ -143,22 +141,18 @@ const JobPoasting = () => {
                     <option value="" disabled>
                       Select University
                     </option>
-                    {universities.map((university) => {
-                      return (
-                        <option
-                          key={university.universityId}
-                          value={university.universityId}
-                        >
-                          {university.fullName}
-                        </option>
-                      );
-                    })}
+                    {universities.map((university) => (
+                      <option key={university.id} value={university.id}
+                        onChange={handleChange}>
+                        {university.firstName + " " + university.lastName}
+                      </option>
+                    ))}
                   </select>
                   {errors.universityId && touched.universityId ? (
                     <p className="text-red">{errors.universityId}</p>
                   ) : null}
                 </div>
-
+                <MultiSelect id="courses" courses={StudentCourse} selected={selected} setSelected={setSelected} values={values} error={errors} />
                 <div className="w-full ">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Title
@@ -198,7 +192,7 @@ const JobPoasting = () => {
                     Deadline
                   </label>
                   <input
-                    type="text"
+                    type="date"
                     placeholder="Enter deadline for the post"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     name="deadline"
@@ -217,9 +211,9 @@ const JobPoasting = () => {
                     <label className="block text-sm font-medium text-black dark:text-white">
                       Document
                     </label>
-                      <button className="inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium bg-success text-success">
-                        upload
-                      </button>
+                    <button type="button" onClick={uploadPdf} className="inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium bg-success text-success">
+                      upload
+                    </button>
                   </div>
                   <input
                     type="file"
@@ -228,7 +222,7 @@ const JobPoasting = () => {
                     name="file"
                     id="file"
                     onChange={onFileChange}
-                    onClick={onClick}
+                  // onClick={onClick}
                   />
                   {errors.document && touched.document ? (
                     <p className="text-red">{errors.document}</p>

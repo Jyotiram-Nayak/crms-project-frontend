@@ -11,7 +11,7 @@ import {
 } from "@/components/ToastMessage/ToastMessage";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -45,16 +45,13 @@ const UpdateProfile = () => {
   const route = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  //fetch the user details
+  
+  const state = useSelector((stete: any) => stete.user);
+  const users = state?.user;
+  console.log("user from redux :", users);
   const fetchData = async () => {
-    try {
-      const response = await dispatch(getUserProfile());
-      console.log(response); // This should contain the data from your API response
-      setUser(response.payload?.data);
-      console.log(user);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+    users && setUser(users)
+    users ?? console.log("user not found")
   };
 
   useEffect(() => {
@@ -160,6 +157,7 @@ const UpdateProfile = () => {
                           htmlFor="fullName"
                         >
                           First Name
+                          <span className="text-red">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-4.5 top-4">
@@ -209,6 +207,7 @@ const UpdateProfile = () => {
                           htmlFor="fullName"
                         >
                           Last Name
+                          <span className="text-red">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-4.5 top-4">
@@ -259,6 +258,7 @@ const UpdateProfile = () => {
                           htmlFor="emailAddress"
                         >
                           Email Address
+                          <span className="text-red">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-4.5 top-4">
@@ -307,6 +307,7 @@ const UpdateProfile = () => {
                           htmlFor="phoneNumber"
                         >
                           Phone Number
+                          <span className="text-red">*</span>
                         </label>
                         <input
                           className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
@@ -330,6 +331,7 @@ const UpdateProfile = () => {
                           htmlFor="fullName"
                         >
                           State
+                          <span className="text-red">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-4.5 top-4">
@@ -379,6 +381,7 @@ const UpdateProfile = () => {
                           htmlFor="fullName"
                         >
                           City
+                          <span className="text-red">*</span>
                         </label>
                         <div className="relative">
                           <span className="absolute left-4.5 top-4">
@@ -428,6 +431,7 @@ const UpdateProfile = () => {
                         htmlFor="fullName"
                       >
                         Address
+                        <span className="text-red">*</span>
                       </label>
                       <div className="relative">
                         <span className="absolute left-4.5 top-4">

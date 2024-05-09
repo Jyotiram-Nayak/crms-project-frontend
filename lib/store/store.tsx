@@ -11,6 +11,11 @@ import {
 	REGISTER,
 } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import JobSlice from '../JobSlice/JobSlice'
+import StudentSlice from '../StudentSlice/StudentSlice'
+import ApplicationSlice from '../ApplicationSlice/ApplicationSlice'
+import { jobApplicationSchema } from '@/schema'
+import JobApplicationSlice from '../JobApplicationSlice/JobApplicationSlice'
 
 
 //set presist configuration
@@ -24,8 +29,10 @@ const persistConfig = {
 //combine all reducer
 const rootReducer: any = combineReducers({
 	user: UserSlice,
-    
-	
+    job:JobSlice,
+	student:StudentSlice,
+	application:ApplicationSlice,
+	jobApplication:JobApplicationSlice,
 })
 
 //set presistorReducer

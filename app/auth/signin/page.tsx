@@ -11,6 +11,7 @@ import {
   ToastError,
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
+import { getCookie } from "cookies-next";
 
 interface FormValues {
   email: string;
@@ -24,6 +25,10 @@ const initialValues: FormValues = {
 const page: React.FC = () => {
   const dispatch = useDispatch();
   const route = useRouter();
+  const token = getCookie("token");
+  if (token) {
+    route.push("/");
+  }
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
     useFormik<FormValues>({
       initialValues: initialValues,
@@ -47,18 +52,11 @@ const page: React.FC = () => {
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap items-center h-screen">
           <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="px-26 py-17.5 text-center">
+            <div className="text-center">
               <Link className="mb-5.5 inline-block" href="/">
                 <Image
-                  className="hidden dark:block"
-                  src={"/images/logo/logo.svg"}
-                  alt="Logo"
-                  width={176}
-                  height={32}
-                />
-                <Image
                   className="dark:hidden"
-                  src={"/images/logo/logo-dark.svg"}
+                  src={"/logo-png/logo-black-transparent.png"}
                   alt="Logo"
                   width={176}
                   height={32}
@@ -66,8 +64,7 @@ const page: React.FC = () => {
               </Link>
 
               <p className="2xl:px-20">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                suspendisse.
+                Career Forge is a comprehensive online platform that empowers students to shape their future by forging strong connections with career services staff and employers while providing expert coaching, supportive resources, and growth opportunities.
               </p>
 
               <span className="mt-15 inline-block">

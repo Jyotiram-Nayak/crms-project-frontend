@@ -2,17 +2,27 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
 import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
-import { approveJob, fetchAllJob, rejectjob } from "@/lib/JobSlice/JobSlice";
+import {
+  approveJob,
+  fetchAllJob,
+  fetchAllJobByUniversityId,
+  rejectjob,
+} from "@/lib/JobSlice/JobSlice";
 import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
-import { ToastError, ToastSuccess } from "@/components/ToastMessage/ToastMessage";
+import {
+  ToastError,
+  ToastSuccess,
+} from "@/components/ToastMessage/ToastMessage";
 import Addbutton from "@/components/FormElements/buttons/Addbutton";
+import ApplyButton from "@/components/FormElements/buttons/ApplyButton";
+import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 interface User {
-  jobId:string;
+  jobId: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -20,13 +30,14 @@ interface User {
   city: string;
   state: string;
   website: string;
-  postedDate:string;
-  title:string;
-  description:string;
-  deadline:string;
-  document:string;
-  approvedDate:string;
-  rejectedDate:string;
+  postedDate: string;
+  courses: number[];
+  title: string;
+  description: string;
+  deadline: string;
+  document: string;
+  approvedDate: string;
+  rejectedDate: string;
   status: number;
 }
 
@@ -35,14 +46,26 @@ const JobPostTable = () => {
   // const [status,setStatus]=useState<number>()
   const [jobs, setJobs] = useState<User[]>([]);
   const role = getCookie("role");
+
+  const state = useSelector((state: any) => state.user);
+  const user = state.user;
+  console.log("user", user);
+
   const fetchData = async () => {
     try {
-      const response = await dispatch(fetchAllJob());
-      console.log(response); // This should contain the data from your API response
+      const universityId = user.universityId;
+      const response =
+        role === "Student"
+          ? await dispatch(fetchAllJobByUniversityId(universityId))
+          : await dispatch(fetchAllJob());
+      console.log("all jobs", response); // This should contain the data from your API response
       response.payload?.data && setJobs(response.payload.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+  };
+  const getCourseName = (courseValue: number): string => {
+    return StudentCourse[courseValue];
   };
   const token = getCookie("token");
   const onApproveReject = async (
@@ -58,30 +81,36 @@ const JobPostTable = () => {
         const response = await dispatch(approveJob(jobIdId));
         updateStatus(response, 1, index);
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   // update status code
   const updateStatus = (response: any, status: number, index: number) => {
-    console.log("response ",response);
-    
+    console.log("response ", response);
+
     if (response.payload.success) {
       const updatedjobs = [...jobs];
       updatedjobs[index] = {
         ...updatedjobs[index],
         status: status,
       };
-      console.log(updatedjobs)
+      console.log(updatedjobs);
       ToastSuccess(response.payload.message);
       setJobs(updatedjobs);
-    }else if (response.error?.message) {
+    } else if (response.error?.message) {
       ToastError(response.error.message || "An error occurred.");
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, []); // Run once on component mount
+  }, [fetchAllJob,fetchAllJobByUniversityId]); // Run once on component mount
+
+  const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '...';
+  };
+
   return (
     <>
       <DefaultLayout>
@@ -92,7 +121,9 @@ const JobPostTable = () => {
               <h3 className="font-medium text-black dark:text-white">
                 Job Post Table
               </h3>
-              {role == "Company" && <Addbutton path="/company/jobposting" text="Add New Job" />}
+              {role == "Company" && (
+                <Addbutton path="/company/jobposting" text="Add New Job" />
+              )}
             </div>
             <div className="max-w-full overflow-x-auto">
               <table className="w-full table-auto">
@@ -122,6 +153,9 @@ const JobPostTable = () => {
                     <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
                       Post Date
                     </th>
+                    <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white">
+                      Courses Allow
+                    </th>
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Title
                     </th>
@@ -131,18 +165,27 @@ const JobPostTable = () => {
                     <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
                       Deadline
                     </th>
-                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                    <th className="min-w-[120px] max-w-[300px] px-4 py-4 font-medium text-black dark:text-white">
                       Document
                     </th>
-                    <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
-                      Approve Date
-                    </th>
-                    <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
-                      Reject Date
-                    </th>
-                    <th className="px-4 py-4 font-medium text-black dark:text-white">
-                      Status
-                    </th>
+                    {role !== "Student" && (
+                      <>
+                        <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                          Approve Date
+                        </th>
+                        {/* <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                          Reject Date
+                        </th> */}
+                        <th className="px-4 py-4 font-medium text-black dark:text-white">
+                          Status
+                        </th>
+                      </>
+                    )}
+                    {role == "Student" && (
+                      <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                        Action
+                      </th>
+                    )}
                   </tr>
                 </thead>
                 <tbody>
@@ -167,9 +210,7 @@ const JobPostTable = () => {
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.city}
-                        </p>
+                        <p className="text-black dark:text-white">{job.city}</p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
@@ -180,7 +221,7 @@ const JobPostTable = () => {
                         <p className="text-black dark:text-white">
                           <Link
                             target="blanck"
-                            href={job.website}
+                            href={job.website ?? ""}
                             className="text-blue-500 dark:text-blue-300 hover:underline"
                           >
                             visit website
@@ -189,7 +230,18 @@ const JobPostTable = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                        {DateFilter(job.postedDate)}
+                          {DateFilter(job.postedDate)}
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                        <p className="text-black dark:text-white">
+                          {job.courses.map((courseValue, index) => (
+                            <span key={index}>
+                              {getCourseName(courseValue)}
+                              {/* Add comma if not last course */}
+                              {index !== job.courses.length - 1 && ", "}
+                            </span>
+                          ))}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
@@ -198,18 +250,18 @@ const JobPostTable = () => {
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.description}
+                        <p className="text-black dark:text-white text-sm">
+                          {truncateText(job.description, 100)}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                        {DateFilter(job.deadline)}
+                          {DateFilter(job.deadline)}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                        <Link
+                          <Link
                             target="blanck"
                             href={job.document}
                             className="text-blue-500 dark:text-blue-300 hover:underline"
@@ -218,43 +270,53 @@ const JobPostTable = () => {
                           </Link>
                         </p>
                       </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                        {DateFilter(job.approvedDate)}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {DateFilter(job.rejectedDate)}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p
-                          onClick={
-                            role === "University"
-                              ? () =>
-                                  onApproveReject(
-                                    job.jobId,
-                                    job.status,
-                                    index
-                                  )
-                              : undefined
-                          }
-                          className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${
-                            job.status === 1
-                              ? "bg-success text-success"
-                              : job.status === 2
-                                ? "bg-danger text-danger"
-                                : "bg-warning text-warning"
-                          }`}
-                        >
-                          {job.status === 0
-                            ? "Pending"
-                            : job.status === 1
-                              ? "Approved"
-                              : "Rejected"}
-                        </p>
-                      </td>
+                      {role !== "Student" && (
+                        <>
+                          <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                            <p className="text-black dark:text-white">
+                              {DateFilter(job.approvedDate)}
+                            </p>
+                          </td>
+                          {/* <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                            <p className="text-black dark:text-white">
+                              {DateFilter(job.rejectedDate)}
+                            </p>
+                          </td> */}
+                          <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                            <p
+                              onClick={
+                                role === "University"
+                                  ? () =>
+                                    onApproveReject(
+                                      job.jobId,
+                                      job.status,
+                                      index
+                                    )
+                                  : undefined
+                              }
+                              className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${job.status === 1
+                                ? "bg-success text-success"
+                                : job.status === 2
+                                  ? "bg-danger text-danger"
+                                  : "bg-warning text-warning"
+                                }`}
+                            >
+                              {job.status === 0
+                                ? "Pending"
+                                : job.status === 1
+                                  ? "Approved"
+                                  : "Rejected"}
+                            </p>
+                          </td>
+                        </>
+                      )}
+                      {role === "Student" && (
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            <ApplyButton path="/company/jobposting" id={job.jobId} label="Apply Now"/>
+                          </p>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

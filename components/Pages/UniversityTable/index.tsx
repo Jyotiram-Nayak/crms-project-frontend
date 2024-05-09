@@ -81,7 +81,7 @@ const UniversityTable: React.FC = () => {
                     <th className="px-4 py-4 font-medium text-black dark:text-white">
                       #Sr.No
                     </th>
-                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                    <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white">
                       Name
                     </th>
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
@@ -139,7 +139,7 @@ const UniversityTable: React.FC = () => {
                         <p className="text-black dark:text-white">
                           <Link
                             target="blanck"
-                            href={university.website}
+                            href={university.website ?? ""}
                             className="text-blue-500 dark:text-blue-300 hover:underline"
                           >
                             visit website
