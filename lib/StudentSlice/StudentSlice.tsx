@@ -23,10 +23,10 @@ export const addStudent = createAsyncThunk(
 
 export const fetchAllStudent = createAsyncThunk(
   "fetchAllStudent",
-  async () => {
+  async (val:object) => {
     try {
       const createStudent = await axios.get(`${BASE_URL}/Student/get-all-students`,
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        {params :val, headers: { Authorization: `Bearer ${userToken}` } }
       );
       return createStudent.data;
     } catch (error: any) {

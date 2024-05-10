@@ -114,7 +114,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
     const { values, errors, touched, handleSubmit } =
         useFormik({
             initialValues,
-              validationSchema: jobApplicationSchema,
+            validationSchema: jobApplicationSchema,
             onSubmit: async (values, { resetForm }) => {
                 console.log("form values", values);
                 values.jobId = job?.jobId || "";
@@ -132,11 +132,6 @@ export default function Page({ params }: { params: { jobid: string } }) {
         });
     console.log(errors);
 
-    useEffect(() => {
-        if (file) {
-            uploadPdf();
-        }
-    }, [file]);
     return (
         <>
             <DefaultLayout>
@@ -148,8 +143,8 @@ export default function Page({ params }: { params: { jobid: string } }) {
                             <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
                                 <div className="p-6.5 w-full">
                                     <div className="px-4 sm:px-0">
-                                        <h3 className="text-base font-semibold leading-7 text-gray-900">Applicant Information</h3>
-                                        <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">Personal details and application.</p>
+                                        <h3 className="text-base font-semibold leading-7 text-gray-900">Job Details</h3>
+                                        <p className="mt-1 max-w-2xl text-sm leading-6 text-gray-500">Job Details.</p>
                                     </div>
                                     <div className="mt-6 border-t border-gray-100">
                                         <dl className="divide-y divide-gray-100">
@@ -184,7 +179,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
                                                         <li className="flex items-center justify-between py-4 pl-4 pr-5 text-sm leading-6">
                                                             <div className="flex w-0 flex-1 items-center">
                                                                 <svg className="h-5 w-5 flex-shrink-0 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                                                    <path fill-rule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clip-rule="evenodd" />
+                                                                    <path fillRule="evenodd" d="M15.621 4.379a3 3 0 00-4.242 0l-7 7a3 3 0 004.241 4.243h.001l.497-.5a.75.75 0 011.064 1.057l-.498.501-.002.002a4.5 4.5 0 01-6.364-6.364l7-7a4.5 4.5 0 016.368 6.36l-3.455 3.553A2.625 2.625 0 119.52 9.52l3.45-3.451a.75.75 0 111.061 1.06l-3.45 3.451a1.125 1.125 0 001.587 1.595l3.454-3.553a3 3 0 000-4.242z" clipRule="evenodd" />
                                                                 </svg>
                                                                 <div className="ml-4 flex min-w-0 flex-1 gap-2">
                                                                     <span className="truncate font-medium">document.pdf</span>
@@ -206,41 +201,46 @@ export default function Page({ params }: { params: { jobid: string } }) {
                                                     </ul>
                                                 </dd>
                                             </div>
-                                            <form onSubmit={handleSubmit}> 
-                                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                                <dt className="text-sm font-medium leading-6 text-gray-900">Upload your resume<span className="text-red">*</span></dt>
-                                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                    <input
-                                                        type="file"
-                                                        className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                                                        placeholder="Plese select an Image"
-                                                        name="file"
-                                                        id="file"
-                                                        onChange={onFileChange}
-                                                    // onClick={onClick}
-                                                    />
-                                                    {errors.resume && touched.resume ? (
-                                                        <p className="text-red">{errors.resume}</p>
-                                                    ) : null}
-                                                </dd>
-                                            </div>
-                                            <div className="px-4 py-6">
-                                                <div className="grid grid-cols-2 space-x-2">
-                                                    <button
-                                                        onClick={cancelApply}
-                                                        type="button"
-                                                        className="flex w-full justify-center rounded bg-danger p-3 font-medium text-gray hover:bg-opacity-90"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <button
-                                                        type="submit"
-                                                        className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
-                                                    >
-                                                        Apply Now
-                                                    </button>
+                                            <form onSubmit={handleSubmit}>
+                                                <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                    <dt className="text-sm font-medium leading-6 text-gray-900">Upload your resume<span className="text-red">*</span></dt>
+                                                    <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                        <div className="flex space-x-2">
+                                                            <input
+                                                                type="file"
+                                                                className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                                                                placeholder="Plese select an Image"
+                                                                name="file"
+                                                                id="file"
+                                                                onChange={onFileChange}
+                                                            />
+                                                            <button type="button" onClick={uploadPdf}
+                                                                className="bg-primary font-medium hover:bg-opacity-90 p-3 rounded text-gray">
+                                                                upload
+                                                            </button>
+                                                        </div>
+                                                        {errors.resume && touched.resume ? (
+                                                            <p className="text-red">{errors.resume}</p>
+                                                        ) : null}
+                                                    </dd>
                                                 </div>
-                                            </div>
+                                                <div className="px-4 py-6">
+                                                    <div className="grid grid-cols-2 space-x-2">
+                                                        <button
+                                                            onClick={cancelApply}
+                                                            type="button"
+                                                            className="flex w-full justify-center rounded bg-danger p-3 font-medium text-gray hover:bg-opacity-90"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            type="submit"
+                                                            className="flex w-full justify-center rounded bg-primary p-3 font-medium text-gray hover:bg-opacity-90"
+                                                        >
+                                                            Apply Now
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </form>
                                         </dl>
                                     </div>

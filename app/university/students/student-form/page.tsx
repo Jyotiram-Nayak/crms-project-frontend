@@ -1,7 +1,7 @@
 "use client";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
 import { useDispatch } from "react-redux";
@@ -12,6 +12,7 @@ import {
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
 import { useRouter } from "next/navigation";
+import { stat } from "fs";
 // import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 enum Gender {
@@ -77,34 +78,39 @@ const initialValues: FormValues = {
 const Students: React.FC = () => {
   const route = useRouter()
   const dispatch = useDispatch();
-  // const [states, setStates] = useState([]);
-  // const [cities, setCities] = useState([]);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
 
-  // const config = {
-  //   cUrl: 'https://api.countrystatecity.in/v1/countries',
-  //   ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
-  // };
+  const config = {
+    cUrl: 'https://api.countrystatecity.in/v1/countries',
+    ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+  };
 
-  // const countryCode = "IN";
+  const countryCode = "IN";
 
-  // const loadStates = () => {
-  //   fetch(`${config.cUrl}/${countryCode}/states`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       setStates(data);
-  //     })
-  //     .catch(error => console.error('Error loading states:', error));
-  // };
+  const loadStates = () => {
+    fetch(`${config.cUrl}/${countryCode}/states`, { headers: { "X-CSCAPI-KEY": config.ckey } })
+      .then(response => response.json())
+      .then(data => {
+        setStates(data);
+      })
+      .catch(error => console.error('Error loading states:', error));
+  };
 
-  // const loadCities = (selectedStateCode: string) => {
-  //   fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       setCities(data);
-  //     })
-  //     .catch(error => console.error('Error loading cities:', error));
-  // };
+  const loadCities = (selectedStateCode: string) => {
+    // values.state = 
+    console.log("State code :",selectedStateCode)
+    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
+      .then(response => response.json())
+      .then(data => {
+        setCities(data);
+      })
+      .catch(error => console.error('Error loading cities:', error));
+  };
 
+  useEffect(()=>{
+    loadStates()
+  },[])
   var formData = new FormData();
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
     useFormik({
@@ -350,16 +356,22 @@ const Students: React.FC = () => {
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       State<span className="text-red">*</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Enter student's State"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    <select
+                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="state"
                       id="state"
                       value={values.state}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
+                      onChange={(e) => {
+                        handleChange(e);
+                        loadCities(e.target.selectedOptions[0].id);}}
+                    >
+                      <option value="" disabled>
+                        Select State
+                      </option>
+                      {states.map((state: any) => (
+                        <option key={state.name} value={state.name} id={state.iso2}>{state.name}</option>
+                      ))}
+                    </select>
                     {errors.state && touched.state ? (
                       <p className="text-red">{errors.state}</p>
                     ) : null}
@@ -369,16 +381,20 @@ const Students: React.FC = () => {
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       City<span className="text-red">*</span>
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Enter student's City"
-                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    <select
+                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="city"
                       id="city"
                       value={values.city}
                       onChange={handleChange}
-                      onBlur={handleBlur}
-                    />
+                    >
+                      <option value="" disabled>
+                        Select City
+                      </option>
+                      {cities.map((city: any) => (
+                        <option key={city.name} value={city.name} id={city.iso2}>{city.name}</option>
+                      ))}
+                    </select>
                     {errors.city && touched.city ? (
                       <p className="text-red">{errors.city}</p>
                     ) : null}
@@ -450,7 +466,7 @@ const Students: React.FC = () => {
                       <p className="text-red">{errors.joiningDate}</p>
                     ) : null}
                   </div>
-                  <div className="w-full xl:w-1/3">
+                  <div className="w-full xl:w-1/2">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Graduation Date<span className="text-red">*</span>
                     </label>

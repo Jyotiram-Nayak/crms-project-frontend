@@ -24,6 +24,7 @@ export const userRegister = createAsyncThunk(
 //login user
 export const userLogin = createAsyncThunk("userLogin", async (val: object) => {
   try {
+    console.log("Values",val)
     const existingUser = await axios.post(
       `${BASE_URL}/Account/login-user`,
       val

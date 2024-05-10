@@ -4,13 +4,11 @@ import { DateFilter } from '@/components/Filters/DateFilter/DateFilter';
 import generatePatternText from '@/components/Filters/GeneratePatternText/generatePatternText';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { ToastError, ToastSuccess } from '@/components/ToastMessage/ToastMessage';
-import { JobAssessment, addJobApplication } from '@/lib/JobApplicationSlice/JobApplicationSlice';
+import { JobAssessment } from '@/lib/JobApplicationSlice/JobApplicationSlice';
 import { useFormik } from 'formik';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { date } from 'yup';
 
 interface JobAppDetails {
     applicationId: string;
@@ -77,15 +75,15 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                 Object.entries(values).forEach(([key, value]) => {
                     // Convert enum values to numbers if necessary
                     if (typeof value === 'number' && !isNaN(value)) {
-                      formData.append(key, value.toString()); // Convert number to string
+                        formData.append(key, value.toString()); // Convert number to string
                     } else {
-                      formData.append(key, value);
+                        formData.append(key, value);
                     }
-                  });
-                  console.log("form values", formData);
+                });
+                console.log("form values", formData);
                 console.log("form values", formData);
                 var applicationId = jobApplication?.applicationId;
-                const response = await dispatch(JobAssessment({applicationId:applicationId,val:formData}));
+                const response = await dispatch(JobAssessment({ applicationId: applicationId, val: formData }));
                 console.log(response);
                 if (response.payload?.success) {
                     ToastSuccess(response.payload?.message);
@@ -116,16 +114,16 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
     }, [])
 
     //fill the fetch values
-    useEffect(()=>{
+    useEffect(() => {
         setValues({
-            interviewDate : jobApplication?.interviewDate || "",
+            interviewDate: jobApplication?.interviewDate || "",
             isSelected: jobApplication?.isSelected || "",
             assessmentLink: jobApplication?.assessmentLink || "",
             assessmentCompleted: jobApplication?.assessmentCompleted || false,
             assessmentScore: jobApplication?.assessmentScore || "",
             assessmentFeedback: jobApplication?.assessmentFeedback || ""
         })
-    },[jobApplication])
+    }, [jobApplication])
     return (
         <DefaultLayout>
             <div className="mx-auto max-w-242.5">
@@ -186,101 +184,101 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                                             </dd>
                                         </div>
                                         <form onSubmit={handleSubmit}>
-                                        <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                            <dt className="text-sm font-medium leading-6 text-gray-900">Assessment Link</dt>
-                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                <input
-                                                    type="text"
-                                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                                    name="assessmentLink"
-                                                    id="assessmentLink"
-                                                    value={values.assessmentLink}
-                                                    disabled
-                                                />
-                                            </dd>
-                                        </div>
-                                        <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                            <dt className="text-sm font-medium leading-6 text-gray-900">Interview Date</dt>
-                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                <input
-                                                    type="date"
-                                                    placeholder="Select interview Date"
-                                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                                    name="interviewDate"
-                                                    id="interviewDate"
-                                                    value={values.interviewDate}
-                                                    onChange={handleChange}
-                                                />
-                                                {errors.interviewDate && touched.interviewDate ? (
-                                                    <p className="text-red">{errors.interviewDate.toString()}</p>
-                                                ) : null}
-                                            </dd>
-                                        </div>
-                                        <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                            <dt className="text-sm font-medium leading-6 text-gray-900">Score</dt>
-                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                <input
-                                                    type="number"
-                                                    placeholder="Enter student's Score"
-                                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                                    name="assessmentScore"
-                                                    id="assessmentScore"
-                                                    value={values.assessmentScore}
-                                                    onChange={handleChange}
-                                                />
-                                                {errors.assessmentScore && touched.assessmentScore ? (
-                                                    <p className="text-red">{errors.assessmentScore}</p>
-                                                ) : null}
-                                            </dd>
-                                        </div>
-                                        <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                            <dt className="text-sm font-medium leading-6 text-gray-900">Selection Status</dt>
-                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                <select
-                                                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                                    name="isSelected"
-                                                    id="isSelected"
-                                                    value={values.isSelected}
-                                                    onChange={handleChange}
-                                                >
-                                                    <option value="" disabled>
-                                                        Select status
-                                                    </option>
-                                                    <option value="Pending">Pending</option>
-                                                    <option value="Selected">Selected</option>
-                                                    <option value="Rejected">Rejected</option>
-                                                </select>
-                                                {errors.isSelected && touched.isSelected ? (
-                                                    <p className="text-red">{errors.isSelected}</p>
-                                                ) : null}
-                                            </dd>
-                                        </div>
-                                        <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                            <dt className="text-sm font-medium leading-6 text-gray-900">Feedback</dt>
-                                            <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                                <textarea
-                                                    placeholder="Enter feedback for student "
-                                                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                                                    name="assessmentFeedback"
-                                                    id="assessmentFeedback"
-                                                    value={values.assessmentFeedback}
-                                                    onChange={handleChange}
-                                                ></textarea>
-                                                {errors.assessmentScore && touched.assessmentScore ? (
-                                                    <p className="text-red">{errors.assessmentScore}</p>
-                                                ) : null}
-                                            </dd>
-                                            <div className='space-x-2 flex '>
-                                                <input
-                                                    type="checkbox"
-                                                    name="assessmentCompleted"
-                                                    id="assessmentCompleted"
-                                                    // value={values.assessmentCompleted}
-                                                    onChange={handleChange}
-                                                />
-                                                <label htmlFor="assessmentCompleted">Completed</label>
+                                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                <dt className="text-sm font-medium leading-6 text-gray-900">Assessment Link</dt>
+                                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                    <input
+                                                        type="text"
+                                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                                        name="assessmentLink"
+                                                        id="assessmentLink"
+                                                        value={values.assessmentLink}
+                                                        disabled
+                                                    />
+                                                </dd>
                                             </div>
-                                        </div>
+                                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                <dt className="text-sm font-medium leading-6 text-gray-900">Interview Date</dt>
+                                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                    <input
+                                                        type="date"
+                                                        placeholder="Select interview Date"
+                                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                                        name="interviewDate"
+                                                        id="interviewDate"
+                                                        value={DateFilter(values.interviewDate)}
+                                                        onChange={handleChange}
+                                                    />
+                                                    {errors.interviewDate && touched.interviewDate ? (
+                                                        <p className="text-red">{errors.interviewDate.toString()}</p>
+                                                    ) : null}
+                                                </dd>
+                                            </div>
+                                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                <dt className="text-sm font-medium leading-6 text-gray-900">Score</dt>
+                                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                    <input
+                                                        type="number"
+                                                        placeholder="Enter student's Score"
+                                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                                        name="assessmentScore"
+                                                        id="assessmentScore"
+                                                        value={values.assessmentScore}
+                                                        onChange={handleChange}
+                                                    />
+                                                    {errors.assessmentScore && touched.assessmentScore ? (
+                                                        <p className="text-red">{errors.assessmentScore}</p>
+                                                    ) : null}
+                                                </dd>
+                                            </div>
+                                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                <dt className="text-sm font-medium leading-6 text-gray-900">Selection Status</dt>
+                                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                    <select
+                                                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                                        name="isSelected"
+                                                        id="isSelected"
+                                                        value={values.isSelected}
+                                                        onChange={handleChange}
+                                                    >
+                                                        <option value="" disabled>
+                                                            Select status
+                                                        </option>
+                                                        <option value="Pending">Pending</option>
+                                                        <option value="Selected">Selected</option>
+                                                        <option value="Rejected">Rejected</option>
+                                                    </select>
+                                                    {errors.isSelected && touched.isSelected ? (
+                                                        <p className="text-red">{errors.isSelected}</p>
+                                                    ) : null}
+                                                </dd>
+                                            </div>
+                                            <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                                                <dt className="text-sm font-medium leading-6 text-gray-900">Feedback</dt>
+                                                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                                                    <textarea
+                                                        placeholder="Enter feedback for student "
+                                                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                                                        name="assessmentFeedback"
+                                                        id="assessmentFeedback"
+                                                        value={values.assessmentFeedback}
+                                                        onChange={handleChange}
+                                                    ></textarea>
+                                                    {errors.assessmentScore && touched.assessmentScore ? (
+                                                        <p className="text-red">{errors.assessmentScore}</p>
+                                                    ) : null}
+                                                </dd>
+                                                <div className='space-x-2 flex '>
+                                                    <input
+                                                        type="checkbox"
+                                                        name="assessmentCompleted"
+                                                        id="assessmentCompleted"
+                                                        checked={values.assessmentCompleted ? true : false}
+                                                        onChange={handleChange}
+                                                    />
+                                                    <label htmlFor="assessmentCompleted">Completed</label>
+                                                </div>
+                                            </div>
                                             <div className="px-4 py-6">
                                                 <div className="grid grid-cols-2 space-x-2">
                                                     <button

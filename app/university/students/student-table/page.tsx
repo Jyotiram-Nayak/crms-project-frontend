@@ -9,6 +9,7 @@ import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
 import Link from "next/link";
 import { ToastError, ToastSuccess } from "@/components/ToastMessage/ToastMessage";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
+import { bool, boolean } from "yup";
 
 interface Student {
   userId: string;
@@ -26,16 +27,40 @@ interface Student {
   createOn: string;
   updateOn: string;
   isApproved: number;
-  course:number;
+  isSelected: number;
+  course: number;
 }
 
 const AllStudents = () => {
   const dispatch = useDispatch();
   const [students, setStudents] = useState<Student[]>([]);
-
+  const [selectedCourse, setSelectedCourse] = useState<string | null>(null); // State to store selected course
+  const [selected,setSelected] = useState<string | null>(null)
+  const handleCourseChange = (e:React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setSelectedCourse(value as string); // Update selected course state
+    console.log("selected",value)  
+  };
+  const handleSelectedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.target;
+    setSelected(value as string);
+  };
+  
   const fetchData = async () => {
     try {
-      const response = await dispatch(fetchAllStudent());
+      var value = {};
+      // Check if course is selected
+      if (selectedCourse) {
+        value = { ...value, course: selectedCourse };
+      }
+
+      // Check if isSelected is selected
+      // const isSelected = getIsSelectedStatus(); // Implement your logic to get the isSelected status
+      if (selected) {
+        value = { ...value, isSelected:selected };
+      }
+      console.log("value:",value)
+      const response = await dispatch(fetchAllStudent(value));
       console.log(response.payload.data); // This should contain the data from your API response
       response.payload.data && setStudents(response.payload.data);
     } catch (error) {
@@ -63,7 +88,7 @@ const AllStudents = () => {
   }
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [selectedCourse,selected]);
   // Run once on component mount
 
   return (
@@ -73,10 +98,43 @@ const AllStudents = () => {
         <div className="flex flex-col gap-9">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-                Students
-              </h3>
-              <Addbutton path="./student-form/" text="Add Student" />
+              <div className="flex align-middle space-x-2">
+              {/* <h3 className="font-medium text-black dark:text-white text-2xl">Students</h3> */}
+              <select
+                className="rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                name="course"
+                id="course"
+                // value={values.course}
+                onChange={handleCourseChange}
+              >
+                <option value="" disabled>
+                  Select Course
+                </option>
+                <option value="" >All Course</option>
+                {Object.keys(StudentCourse)
+                  .filter(key => isNaN(Number(StudentCourse[key as keyof typeof StudentCourse])))
+                  .map((key) => (
+                    <option key={key} value={StudentCourse[key as keyof typeof StudentCourse]}>
+                      {StudentCourse[key as keyof typeof StudentCourse]}
+                    </option>
+                  ))}
+              </select>
+              <select
+                className="rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                name="course"
+                id="course"
+                // value={values.course}
+                onChange={handleSelectedChange}
+              >
+                <option value="" disabled>
+                  Select Status
+                </option>
+                <option value="" >All Students</option>
+                <option value="true" >Selected</option>
+                <option value="false" >Not Selected</option>
+              </select>
+              </div>
+              <Addbutton path="./student-form/" text="Add new student" />
             </div>
             <div className="max-w-full overflow-x-auto">
               <table className="w-full table-auto">
@@ -122,7 +180,10 @@ const AllStudents = () => {
                       Updated On
                     </th>
                     <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
-                      Status
+                      Active Status
+                    </th>
+                    <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                      Selection Status
                     </th>
                     <th className="px-4 py-4 font-medium text-black dark:text-white">
                       Actions
@@ -174,7 +235,7 @@ const AllStudents = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                        {StudentCourse[student.course] ?? "--"}
+                          {StudentCourse[student.course] ?? "--"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
@@ -209,6 +270,18 @@ const AllStudents = () => {
                           {student.isApproved == 1
                             ? "Active"
                             : "Deactive"}
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                        <p
+                          className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${student.isSelected == 1
+                            ? "bg-success text-success"
+                            : "bg-warning text-warning"
+                            }`}
+                        >
+                          {student.isSelected == 1
+                            ? "Selected"
+                            : "Pending"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">

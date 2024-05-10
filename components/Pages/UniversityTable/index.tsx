@@ -9,10 +9,6 @@ import Link from "next/link";
 import { addApplication } from "@/lib/ApplicationSlice/ApplicationSlice";
 import { log } from "console";
 import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
-import {
-  ToastError,
-  ToastSuccess,
-} from "@/components/ToastMessage/ToastMessage";
 
 interface User {
   id: string;
@@ -48,19 +44,6 @@ const UniversityTable: React.FC = () => {
     fetchData();
   }, []); // Run once on component mount
 
-  const apply = async (universityId: string) => {
-    try {
-      console.log(universityId);
-      const response = await dispatch(addApplication(universityId));
-      console.log(response);
-      if (response.payload?.success) {
-        ToastSuccess(response.payload?.message);
-      } else if (response.error?.message) {
-        ToastError(response.error.message || "An error occurred.");
-      }
-    } catch (error) {}
-  };
-  // console.log(students)
   return (
     <>
       <DefaultLayout>
@@ -71,8 +54,6 @@ const UniversityTable: React.FC = () => {
               <h3 className="font-medium text-black dark:text-white">
                 University Table
               </h3>
-              {/* <Addbutton path="./student-form/" text="Add Student" /> */}
-              <Displaybutton path="application" text="All Applications" />
             </div>
             <div className="max-w-full overflow-x-auto">
               <table className="w-full table-auto">
@@ -149,9 +130,8 @@ const UniversityTable: React.FC = () => {
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
                           <Link
-                            href="#"
+                            href="/company/jobposting"
                             className="bg-primary font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
-                            onClick={() => apply(university.id)}
                           >
                             Apply
                           </Link>

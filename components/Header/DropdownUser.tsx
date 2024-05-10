@@ -100,6 +100,7 @@ const DropdownUser = () => {
               height: "auto",
             }}
             alt="User"
+            priority
           />
         </span>
 

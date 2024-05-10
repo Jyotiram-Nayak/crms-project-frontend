@@ -14,7 +14,6 @@ import storage from 'redux-persist/lib/storage'
 import JobSlice from '../JobSlice/JobSlice'
 import StudentSlice from '../StudentSlice/StudentSlice'
 import ApplicationSlice from '../ApplicationSlice/ApplicationSlice'
-import { jobApplicationSchema } from '@/schema'
 import JobApplicationSlice from '../JobApplicationSlice/JobApplicationSlice'
 
 
