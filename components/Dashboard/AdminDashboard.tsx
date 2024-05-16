@@ -1,8 +1,7 @@
-"use client";
-import React from "react";
-import CardDataStats from "../CardDataStats";
+import React from 'react'
+import CardDataStats from '../CardDataStats'
 
-const Dashboard: React.FC = () => {
+const AdminDashboard: React.FC = () => {
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
@@ -96,7 +95,7 @@ const Dashboard: React.FC = () => {
 
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default AdminDashboard

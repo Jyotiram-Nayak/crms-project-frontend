@@ -105,3 +105,20 @@ export const updateStudentSchema = Yup.object({
 export const jobApplicationSchema=Yup.object({
   resume:Yup.string().required("Please upload your Resume")
 })
+
+export const changePasswordSchema=Yup.object({
+  currentPassword:Yup.string().required("Please enter Current Password"),
+  newPassword:Yup.string().required("Please enter New Password").min(8,"Please enter a strong password"),
+  confirmPassword:Yup.string().required("Please enter Confirm Password")
+  .oneOf([Yup.ref("newPassword"), "", "Password and Confirm Password must match"]),
+})
+
+export const forgotPasswordSchema=Yup.object({
+  email:Yup.string().required("Please enter Email")
+})
+
+export const resetPasswordSchema=Yup.object({
+  newPassword:Yup.string().required("Please enter New Password").min(8,"Please enter a strong password"),
+  confirmPassword:Yup.string().required("Please enter Confirm Password")
+  .oneOf([Yup.ref("newPassword"), "", "Password and Confirm Password must match"]),
+})

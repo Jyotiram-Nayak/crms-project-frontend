@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, ReactNode } from "react";
-import Header from "@/components/Header";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 
@@ -20,7 +19,7 @@ export default function HomeLayout({children,}: {children: React.ReactNode;}) {
 
           {/* <!-- ===== Main Content Start ===== --> */}
           <main>
-            <div className="mx-auto p-4 md:p-6 2xl:p-10">
+            <div className="mx-auto">
               {children}
             </div>
           </main>

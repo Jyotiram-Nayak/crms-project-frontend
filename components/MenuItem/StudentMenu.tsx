@@ -6,7 +6,7 @@ const StudentMenu = () => {
   const pathname = usePathname();
   return (
     <>
-      {/* <!-- Menu Item Job Post --> */}
+      {/*  Menu Item Job Post  */}
       <li>
         <Link
           href="/company/jobpost-table"
@@ -47,9 +47,9 @@ const StudentMenu = () => {
           Jobs
         </Link>
       </li>
-      {/* <!-- Menu Item Job Post --> */}
+      {/*  Menu Item Job Post  */}
 
-      {/* <!-- Menu Item applyed Job  --> */}
+      {/*  Menu Item applyed Job   */}
       <li>
         <Link
           href="/student/all-apply-jobs"
@@ -90,7 +90,7 @@ const StudentMenu = () => {
           Applyed Jobs
         </Link>
       </li>
-      {/* <!-- Menu Item Applyed Job  --> */}
+      {/*  Menu Item Applyed Job   */}
     </>
   );
 };

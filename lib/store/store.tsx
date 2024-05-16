@@ -13,7 +13,7 @@ import {
 import storage from 'redux-persist/lib/storage'
 import JobSlice from '../JobSlice/JobSlice'
 import StudentSlice from '../StudentSlice/StudentSlice'
-import ApplicationSlice from '../ApplicationSlice/ApplicationSlice'
+// import ApplicationSlice from '../ApplicationSlice/ApplicationSlice'
 import JobApplicationSlice from '../JobApplicationSlice/JobApplicationSlice'
 
 
@@ -30,7 +30,7 @@ const rootReducer: any = combineReducers({
 	user: UserSlice,
     job:JobSlice,
 	student:StudentSlice,
-	application:ApplicationSlice,
+	// application:ApplicationSlice,
 	jobApplication:JobApplicationSlice,
 })
 

@@ -57,8 +57,15 @@ const JobPoasting = () => {
   //function to upload an image in firebase
   const uploadPdf = async () => {
     if (file == null) return;
+    const allowedExtensions = ['pdf'];
+    // const fileExtension = file.name.split(".").pop().toLowerCase();
+    const fileExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
+    if (!allowedExtensions.includes(fileExtension)) {
+        console.error("Invalid file type. Only PDF files are allowed.");
+        ToastError("Invalid file type. Only PDF files are allowed.");
+        return;
+    }
     const randomId = Math.random().toString(36).substring(2);
-    const fileExtension = file.name.split(".").pop();
     const imagePath = `jobpost-pdf/${randomId}.${fileExtension}`;
     const imageRef = ref(storage, imagePath);
     try {
@@ -123,7 +130,7 @@ const JobPoasting = () => {
               <h3 className="font-medium text-black dark:text-white">
                 Job Posting
               </h3>
-              <Displaybutton path="/company/jobposting/jobpost-table" text="All Job Posts" />
+              <Displaybutton path="/company/jobpost-table" text="All Job Posts" />
             </div>
             <form onSubmit={handleSubmit}>
               <div className="p-6.5">

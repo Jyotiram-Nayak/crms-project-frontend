@@ -90,9 +90,15 @@ export default function Page({ params }: { params: { jobid: string } }) {
     };
     //function to upload an image in firebase
     const uploadPdf = async () => {
+        const allowedExtensions = ['pdf'];
         if (file == null) return;
+        const fileExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
+        if (!allowedExtensions.includes(fileExtension)) {
+            console.error("Invalid file type. Only PDF files are allowed.");
+            ToastError("Invalid file type. Only PDF files are allowed.");
+            return;
+        }
         const randomId = Math.random().toString(36).substring(2);
-        const fileExtension = file.name.split(".").pop();
         const imagePath = `resume/${randomId}.${fileExtension}`;
         const imageRef = ref(storage, imagePath);
         try {

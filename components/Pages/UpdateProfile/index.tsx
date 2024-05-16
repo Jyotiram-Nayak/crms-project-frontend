@@ -4,7 +4,7 @@ import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { updateUserSchema } from "@/schema";
 import { useFormik } from "formik";
-import { getUserProfile, updateUserProfile } from "@/lib/UserSlice/UserSlice";
+import { updateUserProfile } from "@/lib/UserSlice/UserSlice";
 import {
   ToastError,
   ToastSuccess,
@@ -14,6 +14,8 @@ import { storage } from "@/firebase/firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { url } from "inspector";
 
 interface User {
   firstName: string;
@@ -45,7 +47,35 @@ const UpdateProfile = () => {
   const route = useRouter();
   const [file, setFile] = useState<File | null>(null);
   const [user, setUser] = useState<User | null>(null);
-  
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  const config = {
+    cUrl: 'https://api.countrystatecity.in/v1/countries',
+    ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+  };
+
+  const countryCode = "IN";
+
+  const loadStates = () => {
+    fetch(`${config.cUrl}/${countryCode}/states`, { headers: { "X-CSCAPI-KEY": config.ckey } })
+      .then(response => response.json())
+      .then(data => {
+        setStates(data);
+      })
+      .catch(error => console.error('Error loading states:', error));
+  };
+
+  const loadCities = (selectedStateCode: string) => {
+    // values.state = 
+    console.log("State code :", selectedStateCode)
+    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
+      .then(response => response.json())
+      .then(data => {
+        setCities(data);
+      })
+      .catch(error => console.error('Error loading cities:', error));
+  };
   const state = useSelector((stete: any) => stete.user);
   const users = state?.user;
   console.log("user from redux :", users);
@@ -55,6 +85,7 @@ const UpdateProfile = () => {
   };
 
   useEffect(() => {
+    loadStates();
     fetchData();
   }, []);
 
@@ -107,6 +138,7 @@ const UpdateProfile = () => {
     }
   };
 
+
   const {
     values,
     errors,
@@ -115,6 +147,7 @@ const UpdateProfile = () => {
     handleChange,
     handleSubmit,
     setValues,
+    setFieldValue
   } = useFormik<User>({
     initialValues: initialValues,
     validationSchema: updateUserSchema,
@@ -133,6 +166,16 @@ const UpdateProfile = () => {
       }
     },
   });
+
+  // validation for string
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const { name } = e.target;
+    const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
+    if (regex.test(value) || value === '') {
+      setFieldValue(name, value);
+    }
+  }
   console.log(errors);
   return (
     <>
@@ -192,7 +235,7 @@ const UpdateProfile = () => {
                             name="firstName"
                             id="firstName"
                             value={values.firstName}
-                            onChange={handleChange}
+                            onChange={handleInputChange}
                             onBlur={handleBlur}
                           />
                           {errors.firstName && touched.firstName ? (
@@ -242,7 +285,7 @@ const UpdateProfile = () => {
                             name="lastName"
                             id="lastName"
                             value={values.lastName}
-                            onChange={handleChange}
+                            onChange={handleInputChange}
                             onBlur={handleBlur}
                           />
                           {errors.lastName && touched.lastName ? (
@@ -311,7 +354,7 @@ const UpdateProfile = () => {
                         </label>
                         <input
                           className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                          type="text"
+                          type="number"
                           placeholder="Enter your Phone Number"
                           name="phoneNumber"
                           id="phoneNumber"
@@ -334,41 +377,23 @@ const UpdateProfile = () => {
                           <span className="text-red">*</span>
                         </label>
                         <div className="relative">
-                          <span className="absolute left-4.5 top-4">
-                            <svg
-                              className="fill-current"
-                              width="20"
-                              height="20"
-                              viewBox="0 0 20 20"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <g opacity="0.8">
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                  fill=""
-                                />
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                  fill=""
-                                />
-                              </g>
-                            </svg>
-                          </span>
-                          <input
-                            className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                            type="text"
-                            placeholder="Enter your State"
+                          <select
+                            className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                             name="state"
                             id="state"
                             value={values.state}
-                            onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
+                            onChange={(e) => {
+                              handleChange(e);
+                              loadCities(e.target.selectedOptions[0].id);
+                            }}
+                          >
+                            <option value="" disabled>
+                              Select State
+                            </option>
+                            {states.map((state: any) => (
+                              <option key={state.name} value={state.name} id={state.iso2}>{state.name}</option>
+                            ))}
+                          </select>
                           {errors.state && touched.state ? (
                             <p className="text-red">{errors.state}</p>
                           ) : null}
@@ -384,41 +409,20 @@ const UpdateProfile = () => {
                           <span className="text-red">*</span>
                         </label>
                         <div className="relative">
-                          <span className="absolute left-4.5 top-4">
-                            <svg
-                              className="fill-current"
-                              width="20"
-                              height="20"
-                              viewBox="0 0 20 20"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <g opacity="0.8">
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M3.72039 12.887C4.50179 12.1056 5.5616 11.6666 6.66667 11.6666H13.3333C14.4384 11.6666 15.4982 12.1056 16.2796 12.887C17.061 13.6684 17.5 14.7282 17.5 15.8333V17.5C17.5 17.9602 17.1269 18.3333 16.6667 18.3333C16.2064 18.3333 15.8333 17.9602 15.8333 17.5V15.8333C15.8333 15.1703 15.5699 14.5344 15.1011 14.0655C14.6323 13.5967 13.9964 13.3333 13.3333 13.3333H6.66667C6.00363 13.3333 5.36774 13.5967 4.8989 14.0655C4.43006 14.5344 4.16667 15.1703 4.16667 15.8333V17.5C4.16667 17.9602 3.79357 18.3333 3.33333 18.3333C2.8731 18.3333 2.5 17.9602 2.5 17.5V15.8333C2.5 14.7282 2.93899 13.6684 3.72039 12.887Z"
-                                  fill=""
-                                />
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M9.99967 3.33329C8.61896 3.33329 7.49967 4.45258 7.49967 5.83329C7.49967 7.214 8.61896 8.33329 9.99967 8.33329C11.3804 8.33329 12.4997 7.214 12.4997 5.83329C12.4997 4.45258 11.3804 3.33329 9.99967 3.33329ZM5.83301 5.83329C5.83301 3.53211 7.69849 1.66663 9.99967 1.66663C12.3009 1.66663 14.1663 3.53211 14.1663 5.83329C14.1663 8.13448 12.3009 9.99996 9.99967 9.99996C7.69849 9.99996 5.83301 8.13448 5.83301 5.83329Z"
-                                  fill=""
-                                />
-                              </g>
-                            </svg>
-                          </span>
-                          <input
-                            className="w-full rounded border border-stroke bg-gray py-3 pl-11.5 pr-4.5 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                            type="text"
-                            placeholder="Enter your City"
+                          <select
+                            className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                             name="city"
                             id="city"
                             value={values.city}
                             onChange={handleChange}
-                            onBlur={handleBlur}
-                          />
+                          >
+                            <option value="" disabled>
+                              Select City
+                            </option>
+                            {cities.map((city: any) => (
+                              <option key={city.name} value={city.name} id={city.iso2}>{city.name}</option>
+                            ))}
+                          </select>
                           {errors.city && touched.city ? (
                             <p className="text-red">{errors.city}</p>
                           ) : null}
@@ -580,12 +584,13 @@ const UpdateProfile = () => {
                     </div>
 
                     <div className="flex justify-end gap-4.5">
-                      <button
+                      <Link
+                        href={"/profile"}
                         className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                         type="submit"
                       >
                         Cancel
-                      </button>
+                      </Link>
                       <button
                         className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"
                         type="submit"
@@ -624,20 +629,14 @@ const UpdateProfile = () => {
                           Edit your photo
                         </span>
                         <span className="flex gap-2.5">
-                          <button className="text-sm hover:text-primary">
-                            Delete
-                          </button>
-                          <button className="text-sm hover:text-primary">
-                            Update
-                          </button>
+                          <p>{file && file.name}</p>
                         </span>
                       </div>
                     </div>
 
                     <div
                       id="FileUpload"
-                      className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5"
-                    >
+                      className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5">
                       <input
                         type="file"
                         accept="image/*"
@@ -647,57 +646,64 @@ const UpdateProfile = () => {
                         id="file"
                         onChange={onFileChange}
                       />
-                      <div className="flex flex-col items-center justify-center space-y-3">
-                        <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M1.99967 9.33337C2.36786 9.33337 2.66634 9.63185 2.66634 10V12.6667C2.66634 12.8435 2.73658 13.0131 2.8616 13.1381C2.98663 13.2631 3.1562 13.3334 3.33301 13.3334H12.6663C12.8431 13.3334 13.0127 13.2631 13.1377 13.1381C13.2628 13.0131 13.333 12.8435 13.333 12.6667V10C13.333 9.63185 13.6315 9.33337 13.9997 9.33337C14.3679 9.33337 14.6663 9.63185 14.6663 10V12.6667C14.6663 13.1971 14.4556 13.7058 14.0806 14.0809C13.7055 14.456 13.1968 14.6667 12.6663 14.6667H3.33301C2.80257 14.6667 2.29387 14.456 1.91879 14.0809C1.54372 13.7058 1.33301 13.1971 1.33301 12.6667V10C1.33301 9.63185 1.63148 9.33337 1.99967 9.33337Z"
-                              fill="#3C50E0"
-                            />
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M7.5286 1.52864C7.78894 1.26829 8.21106 1.26829 8.4714 1.52864L11.8047 4.86197C12.0651 5.12232 12.0651 5.54443 11.8047 5.80478C11.5444 6.06513 11.1223 6.06513 10.8619 5.80478L8 2.94285L5.13807 5.80478C4.87772 6.06513 4.45561 6.06513 4.19526 5.80478C3.93491 5.54443 3.93491 5.12232 4.19526 4.86197L7.5286 1.52864Z"
-                              fill="#3C50E0"
-                            />
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M7.99967 1.33337C8.36786 1.33337 8.66634 1.63185 8.66634 2.00004V10C8.66634 10.3682 8.36786 10.6667 7.99967 10.6667C7.63148 10.6667 7.33301 10.3682 7.33301 10V2.00004C7.33301 1.63185 7.63148 1.33337 7.99967 1.33337Z"
-                              fill="#3C50E0"
-                            />
-                          </svg>
-                        </span>
-                        <p>
-                          <span className="text-primary">Click to upload</span>{" "}
-                          or drag and drop
-                        </p>
-                        <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
-                        <p>(max, 800 X 800px)</p>
-                      </div>
+                      {file ?
+                        <Image
+                          src={URL.createObjectURL(file)}
+                          alt="Selected file"
+                          layout="fixed"
+                          width={300}
+                          height={300} /> :
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M1.99967 9.33337C2.36786 9.33337 2.66634 9.63185 2.66634 10V12.6667C2.66634 12.8435 2.73658 13.0131 2.8616 13.1381C2.98663 13.2631 3.1562 13.3334 3.33301 13.3334H12.6663C12.8431 13.3334 13.0127 13.2631 13.1377 13.1381C13.2628 13.0131 13.333 12.8435 13.333 12.6667V10C13.333 9.63185 13.6315 9.33337 13.9997 9.33337C14.3679 9.33337 14.6663 9.63185 14.6663 10V12.6667C14.6663 13.1971 14.4556 13.7058 14.0806 14.0809C13.7055 14.456 13.1968 14.6667 12.6663 14.6667H3.33301C2.80257 14.6667 2.29387 14.456 1.91879 14.0809C1.54372 13.7058 1.33301 13.1971 1.33301 12.6667V10C1.33301 9.63185 1.63148 9.33337 1.99967 9.33337Z"
+                                fill="#3C50E0"
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M7.5286 1.52864C7.78894 1.26829 8.21106 1.26829 8.4714 1.52864L11.8047 4.86197C12.0651 5.12232 12.0651 5.54443 11.8047 5.80478C11.5444 6.06513 11.1223 6.06513 10.8619 5.80478L8 2.94285L5.13807 5.80478C4.87772 6.06513 4.45561 6.06513 4.19526 5.80478C3.93491 5.54443 3.93491 5.12232 4.19526 4.86197L7.5286 1.52864Z"
+                                fill="#3C50E0"
+                              />
+                              <path
+                                fillRule="evenodd"
+                                clipRule="evenodd"
+                                d="M7.99967 1.33337C8.36786 1.33337 8.66634 1.63185 8.66634 2.00004V10C8.66634 10.3682 8.36786 10.6667 7.99967 10.6667C7.63148 10.6667 7.33301 10.3682 7.33301 10V2.00004C7.33301 1.63185 7.63148 1.33337 7.99967 1.33337Z"
+                                fill="#3C50E0"
+                              />
+                            </svg>
+                          </span>
+                          <p>
+                            <span className="text-primary">Click to upload</span>{" "}
+                            or drag and drop
+                          </p>
+                          <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
+                          <p>(max, 800 X 800px)</p>
+                        </div>
+                      }
                     </div>
-
                     <div className="flex justify-end gap-4.5">
-                      <button
+                      {/* <button
                         className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
                         type="submit"
                       >
                         Cancel
-                      </button>
+                      </button> */}
                       <button
                         onClick={uploadImage}
                         className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"
                         type="submit"
                       >
-                        Save
+                        Upload
                       </button>
                     </div>
                   </form>

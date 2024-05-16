@@ -7,7 +7,7 @@ const CompanyMenu = () => {
   return (
     <>
 
-      {/* <!-- Menu  Job Form --> */}
+      {/*  Menu  Job Form  */}
       <li>
         <Link
           href="/company/jobposting/"
@@ -48,9 +48,9 @@ const CompanyMenu = () => {
           New Job
         </Link>
       </li>
-      {/* <!-- Menu Job Form --> */}
+      {/*  Menu Job Form  */}
 
-      {/* <!-- Menu  Job Table --> */}
+      {/*  Menu  Job Table  */}
       <li>
         <Link
           href="/company/jobpost-table"
@@ -91,9 +91,9 @@ const CompanyMenu = () => {
           Job List
         </Link>
       </li>
-      {/* <!-- Menu Job Table --> */}
+      {/*  Menu Job Table  */}
 
-      {/* <!-- Menu Item Applications --> */}
+      {/*  Menu Item Applications  */}
       <li>
         <Link
           href="/company/universitytable"
@@ -133,9 +133,9 @@ const CompanyMenu = () => {
           University List
         </Link>
       </li>
-      {/* <!-- Menu Item Applications --> */}
+      {/*  Menu Item Applications  */}
 
-      {/* <!-- Menu Item applyed Job  --> */}
+      {/*  Menu Item applyed Job   */}
       <li>
         <Link
           href="/student/all-apply-jobs"
@@ -175,7 +175,7 @@ const CompanyMenu = () => {
           Job Applications
         </Link>
       </li>
-      {/* <!-- Menu Item Applyed Job  --> */}
+      {/*  Menu Item Applyed Job   */}
     </>
   );
 };

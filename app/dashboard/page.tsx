@@ -1,18 +1,23 @@
-import Dashboard from "@/components/Dashboard/dashboard";
-import { Metadata } from "next";
+"use client"
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import { getCookie } from "cookies-next";
+import AdminDashboard from "@/components/Dashboard/AdminDashboard";
+import UniversityDashboard from "@/components/Dashboard/UniversityDashboard";
+import CompanyDashboard from "@/components/Dashboard/CompanyDashboard";
+import StudentDashboard from "@/components/Dashboard/StudentDashboard";
 
-export const metadata: Metadata = {
-  title: "Next.js Dashboard | CareerForge - Next.js Dashboard",
-  description: "This is Next.js Home for CareerForge Dashboard",
-};
-
-export default function Home() {
+const Home=()=> {
+  const role = getCookie("role")
+  console.log("Role dashboard:",role)
   return (
     <>
         <DefaultLayout>
-          <Dashboard />
+          {role == "Admin" && <AdminDashboard/>}
+          {role == "University" && <UniversityDashboard/>}
+          {role == "Company" && <CompanyDashboard/>}
+          {role == "Student" && <StudentDashboard/>}
         </DefaultLayout>
     </>
   );
 }
+export default Home

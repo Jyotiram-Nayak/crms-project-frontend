@@ -8,6 +8,7 @@ import { getCookie } from "cookies-next";
 import CompanyMenu from "../MenuItem/CompanyMenu";
 import UniversityMenu from "../MenuItem/UniversityMenu";
 import StudentMenu from "../MenuItem/StudentMenu";
+import AdminMenu from "../MenuItem/AdminMenu";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -181,7 +182,11 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </li>
               {/* <!-- Menu Item Profile --> */}
 
-              {/* <!-- Menu Item --> */}
+              {/* <!-- Admin Menu Item --> */}
+              {role === "Admin" && <AdminMenu />}
+              {/* <!-- Admin Menu Item --> */}
+
+              {/* <!-- Company Menu Item --> */}
               {role === "Company" && <CompanyMenu />}
               {/* <!-- Company Menu Item --> */}
 

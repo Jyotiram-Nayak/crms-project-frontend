@@ -40,8 +40,8 @@ const DropdownUser = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  
-  const handleLogout =async () => {
+
+  const handleLogout = async () => {
     await dispatch(logout());
     route.push('/auth/signin');
     console.log("logout")
@@ -82,7 +82,7 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-          {user?.firstName+" "+user?.lastName}
+            {user?.firstName + " " + user?.lastName}
           </span>
           <span className="block text-xs">{user?.role}</span>
         </span>
@@ -126,9 +126,8 @@ const DropdownUser = () => {
         ref={dropdown}
         onFocus={() => setDropdownOpen(true)}
         onBlur={() => setDropdownOpen(false)}
-        className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark ${
-          dropdownOpen === true ? "block" : "hidden"
-        }`}
+        className={`absolute right-0 mt-4 flex w-62.5 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark ${dropdownOpen === true ? "block" : "hidden"
+          }`}
       >
         <ul className="flex flex-col gap-5 border-b border-stroke px-6 py-7.5 dark:border-strokedark">
           <li>
@@ -179,6 +178,16 @@ const DropdownUser = () => {
                 />
               </svg>
               Account Settings
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/profile/change-password"
+              className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
+              <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinecap="square" strokeLinejoin="round" strokeWidth="2" d="M7 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h1m4-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm7.441 1.559a1.907 1.907 0 0 1 0 2.698l-6.069 6.069L10 19l.674-3.372 6.07-6.07a1.907 1.907 0 0 1 2.697 0Z" />
+              </svg>
+              Change Password
             </Link>
           </li>
         </ul>

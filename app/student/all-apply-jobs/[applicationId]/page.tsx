@@ -108,9 +108,9 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
     }
     useEffect(() => {
         fetchData();
-        const url = createMeetingLink();        // create url for meeting
+        // const url = createMeetingLink();        // create url for meeting
         // console.log("url is :", url)
-        values.assessmentLink = url;
+        // values.assessmentLink = url;
     }, [])
 
     //fill the fetch values
@@ -118,7 +118,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
         setValues({
             interviewDate: jobApplication?.interviewDate || "",
             isSelected: jobApplication?.isSelected || "",
-            assessmentLink: jobApplication?.assessmentLink || "",
+            assessmentLink: jobApplication?.assessmentLink || createMeetingLink(),
             assessmentCompleted: jobApplication?.assessmentCompleted || false,
             assessmentScore: jobApplication?.assessmentScore || "",
             assessmentFeedback: jobApplication?.assessmentFeedback || ""

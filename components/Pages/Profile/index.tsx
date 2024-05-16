@@ -3,7 +3,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
-import {useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
 
@@ -46,22 +46,20 @@ const Profile = () => {
         <Breadcrumb pageName="Profile" />
 
         <div className="overflow-hidden rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-          <div className="relative z-20 h-35 md:h-65">
-            <Image
-              src={"/images/cover/cover-01.png"}
-              alt="profile cover"
-              className="h-full w-full rounded-tl-sm rounded-tr-sm object-cover object-center"
-              width={970}
-              height={260}
-              style={{
-                width: "auto",
-                height: "auto",
-              }}
-              priority
-            />
+          <div className="relative z-20 h-15rem md:h-65">
+            <div className="absolute inset-0">
+              <Image
+                src={"/images/cover/cover-01.png"}
+                alt="profile cover"
+                className="w-full h-full rounded-tl-sm rounded-tr-sm object-cover object-center"
+                layout="fill"
+                priority
+              />
+            </div>
           </div>
+
           <div className="px-4 pb-6 text-center lg:pb-8 xl:pb-11.5">
-            <div className="relative z-30 mx-auto -mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
+            <div className="relative z-30 mx-auto mt-0 sm:-mt-22 h-30 w-full max-w-30 rounded-full bg-white/20 p-1 backdrop-blur sm:h-44 sm:max-w-44 sm:p-3">
               <div className="relative drop-shadow-2">
                 <Image
                   src={
@@ -83,36 +81,27 @@ const Profile = () => {
                 {`${user?.firstName} ${user?.lastName}`}
               </h3>
               <p className="font-medium">{user?.role.toUpperCase()}</p>
-              <p className="font-medium">{user?.email}</p>
               <div className="my-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Contact Information */}
-                  <div className="bg-white shadow-md rounded-lg p-6">
+                  <div className="bg-gray border-4 border-stroke dark:bg-form-input dark:border-form-strokedark p-6 rounded-sm shadow-switcher">
                     <h2 className="text-lg font-semibold mb-4">
                       Contact Information
                     </h2>
                     <div className="flex items-center mb-4 space-x-3">
                       <div className="text-left">
-                        <p className="text-gray-600 min-w-[150px]">
-                          Phone Number
-                        </p>
+                        <p className="text-gray-600 min-w-[150px]">Phone Number</p>
+                        <p className="text-gray-600 min-w-[150px]">Email</p>
                         <p className="text-gray-600 min-w-[150px]">Address</p>
                         <p className="text-gray-600 min-w-[150px]">City</p>
                         <p className="text-gray-600 min-w-[150px]">State</p>
                       </div>
                       <div className="text-left">
-                        <p className="text-gray-600 min-w-[150px]">
-                          {user?.phoneNumber}
-                        </p>
-                        <p className="text-gray-600 min-w-[150px]">
-                          {user?.address}
-                        </p>
-                        <p className="text-gray-600 min-w-[150px]">
-                          {user?.city}
-                        </p>
-                        <p className="text-gray-600 min-w-[150px]">
-                          {user?.state}
-                        </p>
+                        <p className="text-gray-600 min-w-[150px]">{user?.phoneNumber}</p>
+                        <p className="text-gray-600 min-w-[150px]">{user?.email}</p>
+                        <p className="text-gray-600 min-w-[150px]">{user?.address}</p>
+                        <p className="text-gray-600 min-w-[150px]">{user?.city}</p>
+                        <p className="text-gray-600 min-w-[150px]">{user?.state}</p>
                       </div>
                     </div>
                     <div className="flex text-left">
@@ -130,7 +119,7 @@ const Profile = () => {
                   </div>
 
                   {/* Account Information */}
-                  <div className="bg-white shadow-md rounded-lg p-6">
+                  <div className="bg-gray border-4 border-stroke dark:bg-form-input dark:border-form-strokedark p-6 rounded-sm shadow-switcher">
                     <h2 className="text-lg font-semibold mb-4">
                       Account Information
                     </h2>

@@ -2,13 +2,10 @@
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import React, { useEffect, useState } from "react";
-import Addbutton from "@/components/FormElements/buttons/Addbutton";
 import { useDispatch } from "react-redux";
 import { getAllUniversity } from "@/lib/UserSlice/UserSlice";
 import Link from "next/link";
-import { addApplication } from "@/lib/ApplicationSlice/ApplicationSlice";
-import { log } from "console";
-import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
+import { getCookie } from "cookies-next";
 
 interface User {
   id: string;
@@ -29,7 +26,7 @@ interface User {
 const UniversityTable: React.FC = () => {
   const dispatch = useDispatch();
   const [universitys, setUniversitys] = useState<User[]>([]);
-
+  const role = getCookie("role")
   const fetchData = async () => {
     try {
       const response = await dispatch(getAllUniversity());
@@ -80,9 +77,11 @@ const UniversityTable: React.FC = () => {
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Website
                     </th>
-                    <th className="px-4 py-4 font-medium text-black dark:text-white">
-                      Actions
-                    </th>
+                    {role == "Company" &&
+                      <th className="px-4 py-4 font-medium text-black dark:text-white">
+                        Actions
+                      </th>
+                    }
                   </tr>
                 </thead>
                 <tbody>
@@ -127,16 +126,18 @@ const UniversityTable: React.FC = () => {
                           </Link>
                         </p>
                       </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          <Link
-                            href="/company/jobposting"
-                            className="bg-primary font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
-                          >
-                            Apply
-                          </Link>
-                        </p>
-                      </td>
+                      {role == "Company" &&
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            <Link
+                              href="/company/jobposting"
+                              className="bg-primary font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
+                            >
+                              Apply
+                            </Link>
+                          </p>
+                        </td>
+                      }
                     </tr>
                   ))}
                 </tbody>

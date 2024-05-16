@@ -40,11 +40,9 @@ export const userLogin = createAsyncThunk("userLogin", async (val: object) => {
   }
 });
 
-//get user information
-const userToken = getCookie("token");
-
 export const getUserProfile = createAsyncThunk("getUser", async () => {
   try {
+    const userToken = getCookie("token");
     const existingUser = await axios.get(
       `${BASE_URL}/Account/get-user-profile`,
 
@@ -61,6 +59,7 @@ export const getUserProfile = createAsyncThunk("getUser", async () => {
 export const updateUserProfile = createAsyncThunk(
   "updateUserProfile",
   async (updatedata: object) => {
+    const userToken = getCookie("token");
     try {
       const existingUser = await axios.put(
         `${BASE_URL}/Account/update-user`,updatedata,
@@ -75,9 +74,63 @@ export const updateUserProfile = createAsyncThunk(
   }
 );
 
+export const changePassword = createAsyncThunk(
+  "changePassword",
+  async (updatedata: object) => {
+    const userToken = getCookie("token");
+    try {
+      const existingUser = await axios.put(
+        `${BASE_URL}/Account/change-password`,updatedata,
+
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      const data = await existingUser.data;
+      return data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  }
+);
+
+export const forgotPassword = createAsyncThunk(
+  "forgotPassword",
+  async (email: string) => {
+    const userToken = getCookie("token");
+    try {
+      const existingUser = await axios.post(
+        `${BASE_URL}/Account/forgot-password/${email}`,
+
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      const data = await existingUser.data;
+      return data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "resetPassword",
+  async (val: object) => {
+    const userToken = getCookie("token");
+    try {
+      const existingUser = await axios.put(
+        `${BASE_URL}/Account/reset-password`,val,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      const data = await existingUser.data;
+      return data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  }
+);
+
 export const getAllUniversity = createAsyncThunk(
   "getAllUniversity",
   async () => {
+    const userToken = getCookie("token");
     try {
       const existingUser = await axios.get(
         `${BASE_URL}/Account/get-all-university`,
@@ -93,8 +146,24 @@ export const getAllUniversity = createAsyncThunk(
 
 export const getAllCompany = createAsyncThunk("getAllCompany", async () => {
   try {
+    const userToken = getCookie("token");
     const existingUser = await axios.get(
       `${BASE_URL}/Account/get-all-company`,
+      { headers: { Authorization: `Bearer ${userToken}` } }
+    );
+    const data = await existingUser.data;
+    return data;
+  } catch (error: any) {
+    throw error?.response?.data;
+  }
+});
+
+export const getUniversityDashboard = createAsyncThunk(
+  "getUniversityDashboard", async () => {
+  try {
+    const userToken = getCookie("token");
+    const existingUser = await axios.get(
+      `${BASE_URL}/Account/university-dashboard`,
       { headers: { Authorization: `Bearer ${userToken}` } }
     );
     const data = await existingUser.data;
@@ -119,6 +188,7 @@ const UserSlice = createSlice({
       state.user = null;
       state.error = null;
       deleteCookie("token");
+      deleteCookie("role");
     },
   },
   extraReducers: (builder: any) => {
@@ -168,6 +238,39 @@ const UserSlice = createSlice({
         state.status = "succeeded";
       })
       .addCase(updateUserProfile.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(forgotPassword.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(forgotPassword.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(resetPassword.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(resetPassword.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(getUniversityDashboard.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getUniversityDashboard.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(getUniversityDashboard.rejected, (state: any, action: any) => {
         state.status = "failed";
         state.error = action.error.message;
       });

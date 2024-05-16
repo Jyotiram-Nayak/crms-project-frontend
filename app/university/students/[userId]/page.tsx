@@ -75,7 +75,7 @@ const initialValues: FormValues = {
   course: StudentCourse.MCA
 };
 
-export default function Page({ params }: { params: { slug: string } }) {
+export default function Page({ params }: { params: { userId: string } }) {
   const dispatch = useDispatch();
   const [student, setStudent] = useState<FormValues | null>(null);
   const state = useSelector((state: any) => state.student);
@@ -116,7 +116,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
   const fetchData = async () => {
     const singleStudent = studentData.find(
-      (student: any) => student.userId === params.slug
+      (student: any) => student.userId === params.userId
     );
     console.log("get from selector :", singleStudent);
     if (singleStudent != null) {
@@ -156,7 +156,7 @@ export default function Page({ params }: { params: { slug: string } }) {
 
 
   var formData = new FormData();
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit, setValues, } = useFormik({
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit, setValues, setFieldValue } = useFormik({
     initialValues,
     validationSchema: updateStudentSchema,
     onSubmit: async (values, { resetForm }) => {
@@ -170,7 +170,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         }
       });
       console.log("form values", formData);
-      const studentId = params.slug
+      const studentId = params.userId
       const response = await dispatch(updateStudent({ studentId: studentId, val: formData }));
       console.log("response ", response);
       if (response.payload?.success) {
@@ -186,6 +186,16 @@ export default function Page({ params }: { params: { slug: string } }) {
   const cancelUpdate = () => {
     route.push("student-table")
   }
+
+    // validation for string
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      const { name } = e.target;
+      const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
+      if (regex.test(value) || value === '') {
+        setFieldValue(name, value);
+      }
+    }
 
   return (
     <>
@@ -214,7 +224,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                       name="firstName"
                       id="firstName"
                       value={values.firstName}
-                      onChange={handleChange}
+                      onChange={handleInputChange}
                       onBlur={handleBlur}
                     />
                     {errors.firstName && touched.firstName ? (
@@ -233,7 +243,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                       name="lastName"
                       id="lastName"
                       value={values.lastName}
-                      onChange={handleChange}
+                      onChange={handleInputChange}
                       onBlur={handleBlur}
                     />
                     {errors.lastName && touched.lastName ? (
@@ -265,7 +275,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                       Phone Number
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Enter student Phone Nummber"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="phoneNumber"
@@ -291,6 +301,7 @@ export default function Page({ params }: { params: { slug: string } }) {
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      autoComplete="new password"
                     />
                     {errors.password && touched.password ? (
                       <p className="text-red">{errors.password}</p>
@@ -353,7 +364,6 @@ export default function Page({ params }: { params: { slug: string } }) {
                       <p className="text-red">{errors.dob.toString()}</p>
                     ) : null}
                   </div>
-                  {/* <DatePicker value={values.dob} label="Date of birth" onChange={handleChange} error={errors.dob} touched={touched.dob}/> */}
 
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">

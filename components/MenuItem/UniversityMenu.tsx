@@ -6,7 +6,7 @@ const UniversityMenu = () => {
   const pathname = usePathname();
   return (
     <>
-      {/* <!-- Menu Item Job Post --> */}
+      {/*  Menu Item Job Post  */}
       <li>
         <Link
           href="/company/jobpost-table"
@@ -47,9 +47,9 @@ const UniversityMenu = () => {
           Job List
         </Link>
       </li>
-      {/* <!-- Menu Item Job Post --> */}
+      {/*  Menu Item Job Post  */}
 
-      {/* <!-- Menu Item Student Form --> */}
+      {/*  Menu Item Student Form  */}
       <li>
         <Link
           href="/university/students/student-form"
@@ -87,12 +87,12 @@ const UniversityMenu = () => {
               </clipPath>
             </defs>
           </svg>
-          Student Form
+          New Student
         </Link>
       </li>
-      {/* <!-- Menu Item Student Form --> */}
+      {/*  Menu Item Student Form  */}
 
-      {/* <!-- Menu Item STudent table --> */}
+      {/*  Menu Item STudent table  */}
       <li>
         <Link
           href="/university/students/student-table"
@@ -130,10 +130,10 @@ const UniversityMenu = () => {
               </clipPath>
             </defs>
           </svg>
-          Student Table
+          Student List
         </Link>
       </li>
-      {/* <!-- Menu Item STudent table --> */}
+      {/*  Menu Item STudent table  */}
     </>
   );
 };

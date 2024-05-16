@@ -1,15 +1,16 @@
-const { createSlice, createAsyncThunk } = require("@reduxjs/toolkit");
-const { default: axios } = require("axios");
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
+import axios  from "axios";
 import { getCookie } from "cookies-next";
 
 //base url for backend
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL_OFFLINE;
 //get user information
-const userToken = getCookie("token");
+
 //register new user
 export const addJob = createAsyncThunk(
   "addJob",
   async (val: object) => {
+    const userToken = getCookie("token");
     try {
       const createJob = await axios.post(
         `${BASE_URL}/job/add-job`,
@@ -26,6 +27,7 @@ export const addJob = createAsyncThunk(
 export const fetchAllJob = createAsyncThunk(
   "fetchAllJob",
   async () => {
+    const userToken = getCookie("token");
     try {
       const getjob = await axios.get(
         `${BASE_URL}/job/get-all-job/`,
@@ -41,6 +43,7 @@ export const fetchAllJob = createAsyncThunk(
 export const fetchAllJobByUniversityId = createAsyncThunk(
   "fetchAllJobByUniversityId",
   async (universityId:string) => {
+    const userToken = getCookie("token");
     try {
       const getjob = await axios.get(
         `${BASE_URL}/job/get-all-jobs-by-university/${universityId}`,
@@ -56,6 +59,7 @@ export const fetchAllJobByUniversityId = createAsyncThunk(
 export const approveJob = createAsyncThunk(
   "approveJob",
   async (jobId: string) => {
+    const userToken = getCookie("token");
     try {
       const approvejob = await axios.put(
         `${BASE_URL}/job/approve/${jobId}`,
@@ -73,6 +77,7 @@ export const approveJob = createAsyncThunk(
 export const rejectjob = createAsyncThunk(
   "rejectjob",
   async (jobId: string) => {
+    const userToken = getCookie("token");
     try {
       const rejectjob = await axios.put(
         `${BASE_URL}/job/reject/${jobId}`,

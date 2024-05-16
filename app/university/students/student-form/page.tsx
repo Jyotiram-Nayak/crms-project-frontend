@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
 import { useDispatch } from "react-redux";
-import { addStudent } from "@/lib/StudentSlice/StudentSlice";
+import { addStudent, importExcelFile } from "@/lib/StudentSlice/StudentSlice";
 import { studentSchema } from "@/schema";
 import {
   ToastError,
@@ -13,6 +13,8 @@ import {
 } from "@/components/ToastMessage/ToastMessage";
 import { useRouter } from "next/navigation";
 import { stat } from "fs";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/firebase/firebase";
 // import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 enum Gender {
@@ -80,6 +82,8 @@ const Students: React.FC = () => {
   const dispatch = useDispatch();
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [fileUrl, setFileUrl] = useState("");
 
   const config = {
     cUrl: 'https://api.countrystatecity.in/v1/countries',
@@ -99,7 +103,7 @@ const Students: React.FC = () => {
 
   const loadCities = (selectedStateCode: string) => {
     // values.state = 
-    console.log("State code :",selectedStateCode)
+    console.log("State code :", selectedStateCode)
     fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
       .then(response => response.json())
       .then(data => {
@@ -108,11 +112,11 @@ const Students: React.FC = () => {
       .catch(error => console.error('Error loading cities:', error));
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     loadStates()
-  },[])
+  }, [])
   var formData = new FormData();
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit, setFieldValue } =
     useFormik({
       initialValues,
       validationSchema: studentSchema,
@@ -137,7 +141,77 @@ const Students: React.FC = () => {
         }
       },
     });
-  console.log(errors);
+
+  // validation for string
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const { name } = e.target;
+    const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
+    if (regex.test(value) || value === '') {
+      setFieldValue(name, value);
+    }
+  }
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) {
+      return;
+    }
+    setFile(e.target.files[0]);
+    console.log("file set" + file);
+  };
+
+  //function to upload an image in firebase
+  const uploadFile = async () => {
+    const allowedExtensions = ['xlsx', 'xls', 'csv'];
+    if (file == null) {
+      ToastError("Please select file")
+      return;
+    }
+    const fileExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
+    if (!allowedExtensions.includes(fileExtension)) {
+      ToastError("Invalid file type. Only .xlsx files are allowed.");
+      return;
+    }
+    const randomId = Math.random().toString(36).substring(2);
+    const imagePath = `ExcelFile/${randomId}.${fileExtension}`;
+    const imageRef = ref(storage, imagePath);
+    try {
+      await uploadBytes(imageRef, file);
+      console.log("File uploaded");
+      const downloadURL = await getDownloadURL(imageRef);
+      if (downloadURL != null) {
+        console.log("File URL:", downloadURL);
+        setFileUrl(downloadURL);
+        ToastSuccess("File Uploaded successfully.");
+      }
+    } catch (error) {
+      console.error("Error uploading .xlsx:", error);
+      ToastError("Failed to Uploaded .xlsx");
+      return null;
+    }
+  };
+
+  // import data using excel file
+  const impostExcel = async () => {
+    const formData = new FormData();
+    formData.append('fileUrl', fileUrl); // Append fileUrl to the formData
+    var response = await dispatch(importExcelFile(formData));
+    console.log(response);
+    if (response.payload?.success) {
+      ToastSuccess(response.payload?.message);
+      route.push("student-table")
+    } else if (response.error?.message) {
+      ToastError(response.error.message || "An error occurred.");
+    }
+  }
+
+  useEffect(() => {
+    if (fileUrl) {
+      impostExcel()
+    }
+  }, [fileUrl])
+
+
   return (
     <>
       <DefaultLayout>
@@ -146,9 +220,26 @@ const Students: React.FC = () => {
           {/* <!-- Contact Form --> */}
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-                Student Registration
-              </h3>
+              <div className="flex space-x-2 items-center">
+                <label htmlFor="fileInput" className="cursor-pointer">
+                  <span className="bg-success font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white">
+                    <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-4m5-13v4a1 1 0 0 1-1 1H5m0 6h9m0 0-2-2m2 2-2 2" />
+                    </svg>
+                    Import
+                  </span>
+                </label>
+                <p>{file?.name ?? ".csv | .xlsx | .xls"}</p>
+                <input
+                  id="fileInput"
+                  type="file"
+                  className="hidden"
+                  onChange={onFileChange}
+                />
+                <button className="bg-success font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
+                  onClick={uploadFile}>
+                  Upload</button>
+              </div>
               <Displaybutton path="./student-table" text="All Students" />
             </div>
             <form onSubmit={handleSubmit}>
@@ -166,7 +257,7 @@ const Students: React.FC = () => {
                       name="firstName"
                       id="firstName"
                       value={values.firstName}
-                      onChange={handleChange}
+                      onChange={handleInputChange}
                       onBlur={handleBlur}
                     />
                     {errors.firstName && touched.firstName ? (
@@ -185,7 +276,7 @@ const Students: React.FC = () => {
                       name="lastName"
                       id="lastName"
                       value={values.lastName}
-                      onChange={handleChange}
+                      onChange={handleInputChange}
                       onBlur={handleBlur}
                     />
                     {errors.lastName && touched.lastName ? (
@@ -205,6 +296,7 @@ const Students: React.FC = () => {
                       value={values.email}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      autoComplete="new-email"
                     />
                     {errors.email && touched.email ? (
                       <p className="text-red">{errors.email}</p>
@@ -217,7 +309,7 @@ const Students: React.FC = () => {
                       Phone Number<span className="text-red">*</span>
                     </label>
                     <input
-                      type="text"
+                      type="number"
                       placeholder="Enter student Phone Nummber"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="phoneNumber"
@@ -243,6 +335,7 @@ const Students: React.FC = () => {
                       value={values.password}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      autoComplete="new-password"
                     />
                     {errors.password && touched.password ? (
                       <p className="text-red">{errors.password}</p>
@@ -305,14 +398,13 @@ const Students: React.FC = () => {
                       <p className="text-red">{errors.dob.toString()}</p>
                     ) : null}
                   </div>
-                  {/* <DatePicker value={values.dob} label="Date of birth" onChange={handleChange} error={errors.dob} touched={touched.dob}/> */}
 
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Gender<span className="text-red">*</span>
                     </label>
                     <select
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="gender"
                       id="gender"
                       value={values.gender}
@@ -336,7 +428,7 @@ const Students: React.FC = () => {
                       Marital Status<span className="text-red">*</span>
                     </label>
                     <select
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="maritalStatus"
                       id="maritalStatus"
                       value={values.maritalStatus}
@@ -357,13 +449,14 @@ const Students: React.FC = () => {
                       State<span className="text-red">*</span>
                     </label>
                     <select
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="state"
                       id="state"
                       value={values.state}
                       onChange={(e) => {
                         handleChange(e);
-                        loadCities(e.target.selectedOptions[0].id);}}
+                        loadCities(e.target.selectedOptions[0].id);
+                      }}
                     >
                       <option value="" disabled>
                         Select State
@@ -382,7 +475,7 @@ const Students: React.FC = () => {
                       City<span className="text-red">*</span>
                     </label>
                     <select
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="city"
                       id="city"
                       value={values.city}
@@ -405,16 +498,16 @@ const Students: React.FC = () => {
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Address<span className="text-red">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <textarea
                       placeholder="Enter student's Address"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="address"
                       id="address"
+                      rows={1}
                       value={values.address}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                    />
+                    ></textarea>
                     {errors.address && touched.address ? (
                       <p className="text-red">{errors.address}</p>
                     ) : null}
@@ -424,7 +517,7 @@ const Students: React.FC = () => {
                       Course<span className="text-red">*</span>
                     </label>
                     <select
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="course"
                       id="course"
                       value={values.course}

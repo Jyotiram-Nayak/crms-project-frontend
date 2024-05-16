@@ -5,11 +5,12 @@ import { getCookie } from "cookies-next";
 //base url for backend
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL_OFFLINE;
 //get user information
-const userToken = getCookie("token");
+
 //register new user
 export const addStudent = createAsyncThunk(
   "addStudent",
   async (val: object) => {
+    const userToken = getCookie("token");
     try {
       const createStudent = await axios.post(`${BASE_URL}/Student/add-student`,val,
         { headers: { Authorization: `Bearer ${userToken}` } }
@@ -24,6 +25,7 @@ export const addStudent = createAsyncThunk(
 export const fetchAllStudent = createAsyncThunk(
   "fetchAllStudent",
   async (val:object) => {
+    const userToken = getCookie("token");
     try {
       const createStudent = await axios.get(`${BASE_URL}/Student/get-all-students`,
         {params :val, headers: { Authorization: `Bearer ${userToken}` } }
@@ -38,6 +40,7 @@ export const fetchAllStudent = createAsyncThunk(
 export const fetchStudentById = createAsyncThunk(
   "fetchStudentById",
   async (studentId:string) => {
+    const userToken = getCookie("token");
     try {
       const student = await axios.get(`${BASE_URL}/Student/get-student-details/${studentId}`,
         { headers: { Authorization: `Bearer ${userToken}` } }
@@ -54,6 +57,7 @@ export const updateStudent = createAsyncThunk(
   async ({studentId, val} :{studentId:string, val:object} ) => {
     console.log(val);
     try {
+      const userToken = getCookie("token");
       const student = await axios.put(`${BASE_URL}/Student/update-student/${studentId}`,val,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
@@ -68,11 +72,27 @@ export const updateStudent = createAsyncThunk(
 export const deleteStudent = createAsyncThunk(
   "deleteStudent",
   async (studentId:string) => {
+    const userToken = getCookie("token");
     try {
       const deleteStudent = await axios.delete(`${BASE_URL}/Student/delete-student/${studentId}`,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
       return deleteStudent.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
+export const importExcelFile = createAsyncThunk(
+  "importExcelFile",
+  async (val: object) => {
+    const userToken = getCookie("token");
+    try {
+      const createStudent = await axios.post(`${BASE_URL}/Student/import-excel-file`,val,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return createStudent.data;
     } catch (error: any) {
       throw error.response.data;
     }
@@ -148,6 +168,17 @@ const StudentSlice = createSlice({
         state.student = state.student.filter((student:any) => student.userId !== action.payload);
       })
       .addCase(deleteStudent.rejected, (state: any, action: any) => {
+        state.status = "failed";
+        state.error = action.error.message;
+      })
+      .addCase(importExcelFile.pending, (state: any) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(importExcelFile.fulfilled, (state: any, action: any) => {
+        state.status = "succeeded";
+      })
+      .addCase(importExcelFile.rejected, (state: any, action: any) => {
         state.status = "failed";
         state.error = action.error.message;
       })

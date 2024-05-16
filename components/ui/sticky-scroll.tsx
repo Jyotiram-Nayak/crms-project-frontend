@@ -51,9 +51,9 @@ const content = [
     ),
   },
 ];
-export function StickyScrollReveal() {
+export default function StickyScrollReveal() {
   return (
-    <div className="p-10">
+    <div className="bg-black" >
       <StickyScroll content={content} />
     </div>
   );
