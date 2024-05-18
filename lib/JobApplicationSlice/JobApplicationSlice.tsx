@@ -4,12 +4,12 @@ import { getCookie } from "cookies-next";
 
 //base url for backend
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL_OFFLINE;
-//get user information
-const userToken = getCookie("token");
+
 //register new user
 export const addJobApplication = createAsyncThunk(
   "addJobApplication",
   async (val: object) => {
+    const userToken = getCookie("token");
     try {
       const applyJob = await axios.post(
         `${BASE_URL}/jobapplication/add-job-application`,
@@ -26,6 +26,7 @@ export const addJobApplication = createAsyncThunk(
 export const fetchAllJobApplication = createAsyncThunk(
   "fetchAllJobApplication",
   async () => {
+    const userToken = getCookie("token");
     try {
       const getjob = await axios.get(
         `${BASE_URL}/jobapplication/get-job-applications/`,
@@ -42,6 +43,7 @@ export const JobAssessment = createAsyncThunk(
   "JobAssessment",
   async ({applicationId,val}:{applicationId:string,val:object}) => {
     try {
+      const userToken = getCookie("token");
       const getjob = await axios.put(
         `${BASE_URL}/jobapplication/job-assessment/${applicationId}`,val,
         { headers: { Authorization: `Bearer ${userToken}` } }

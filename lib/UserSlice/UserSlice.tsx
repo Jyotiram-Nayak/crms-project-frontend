@@ -173,6 +173,36 @@ export const getUniversityDashboard = createAsyncThunk(
   }
 });
 
+export const getCompanyDashboard = createAsyncThunk(
+  "getCompanyDashboard", async () => {
+  try {
+    const userToken = getCookie("token");
+    const existingUser = await axios.get(
+      `${BASE_URL}/Account/company-dashboard`,
+      { headers: { Authorization: `Bearer ${userToken}` } }
+    );
+    const data = await existingUser.data;
+    return data;
+  } catch (error: any) {
+    throw error?.response?.data;
+  }
+});
+
+export const getStudentDashboard = createAsyncThunk(
+  "getStudentDashboard", async () => {
+  try {
+    const userToken = getCookie("token");
+    const existingUser = await axios.get(
+      `${BASE_URL}/Account/student-dashboard`,
+      { headers: { Authorization: `Bearer ${userToken}` } }
+    );
+    const data = await existingUser.data;
+    return data;
+  } catch (error: any) {
+    throw error?.response?.data;
+  }
+});
+
 //user initial state
 const initialState = {
   user: {},
@@ -236,6 +266,9 @@ const UserSlice = createSlice({
       })
       .addCase(updateUserProfile.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
+        if (action.payload?.success) {
+          state.user = { ...state.user, ...action.payload.data.user };
+        }
       })
       .addCase(updateUserProfile.rejected, (state: any, action: any) => {
         state.status = "failed";

@@ -48,7 +48,7 @@ const page: React.FC = () => {
           ToastSuccess(response.payload?.message);
           route.push("/");
         } else if (response.error?.message) {
-          ToastError(response.error.message || "An error occurred.");
+          ToastError(response.error?.message || "An error occurred.");
         }
       },
     });
@@ -56,20 +56,20 @@ const page: React.FC = () => {
   return (
     <>
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex flex-wrap items-center h-screen">
-          <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="text-center">
+        <div className="flex flex-wrap">
+          <div className="hidden w-full xl:block xl:w-1/2 bg-graydark" style={{padding: "10% 0"}}>
+            <div className="text-center p-4">
               <Link className="mb-5.5 inline-block" href="/">
                 <Image
                   className="dark:hidden"
-                  src={"/logo-png/logo-black-transparent.png"}
+                  src={"/logo-png/logo-white-transparent.png"}
                   alt="Logo"
-                  width={176}
-                  height={32}
+                  width={270}
+                  height={100}
                 />
               </Link>
 
-              <p className="2xl:px-20">
+              <p className="2xl:px-20 text-xl text-white">
                 Career Forge is a comprehensive online platform that empowers students to shape their future by forging strong connections with career services staff and employers while providing expert coaching, supportive resources, and growth opportunities.
               </p>
 
@@ -198,7 +198,7 @@ const page: React.FC = () => {
             </div>
           </div>
 
-          <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
+          <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2 h-screen" >
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
               <div className="flex justify-center" >
                 <Image
@@ -286,37 +286,7 @@ const page: React.FC = () => {
                       </span>
                   </div>
                 </div>
-                <div className="mb-5.5 mt-5 flex items-center justify-between">
-                  <label htmlFor="formCheckbox" className="flex cursor-pointer">
-                    <div className="relative pt-0.5">
-                      <input
-                        type="checkbox"
-                        id="formCheckbox"
-                        className="taskCheckbox sr-only"
-                      />
-                      <div className="box mr-3 flex h-5 w-5 items-center justify-center rounded border border-stroke dark:border-strokedark">
-                        <span className="text-white opacity-0">
-                          <svg
-                            className="fill-current"
-                            width="10"
-                            height="7"
-                            viewBox="0 0 10 7"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              clipRule="evenodd"
-                              d="M9.70685 0.292804C9.89455 0.480344 10 0.734667 10 0.999847C10 1.26503 9.89455 1.51935 9.70685 1.70689L4.70059 6.7072C4.51283 6.89468 4.2582 7 3.9927 7C3.72721 7 3.47258 6.89468 3.28482 6.7072L0.281063 3.70701C0.0986771 3.5184 -0.00224342 3.26578 3.785e-05 3.00357C0.00231912 2.74136 0.10762 2.49053 0.29326 2.30511C0.4789 2.11969 0.730026 2.01451 0.992551 2.01224C1.25508 2.00996 1.50799 2.11076 1.69683 2.29293L3.9927 4.58607L8.29108 0.292804C8.47884 0.105322 8.73347 0 8.99896 0C9.26446 0 9.51908 0.105322 9.70685 0.292804Z"
-                              fill=""
-                            />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                    <p>Remember me</p>
-                  </label>
-
+                <div className="mb-5.5 mt-5 flex items-center justify-end">
                   <Link
                     href="/auth/forgot-password"
                     className="text-sm text-primary hover:underline"
@@ -328,7 +298,7 @@ const page: React.FC = () => {
                   <input
                     type="submit"
                     value="Sign In"
-                    className="w-full cursor-pointer rounded border border-primary bg-primary p-3 text-white transition hover:bg-opacity-90"
+                    className="w-full cursor-pointer rounded border border-graydark bg-graydark p-3 text-white transition hover:bg-opacity-90"
                   />
                 </div>
                 <div className="mt-6 text-center">

@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useFormik } from "formik";
@@ -54,6 +54,40 @@ const page: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const route = useRouter()
+ const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  const config = {
+    cUrl: 'https://api.countrystatecity.in/v1/countries',
+    ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+  };
+
+  const countryCode = "IN";
+
+  const loadStates = () => {
+    fetch(`${config.cUrl}/${countryCode}/states`, { headers: { "X-CSCAPI-KEY": config.ckey } })
+      .then(response => response.json())
+      .then(data => {
+        setStates(data);
+      })
+      .catch(error => console.error('Error loading states:', error));
+  };
+
+  const loadCities = (selectedStateCode: string) => {
+    // values.state = 
+    console.log("State code :", selectedStateCode)
+    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
+      .then(response => response.json())
+      .then(data => {
+        setCities(data);
+      })
+      .catch(error => console.error('Error loading cities:', error));
+  };
+
+  useEffect(() => {
+    loadStates()
+  }, [])
+
   const token = getCookie("token");
   if (token) {
     route.push("/");
@@ -97,19 +131,20 @@ const page: React.FC = () => {
     }
   };
 
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
+  const { values, errors, touched, handleBlur, handleChange, handleSubmit,setFieldValue } =
     useFormik<SignUpValues>({
       initialValues,
       validationSchema: signUpSchema,
       onSubmit: async (values: SignUpValues, { resetForm }) => {
         console.log("form values", values);
+        values.phoneNumber = values.phoneNumber.toString();
         uploadImage();
         const response = await dispatch(userRegister(values));
         console.log(response);
 
         if (response.payload?.success) {
           ToastSuccess(response.payload?.message);
-          resetForm();
+          route.push("/auth/signin");
         } else if (response.error?.message) {
           ToastError(response.error?.message || "An error occurred.");
         }
@@ -117,23 +152,33 @@ const page: React.FC = () => {
     });
   console.log(errors);
 
+    // validation for string
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      const { name } = e.target;
+      const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
+      if (regex.test(value) || value === '') {
+        setFieldValue(name, value);
+      }
+    }
+
   return (
     <>
       <ToastContainer />
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-        <div className="flex flex-wrap items-center">
-          <div className="hidden w-full xl:block xl:w-1/2">
-            <div className="text-center">
+        <div className="flex flex-wrap">
+        <div className="hidden w-full xl:block xl:w-1/2 bg-graydark" style={{padding: "10% 0"}}>
+            <div className="text-center p-4">
               <Link className="mb-5.5 inline-block" href="/">
                 <Image
                   className="dark:hidden"
-                  src={"/logo-png/logo-black-transparent.png"}
+                  src={"/logo-png/logo-white-transparent.png"}
                   alt="Logo"
-                  width={176}
-                  height={32}
+                  width={270}
+                  height={100}
                 />
               </Link>
-              <p className="2xl:px-20">
+              <p className="2xl:px-20 text-xl text-white">
               Career Forge is a comprehensive online platform that empowers students to shape their future by forging strong connections with career services staff and employers while providing expert coaching, supportive resources, and growth opportunities.
               </p>
 
@@ -264,7 +309,6 @@ const page: React.FC = () => {
 
           <div className="w-full border-stroke dark:border-strokedark xl:w-1/2 xl:border-l-2">
             <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
-              {/* <span className="mb-1.5 block font-medium">Start for free</span> */}
               <h2 className="mb-9 text-2xl font-bold text-black dark:text-white sm:text-title-xl2 text-center">
                 Sign Up to CareerForge
               </h2>
@@ -279,11 +323,11 @@ const page: React.FC = () => {
                       <input
                         type="text"
                         placeholder="Enter your first name"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         name="firstName"
                         id="firstName"
                         value={values.firstName}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         onBlur={handleBlur}
                       />
                       {errors.firstName && touched.firstName ? (
@@ -299,12 +343,12 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         placeholder="Enter your last name"
                         name="lastName"
                         id="lastName"
                         value={values.lastName}
-                        onChange={handleChange}
+                        onChange={handleInputChange}
                         onBlur={handleBlur}
                       />
                       {errors.lastName && touched.lastName ? (
@@ -322,7 +366,7 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="email"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         placeholder="Enter your Email"
                         name="email"
                         id="email"
@@ -358,8 +402,8 @@ const page: React.FC = () => {
                     </label>
                     <div className="relative">
                       <input
-                        type="text"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        type="number"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         placeholder="Enter your Phone Number"
                         name="phoneNumber"
                         id="phoneNumber"
@@ -382,7 +426,7 @@ const page: React.FC = () => {
                       <input
                         type={passwordVisible ? 'text' : 'password'}
                         placeholder="Enter your Password"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         name="password"
                         id="password"
                         value={values.password}
@@ -418,7 +462,7 @@ const page: React.FC = () => {
                       <input
                         type="password"
                         placeholder="Re-enter your password"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         name="confirmPassword"
                         id="confirmPassword"
                         value={values.confirmPassword}
@@ -460,37 +504,26 @@ const page: React.FC = () => {
                       State
                     </label>
                     <div className="relative">
-                      <input
-                        type="text"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        placeholder="Enter your State"
-                        name="state"
-                        id="state"
-                        value={values.state}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                      />
+                    <select
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="state"
+                      id="state"
+                      value={values.state}
+                      onChange={(e) => {
+                        handleChange(e);
+                        loadCities(e.target.selectedOptions[0].id);
+                      }}
+                    >
+                      <option value="" disabled>
+                        Select State
+                      </option>
+                      {states.map((state: any) => (
+                        <option key={state.name} value={state.name} id={state.iso2}>{state.name}</option>
+                      ))}
+                    </select>
                       {errors.state && touched.state ? (
                         <p className="text-red">{errors.state}</p>
                       ) : null}
-                      <span className="absolute right-4 top-4">
-                        <svg
-                          className="w-6 h-6 text-gray-800 dark:text-white"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeWidth="2"
-                            d="M4.37 7.657c2.063.528 2.396 2.806 3.202 3.87 1.07 1.413 2.075 1.228 3.192 2.644 1.805 2.289 1.312 5.705 1.312 6.705M20 15h-1a4 4 0 0 0-4 4v1M8.587 3.992c0 .822.112 1.886 1.515 2.58 1.402.693 2.918.351 2.918 2.334 0 .276 0 2.008 1.972 2.008 2.026.031 2.026-1.678 2.026-2.008 0-.65.527-.9 1.177-.9H20M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                          />
-                        </svg>
-                      </span>
                     </div>
                   </div>
                   <div className="ms-2 mb-4">
@@ -498,36 +531,23 @@ const page: React.FC = () => {
                       City
                     </label>
                     <div className="relative">
-                      <input
-                        type="text"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                        placeholder="Enter your City"
-                        name="city"
-                        id="city"
-                        value={values.city}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                      />
+                    <select
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      name="city"
+                      id="city"
+                      value={values.city}
+                      onChange={handleChange}
+                    >
+                      <option value="" disabled>
+                        Select City
+                      </option>
+                      {cities.map((city: any) => (
+                        <option key={city.name} value={city.name} id={city.iso2}>{city.name}</option>
+                      ))}
+                    </select>
                       {errors.city && touched.city ? (
                         <p className="text-red">{errors.city}</p>
                       ) : null}
-                      <span className="absolute right-4 top-4">
-                        <svg
-                          className="w-6 h-6 text-gray-800 dark:text-white"
-                          aria-hidden="true"
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M11.906 1.994a8.002 8.002 0 0 1 8.09 8.421 7.996 7.996 0 0 1-1.297 3.957.996.996 0 0 1-.133.204l-.108.129c-.178.243-.37.477-.573.699l-5.112 6.224a1 1 0 0 1-1.545 0L5.982 15.26l-.002-.002a18.146 18.146 0 0 1-.309-.38l-.133-.163a.999.999 0 0 1-.13-.202 7.995 7.995 0 0 1 6.498-12.518ZM15 9.997a3 3 0 1 1-5.999 0 3 3 0 0 1 5.999 0Z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </span>
                     </div>
                   </div>
                 </div>
@@ -538,16 +558,17 @@ const page: React.FC = () => {
                       Address
                     </label>
                     <div className="relative">
-                      <input
-                        type="text"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      <textarea
+                        // type="text"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         placeholder="Enter your Address"
                         name="address"
                         id="address"
+                        rows={1}
                         value={values.address}
                         onChange={handleChange}
                         onBlur={handleBlur}
-                      />
+                      ></textarea>
                       {errors.address && touched.address ? (
                         <p className="text-red">{errors.address}</p>
                       ) : null}
@@ -578,7 +599,7 @@ const page: React.FC = () => {
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                        className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         placeholder="Enter your Website Url"
                         name="website"
                         id="website"
@@ -655,7 +676,7 @@ const page: React.FC = () => {
                   </label>
                   <div className="relative">
                     <select
-                      className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="role"
                       id="role"
                       value={values.role}
@@ -693,7 +714,7 @@ const page: React.FC = () => {
                   <input
                     type="submit"
                     value="Create account"
-                    className="w-full cursor-pointer rounded-lg border border-primary bg-primary p-4 text-white transition hover:bg-opacity-90"
+                    className="w-full cursor-pointer rounded border border-graydark bg-graydark p-3 text-white transition hover:bg-opacity-90"
                   />
                 </div>
 

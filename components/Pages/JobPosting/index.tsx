@@ -16,6 +16,8 @@ import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface FormValues {
   universityId: string;
@@ -44,26 +46,41 @@ interface University {
 const JobPoasting = () => {
   const dispatch = useDispatch();
   const [file, setFile] = useState<File | null>(null);
+  const [pdfPreview, setPdfPreview] = useState<string | null>(null);
   const [universities, setUniversities] = useState<University[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
-
+  const route = useRouter();
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
+      return;
+    }
+    const newfile = e.target.files?.[0];
+    const allowedExtensions = ["pdf"];
+    const fileExtension = newfile.name.split(".").pop()?.toLowerCase() ?? "";
+    if (!allowedExtensions.includes(fileExtension)) {
+      ToastError("Invalid file type. Only PDF files are allowed.");
       return;
     }
     setFile(e.target.files[0]);
   };
 
+  useEffect(() => {
+    if (file && file.type === "application/pdf") {
+      const fileURL = URL.createObjectURL(file);
+      setPdfPreview(fileURL);
+    }
+  }, [file]);
+
   //function to upload an image in firebase
   const uploadPdf = async () => {
     if (file == null) return;
-    const allowedExtensions = ['pdf'];
+    const allowedExtensions = ["pdf"];
     // const fileExtension = file.name.split(".").pop().toLowerCase();
     const fileExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
-        console.error("Invalid file type. Only PDF files are allowed.");
-        ToastError("Invalid file type. Only PDF files are allowed.");
-        return;
+      console.error("Invalid file type. Only PDF files are allowed.");
+      ToastError("Invalid file type. Only PDF files are allowed.");
+      return;
     }
     const randomId = Math.random().toString(36).substring(2);
     const imagePath = `jobpost-pdf/${randomId}.${fileExtension}`;
@@ -76,7 +93,7 @@ const JobPoasting = () => {
         console.log("pdf URL:", downloadURL);
         values.document = downloadURL;
         ToastSuccess("pdf Uploaded successfully.");
-        setFile(null)
+        setFile(null);
       }
     } catch (error) {
       console.error("Error uploading pdf:", error);
@@ -96,7 +113,8 @@ const JobPoasting = () => {
         console.log(response);
         if (response.payload?.success) {
           ToastSuccess(response.payload?.message);
-          resetForm();
+          route.push("/company/jobpost-table");
+          // resetForm();
           setFile(null);
         } else if (response.error?.message) {
           ToastError(response.error.message || "An error occurred.");
@@ -118,7 +136,6 @@ const JobPoasting = () => {
     fetchData();
   }, []);
 
-
   return (
     <>
       <DefaultLayout>
@@ -130,13 +147,17 @@ const JobPoasting = () => {
               <h3 className="font-medium text-black dark:text-white">
                 Job Posting
               </h3>
-              <Displaybutton path="/company/jobpost-table" text="All Job Posts" />
+              <Displaybutton
+                path="/company/jobpost-table"
+                text="All Job Posts"
+              />
             </div>
             <form onSubmit={handleSubmit}>
               <div className="p-6.5">
                 <div className="w-full">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Select University
+                      <span className="text-red">*</span>
                   </label>
                   <select
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -149,8 +170,11 @@ const JobPoasting = () => {
                       Select University
                     </option>
                     {universities.map((university) => (
-                      <option key={university.id} value={university.id}
-                        onChange={handleChange}>
+                      <option
+                        key={university.id}
+                        value={university.id}
+                        onChange={handleChange}
+                      >
                         {university.firstName + " " + university.lastName}
                       </option>
                     ))}
@@ -159,10 +183,18 @@ const JobPoasting = () => {
                     <p className="text-red">{errors.universityId}</p>
                   ) : null}
                 </div>
-                <MultiSelect id="courses" courses={StudentCourse} selected={selected} setSelected={setSelected} values={values} error={errors} />
+                <MultiSelect
+                  id="courses"
+                  courses={StudentCourse}
+                  selected={selected}
+                  setSelected={setSelected}
+                  values={values}
+                  error={errors}
+                />
                 <div className="w-full ">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Title
+                      <span className="text-red">*</span>
                   </label>
                   <input
                     type="text"
@@ -181,6 +213,7 @@ const JobPoasting = () => {
                 <div className="w-full">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Description
+                      <span className="text-red">*</span>
                   </label>
                   <textarea
                     rows={6}
@@ -197,6 +230,7 @@ const JobPoasting = () => {
                 <div className="w-full ">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Deadline
+                      <span className="text-red">*</span>
                   </label>
                   <input
                     type="date"
@@ -217,20 +251,57 @@ const JobPoasting = () => {
                   <div className="flex justify-between mb-2 my-1">
                     <label className="block text-sm font-medium text-black dark:text-white">
                       Document
+                      <span className="text-red">*</span>
                     </label>
-                    <button type="button" onClick={uploadPdf} className="inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium bg-success text-success">
-                      upload
-                    </button>
+                    {pdfPreview && (
+                      <Link href={pdfPreview} target="blanck">
+                        <button
+                          type="button"
+                          className="inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium bg-success text-success  dark:text-white"
+                        >
+                          <svg
+                            className="h-4 w-4 text-red-500"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                            />
+                          </svg>
+                          &nbsp;Preview
+                        </button>
+                      </Link>
+                    )}
                   </div>
-                  <input
-                    type="file"
-                    className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                    placeholder="Plese select an Image"
-                    name="file"
-                    id="file"
-                    onChange={onFileChange}
-                  // onClick={onClick}
-                  />
+                  <div className="flex">
+                    <input
+                      type="file"
+                      className="w-full me-2 cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                      placeholder="Plese select an Image"
+                      name="file"
+                      id="file"
+                      onChange={onFileChange}
+                    />
+                    {file && (
+                      <button
+                        onClick={uploadPdf}
+                        type="button"
+                        className="bg-success font-medium hover:bg-opacity-90 p-3 rounded text-gray"
+                      >
+                        Upload
+                      </button>
+                    )}
+                  </div>
                   {errors.document && touched.document ? (
                     <p className="text-red">{errors.document}</p>
                   ) : null}

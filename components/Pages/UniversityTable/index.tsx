@@ -130,7 +130,7 @@ const UniversityTable: React.FC = () => {
                         <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                           <p className="text-black dark:text-white">
                             <Link
-                              href="/company/jobposting"
+                              href={`/company/jobposting/${university.id}`}
                               className="bg-primary font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
                             >
                               Apply

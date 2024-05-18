@@ -15,12 +15,13 @@ import { useRouter } from "next/navigation";
 import { stat } from "fs";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
+import Link from "next/link";
 // import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 enum Gender {
   Male,
   Female,
-  Other
+  Other,
 }
 
 enum MaritalStatus {
@@ -56,7 +57,6 @@ interface FormValues {
   course: StudentCourse;
 }
 
-
 const initialValues: FormValues = {
   firstName: "",
   lastName: "",
@@ -76,97 +76,122 @@ const initialValues: FormValues = {
   course: StudentCourse.MCA,
 };
 
-
 const Students: React.FC = () => {
-  const route = useRouter()
+  const route = useRouter();
   const dispatch = useDispatch();
+  const [file, setFile] = useState<File | null>(null);
+  const [pdfPreview, setPdfPreview] = useState<string | null>(null);
+  const [fileUrl, setFileUrl] = useState("");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
-  const [file, setFile] = useState<File | null>(null);
-  const [fileUrl, setFileUrl] = useState("");
 
   const config = {
-    cUrl: 'https://api.countrystatecity.in/v1/countries',
-    ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+    cUrl: "https://api.countrystatecity.in/v1/countries",
+    ckey: "NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA==",
   };
 
   const countryCode = "IN";
 
   const loadStates = () => {
-    fetch(`${config.cUrl}/${countryCode}/states`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-      .then(response => response.json())
-      .then(data => {
+    fetch(`${config.cUrl}/${countryCode}/states`, {
+      headers: { "X-CSCAPI-KEY": config.ckey },
+    })
+      .then((response) => response.json())
+      .then((data) => {
         setStates(data);
       })
-      .catch(error => console.error('Error loading states:', error));
+      .catch((error) => console.error("Error loading states:", error));
   };
 
   const loadCities = (selectedStateCode: string) => {
-    // values.state = 
-    console.log("State code :", selectedStateCode)
-    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-      .then(response => response.json())
-      .then(data => {
+    // values.state =
+    console.log("State code :", selectedStateCode);
+    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, {
+      headers: { "X-CSCAPI-KEY": config.ckey },
+    })
+      .then((response) => response.json())
+      .then((data) => {
         setCities(data);
       })
-      .catch(error => console.error('Error loading cities:', error));
+      .catch((error) => console.error("Error loading cities:", error));
   };
 
   useEffect(() => {
-    loadStates()
-  }, [])
+    loadStates();
+  }, []);
   var formData = new FormData();
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit, setFieldValue } =
-    useFormik({
-      initialValues,
-      validationSchema: studentSchema,
-      onSubmit: async (values, { resetForm }) => {
-        values.course = values.course
-        Object.entries(values).forEach(([key, value]) => {
-          // Convert enum values to numbers if necessary
-          if (typeof value === 'number' && !isNaN(value)) {
-            formData.append(key, value.toString()); // Convert number to string
-          } else {
-            formData.append(key, value);
-          }
-        });
-        console.log("form values", formData);
-        const response = await dispatch(addStudent(formData));
-        console.log(response);
-        if (response.payload?.success) {
-          ToastSuccess(response.payload?.message);
-          route.push("student-table")
-        } else if (response.error?.message) {
-          ToastError(response.error.message || "An error occurred.");
+  const {
+    values,
+    errors,
+    touched,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    setFieldValue,
+  } = useFormik({
+    initialValues,
+    validationSchema: studentSchema,
+    onSubmit: async (values, { resetForm }) => {
+      values.course = values.course;
+      Object.entries(values).forEach(([key, value]) => {
+        // Convert enum values to numbers if necessary
+        if (typeof value === "number" && !isNaN(value)) {
+          formData.append(key, value.toString()); // Convert number to string
+        } else {
+          formData.append(key, value);
         }
-      },
-    });
+      });
+      console.log("form values", formData);
+      const response = await dispatch(addStudent(formData));
+      console.log(response);
+      if (response.payload?.success) {
+        ToastSuccess(response.payload?.message);
+        route.push("student-table");
+      } else if (response.error?.message) {
+        ToastError(response.error.message || "An error occurred.");
+      }
+    },
+  });
 
   // validation for string
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const { name } = e.target;
     const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
-    if (regex.test(value) || value === '') {
+    if (regex.test(value) || value === "") {
       setFieldValue(name, value);
     }
-  }
+  };
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
+      return;
+    }
+    const newfile = e.target.files?.[0];
+    const allowedExtensions = ["xlsx", "xls", "csv"];
+    const fileExtension = newfile.name.split(".").pop()?.toLowerCase() ?? "";
+    if (!allowedExtensions.includes(fileExtension)) {
+      ToastError("Please select a valid Excel file: XLSX, XLS, or CSV.");
       return;
     }
     setFile(e.target.files[0]);
     console.log("file set" + file);
   };
 
+  useEffect(() => {
+    if (file && file.type === "application/pdf") {
+      const tempURL = URL.createObjectURL(file);
+      setPdfPreview(tempURL);
+    }
+  }, [file]);
+
   //function to upload an image in firebase
   const uploadFile = async () => {
-    const allowedExtensions = ['xlsx', 'xls', 'csv'];
     if (file == null) {
-      ToastError("Please select file")
+      ToastError("Please select file");
       return;
     }
+    const allowedExtensions = ["xlsx", "xls", "csv"];
     const fileExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
       ToastError("Invalid file type. Only .xlsx files are allowed.");
@@ -194,23 +219,22 @@ const Students: React.FC = () => {
   // import data using excel file
   const impostExcel = async () => {
     const formData = new FormData();
-    formData.append('fileUrl', fileUrl); // Append fileUrl to the formData
+    formData.append("fileUrl", fileUrl); // Append fileUrl to the formData
     var response = await dispatch(importExcelFile(formData));
     console.log(response);
     if (response.payload?.success) {
       ToastSuccess(response.payload?.message);
-      route.push("student-table")
+      route.push("student-table");
     } else if (response.error?.message) {
       ToastError(response.error.message || "An error occurred.");
     }
-  }
+  };
 
   useEffect(() => {
     if (fileUrl) {
-      impostExcel()
+      impostExcel();
     }
-  }, [fileUrl])
-
+  }, [fileUrl]);
 
   return (
     <>
@@ -223,8 +247,22 @@ const Students: React.FC = () => {
               <div className="flex space-x-2 items-center">
                 <label htmlFor="fileInput" className="cursor-pointer">
                   <span className="bg-success font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white">
-                    <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-4m5-13v4a1 1 0 0 1-1 1H5m0 6h9m0 0-2-2m2 2-2 2" />
+                    <svg
+                      className="w-6 h-6 text-gray-800 dark:text-white"
+                      aria-hidden="true"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke="currentColor"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 12V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-4m5-13v4a1 1 0 0 1-1 1H5m0 6h9m0 0-2-2m2 2-2 2"
+                      />
                     </svg>
                     Import
                   </span>
@@ -236,9 +274,22 @@ const Students: React.FC = () => {
                   className="hidden"
                   onChange={onFileChange}
                 />
-                <button className="bg-success font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
-                  onClick={uploadFile}>
-                  Upload</button>
+                {pdfPreview && (
+                  <Link href={pdfPreview} target="blanck">
+                    <button
+                      type="button"
+                      className="bg-success font-medium hover:bg-opacity-90 p-3 rounded text-gray"
+                    >
+                      Preview
+                    </button>
+                  </Link>
+                )}
+                <button
+                  className="bg-success font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
+                  onClick={uploadFile}
+                >
+                  Upload
+                </button>
               </div>
               <Displaybutton path="./student-table" text="All Students" />
             </div>
@@ -462,7 +513,13 @@ const Students: React.FC = () => {
                         Select State
                       </option>
                       {states.map((state: any) => (
-                        <option key={state.name} value={state.name} id={state.iso2}>{state.name}</option>
+                        <option
+                          key={state.name}
+                          value={state.name}
+                          id={state.iso2}
+                        >
+                          {state.name}
+                        </option>
                       ))}
                     </select>
                     {errors.state && touched.state ? (
@@ -485,7 +542,13 @@ const Students: React.FC = () => {
                         Select City
                       </option>
                       {cities.map((city: any) => (
-                        <option key={city.name} value={city.name} id={city.iso2}>{city.name}</option>
+                        <option
+                          key={city.name}
+                          value={city.name}
+                          id={city.iso2}
+                        >
+                          {city.name}
+                        </option>
                       ))}
                     </select>
                     {errors.city && touched.city ? (
@@ -527,7 +590,13 @@ const Students: React.FC = () => {
                         Select Course
                       </option>
                       {Object.keys(StudentCourse)
-                        .filter(key => isNaN(Number(StudentCourse[key as keyof typeof StudentCourse])))
+                        .filter((key) =>
+                          isNaN(
+                            Number(
+                              StudentCourse[key as keyof typeof StudentCourse]
+                            )
+                          )
+                        )
                         .map((key, index) => (
                           <option key={key} value={index}>
                             {StudentCourse[key as keyof typeof StudentCourse]}
@@ -540,7 +609,6 @@ const Students: React.FC = () => {
                   </div>
                 </div>
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-
                   <div className="w-full xl:w-1/2">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Joining Date<span className="text-red">*</span>

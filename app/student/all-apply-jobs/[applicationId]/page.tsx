@@ -276,7 +276,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                                                         checked={values.assessmentCompleted ? true : false}
                                                         onChange={handleChange}
                                                     />
-                                                    <label htmlFor="assessmentCompleted">Completed</label>
+                                                    <label htmlFor="assessmentCompleted">Mark as Completed</label>
                                                 </div>
                                             </div>
                                             <div className="px-4 py-6">

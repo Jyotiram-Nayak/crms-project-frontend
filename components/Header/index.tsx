@@ -12,13 +12,6 @@ const Header = (props: {
   sidebarOpen: string | boolean | undefined;
   setSidebarOpen: (arg0: boolean) => void;
 }) => {
-  // const route = useRouter();
-  // const token = getCookie("token");
-  // useEffect(() => {
-  //   if (!token) {
-  //     route.push("/auth/signin");
-  //   }
-  // }, [token, route]);
 
   return (
     <header className="sticky top-0 z-999 flex w-full bg-white drop-shadow-1 dark:bg-boxdark dark:drop-shadow-none">

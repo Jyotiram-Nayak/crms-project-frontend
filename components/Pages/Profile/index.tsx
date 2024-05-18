@@ -84,7 +84,7 @@ const Profile = () => {
               <div className="my-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Contact Information */}
-                  <div className="bg-gray border-4 border-stroke dark:bg-form-input dark:border-form-strokedark p-6 rounded-sm shadow-switcher">
+                  <div className="bg-gray border-4 border-stroke dark:bg-form-input dark:border-form-strokedark p-6 rounded-sm shadow-switcher overflow-x-auto">
                     <h2 className="text-lg font-semibold mb-4">
                       Contact Information
                     </h2>
@@ -119,7 +119,7 @@ const Profile = () => {
                   </div>
 
                   {/* Account Information */}
-                  <div className="bg-gray border-4 border-stroke dark:bg-form-input dark:border-form-strokedark p-6 rounded-sm shadow-switcher">
+                  <div className="bg-gray border-4 border-stroke dark:bg-form-input dark:border-form-strokedark p-6 rounded-sm shadow-switcher overflow-x-auto">
                     <h2 className="text-lg font-semibold mb-4">
                       Account Information
                     </h2>

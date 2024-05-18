@@ -11,7 +11,7 @@ export async function middleware(req: NextRequest) {
     const routePermissions: { [key: string]: string[] } = {
         '/company/application': ['Company'],
         '/company/jobposting': ['Company'],
-        '/company/jobposting/[jobid]': ['Company'],
+        '/company/jobpost-table/[jobid]': ['Company'],
         '/company/universitytable': ['Company','Admin'],
         '/company/jobpost-table': ['University', 'Student', 'Company'],
         '/dashboard': ['University', 'Student', 'Company', 'Admin'],

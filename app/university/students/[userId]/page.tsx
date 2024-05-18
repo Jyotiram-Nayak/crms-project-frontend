@@ -15,7 +15,6 @@ import {
 import { updateStudentSchema } from "@/schema";
 import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
 import { useRouter } from "next/navigation";
-// import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 enum Gender {
   Male,

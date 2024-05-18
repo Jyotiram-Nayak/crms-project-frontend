@@ -1,7 +1,7 @@
 "use client";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { getCookie } from "cookies-next";
@@ -19,6 +19,7 @@ import {
 import Addbutton from "@/components/FormElements/buttons/Addbutton";
 import ApplyButton from "@/components/FormElements/buttons/ApplyButton";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
+import Pagination from "@/components/Pagination";
 
 interface User {
   jobId: string;
@@ -39,12 +40,46 @@ interface User {
   rejectedDate: string;
   status: number;
 }
+interface jobParams {
+  page?: number;
+  pageSize?: number;
+  filterOn?: string;
+  filterQuery?: string;
+  sortBy?: string;
+  isAscending?: boolean;
+}
 
-const JobPostTable = () => {
+const JobPostTable: React.FC = () => {
   const dispatch = useDispatch();
-  // const [status,setStatus]=useState<number>()
   const [jobs, setJobs] = useState<User[]>([]);
   const role = getCookie("role");
+  const [value, setValue] = useState<jobParams>({
+    page: 1,
+    pageSize: 10,
+    filterOn: "",
+    filterQuery: "",
+    sortBy: "",
+    isAscending: true,
+  });
+
+  const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({ ...prevValue, filterOn: e.target.value }));
+  };
+
+  const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue((prevValue) => ({ ...prevValue, filterQuery: e.target.value }));
+  };
+
+  const handleSortChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({ ...prevValue, sortBy: e.target.value }));
+  };
+
+  const handleOrderChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({
+      ...prevValue,
+      isAscending: e.target.value === "true",
+    }));
+  };
 
   const state = useSelector((state: any) => state.user);
   const user = state.user;
@@ -52,11 +87,12 @@ const JobPostTable = () => {
 
   const fetchData = async () => {
     try {
+      console.log("parameters value :", value);
       const universityId = user.universityId;
       const response =
         role === "Student"
-          ? await dispatch(fetchAllJobByUniversityId(universityId))
-          : await dispatch(fetchAllJob());
+          ? await dispatch<any>(fetchAllJobByUniversityId(universityId))
+          : await dispatch<any>(fetchAllJob(value));
       console.log("all jobs", response); // This should contain the data from your API response
       response.payload?.data && setJobs(response.payload.data);
     } catch (error) {
@@ -74,13 +110,13 @@ const JobPostTable = () => {
   ) => {
     try {
       if (status == 1) {
-        const response = await dispatch(rejectjob(jobId));
+        const response = await dispatch<any>(rejectjob(jobId));
         updateStatus(response, 2, index);
       } else {
-        const response = await dispatch(approveJob(jobId));
+        const response = await dispatch<any>(approveJob(jobId));
         updateStatus(response, 1, index);
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   // update status code
@@ -103,11 +139,11 @@ const JobPostTable = () => {
 
   useEffect(() => {
     fetchData();
-  }, [fetchAllJob,fetchAllJobByUniversityId]); // Run once on component mount
+  }, [value]); // Run once on component mount
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength) + '...';
+    return text.slice(0, maxLength) + "...";
   };
 
   return (
@@ -117,9 +153,54 @@ const JobPostTable = () => {
         <div className="flex flex-col gap-9">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-                Job List
-              </h3>
+              <div className="flex space-x-2">
+                <h3 className="font-medium text-black dark:text-white py-2">
+                  Job List
+                </h3>
+                <select
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="course"
+                  id="course"
+                  onChange={handleFilterChange}
+                  defaultValue="Filter on"
+                >
+                  {/* <option value="" disabled selected>Filter on</option> */}
+                  <option value="Title">Title</option>
+                  <option value="FirstName">Name</option>
+                  <option value="City">City</option>
+                  <option value="State">State</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Type to search..."
+                  name="filterQuery"
+                  id="filterQuery"
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  onChange={handleQueryChange}
+                />
+                <select
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="course"
+                  id="course"
+                  onChange={handleSortChange}
+                  defaultValue="Sort by"
+                >
+                  <option value="Title">Title</option>
+                  <option value="FirstName">Name</option>
+                  <option value="Posted Date">Posted Date</option>
+                  <option value="City">City</option>
+                  <option value="State">State</option>
+                </select>
+                <select
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="course"
+                  id="course"
+                  onChange={handleOrderChange}
+                >
+                  <option value="true">Ascending</option>
+                  <option value="false">Descending</option>
+                </select>
+              </div>
               {role == "Company" && (
                 <Addbutton path="/company/jobposting" text="Add New Job" />
               )}
@@ -129,7 +210,7 @@ const JobPostTable = () => {
                 <thead>
                   <tr className="bg-gray-2 text-left dark:bg-meta-4">
                     <th className="px-4 py-4 font-medium text-black dark:text-white">
-                      #Sr.No
+                      Sr.No
                     </th>
                     <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white">
                       Name
@@ -172,9 +253,6 @@ const JobPostTable = () => {
                         <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
                           Approve Date
                         </th>
-                        {/* <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
-                          Reject Date
-                        </th> */}
                         <th className="px-4 py-4 font-medium text-black dark:text-white">
                           Status
                         </th>
@@ -188,153 +266,192 @@ const JobPostTable = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {jobs.map((job, index) => (
-                    <tr key={index}>
-                      <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark">
-                        <p className="text-sm">{index + 1}</p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.firstName + " " + job.lastName}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.email}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.address}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">{job.city}</p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.state}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          <Link
-                            target="blanck"
-                            href={job.website ?? ""}
-                            className="text-blue-500 dark:text-blue-300 hover:underline"
-                          >
-                            visit website
-                          </Link>
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {DateFilter(job.postedDate)}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.courses.map((courseValue, index) => (
-                            <span key={index}>
-                              {getCourseName(courseValue)}
-                              {/* Add comma if not last course */}
-                              {index !== job.courses.length - 1 && ", "}
-                            </span>
-                          ))}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {job.title}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white text-sm">
-                          {truncateText(job.description, 100)}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          {DateFilter(job.deadline)}
-                        </p>
-                      </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          <Link
-                            target="blanck"
-                            href={job.document}
-                            className="text-blue-500 dark:text-blue-300 hover:underline"
-                          >
-                            view details
-                          </Link>
-                        </p>
-                      </td>
-                      {role !== "Student" && (
-                        <>
-                          <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                            <p className="text-black dark:text-white">
-                              {DateFilter(job.approvedDate)}
-                            </p>
-                          </td>
-                          {/* <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                            <p className="text-black dark:text-white">
-                              {DateFilter(job.rejectedDate)}
-                            </p>
-                          </td> */}
-                          <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                            <p
-                              onClick={
-                                role === "University"
-                                  ? () =>
-                                    onApproveReject(
-                                      job.jobId,
-                                      job.status,
-                                      index
-                                    )
-                                  : undefined
-                              }
-                              className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium 
-                              ${role === "University" && "hover:bg-opacity-50 hover:text-white" }
-                              ${job.status === 1
-                                ? "bg-success text-success"
-                                : job.status === 2
-                                  ? "bg-danger text-danger"
-                                  : "bg-warning text-warning"
-                                }`}
-                            >
-                              {job.status === 0
-                                ? "Pending"
-                                : job.status === 1
-                                  ? "Approved"
-                                  : "Rejected"}
-                            </p>
-                          </td>
-                        </>
-                      )}
-                      {role === "Student" && (
+                  {jobs &&
+                    jobs.map((job, index) => (
+                      <tr key={index}>
+                        <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark">
+                          <p className="text-sm">{index + 1}</p>
+                        </td>
                         <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                           <p className="text-black dark:text-white">
-                            <ApplyButton path="/company/jobposting" id={job.jobId} label="Apply Now"/>
+                            {job.firstName + " " + job.lastName}
                           </p>
                         </td>
-                      )}
-                      {/* <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                        <p className="text-black dark:text-white">
-                          <Link
-                            href={`company/jobposting/${job.jobId}`}
-                            className="text-blue-500 dark:text-blue-300 hover:underline"
-                          >
-                            <svg width="10px" height="10px" viewBox="0 0 1024 1024" fill="#000000" className="icon"  version="1.1" xmlns="http://www.w3.org/2000/svg"><path d="M574.4 590.4l-3.2 7.2 1.6 8L608 740.8l8 33.6 28-20L760 672l5.6-4 2.4-6.4 220-556.8 8.8-22.4-22.4-8.8-140-55.2-21.6-8-8.8 20.8-229.6 559.2z m244-528l140 55.2-13.6-30.4-220 556.8 8-10.4-116 82.4 36 13.6-33.6-135.2-0.8 15.2 229.6-560-29.6 12.8z" fill="" /><path d="M872 301.6l-107.2-40c-7.2-2.4-10.4-10.4-8-17.6l8-20.8c2.4-7.2 10.4-10.4 17.6-8l107.2 40c7.2 2.4 10.4 10.4 8 17.6l-8 20.8c-2.4 7.2-10.4 10.4-17.6 8zM718.4 645.6l-107.2-40c-7.2-2.4-10.4-10.4-8-17.6l8-20.8c2.4-7.2 10.4-10.4 17.6-8l107.2 40c7.2 2.4 10.4 10.4 8 17.6l-8 20.8c-2.4 7.2-10.4 10.4-17.6 8zM900.8 224l-107.2-40c-7.2-2.4-10.4-10.4-8-17.6l8-20.8c2.4-7.2 10.4-10.4 17.6-8l107.2 40c7.2 2.4 10.4 10.4 8 17.6l-8 20.8c-2.4 7.2-10.4 11.2-17.6 8z" fill="" /><path d="M930.4 965.6H80c-31.2 0-56-24.8-56-56V290.4c0-31.2 24.8-56 56-56h576c13.6 0 24 10.4 24 24s-10.4 24-24 24H80c-4 0-8 4-8 8v619.2c0 4 4 8 8 8h850.4c4 0 8-4 8-8V320c0-13.6 10.4-24 24-24s24 10.4 24 24v589.6c0 31.2-24.8 56-56 56z" fill="" /><path d="M366.4 490.4H201.6c-13.6 0-25.6-11.2-25.6-25.6 0-13.6 11.2-25.6 25.6-25.6h165.6c13.6 0 25.6 11.2 25.6 25.6-0.8 14.4-12 25.6-26.4 25.6zM409.6 584h-208c-13.6 0-25.6-11.2-25.6-25.6 0-13.6 11.2-25.6 25.6-25.6h208c13.6 0 25.6 11.2 25.6 25.6-0.8 14.4-12 25.6-25.6 25.6zM441.6 676.8h-240c-13.6 0-25.6-11.2-25.6-25.6 0-13.6 11.2-25.6 25.6-25.6h240c13.6 0 25.6 11.2 25.6 25.6-0.8 14.4-12 25.6-25.6 25.6z" fill="" /></svg>
-                          </Link>
-                        </p>
-                      </td> */}
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {job.email}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {job.address}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {job.city}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {job.state}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            <Link
+                              target="blanck"
+                              href={job.website ?? ""}
+                              className="text-blue-500 dark:text-blue-300 hover:underline"
+                            >
+                              visit website
+                            </Link>
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {DateFilter(job.postedDate)}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {job.courses.map((courseValue, index) => (
+                              <span key={index}>
+                                {getCourseName(courseValue)}
+                                {/* Add comma if not last course */}
+                                {index !== job.courses.length - 1 && ", "}
+                              </span>
+                            ))}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {job.title}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white text-sm">
+                            {truncateText(job.description, 100)}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            {DateFilter(job.deadline)}
+                          </p>
+                        </td>
+                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                          <p className="text-black dark:text-white">
+                            <Link
+                              target="blanck"
+                              href={job.document}
+                              className="text-blue-500 dark:text-blue-300 hover:underline"
+                            >
+                              view details
+                            </Link>
+                          </p>
+                        </td>
+                        {role !== "Student" && (
+                          <>
+                            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                              <p className="text-black dark:text-white">
+                                {DateFilter(job.approvedDate)}
+                              </p>
+                            </td>
+                            <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                              <p
+                                onClick={
+                                  role === "University"
+                                    ? () =>
+                                        onApproveReject(
+                                          job.jobId,
+                                          job.status,
+                                          index
+                                        )
+                                    : undefined
+                                }
+                                className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium 
+                              ${role === "University" && "hover:bg-opacity-50 hover:text-white"}
+                              ${
+                                job.status === 1
+                                  ? "bg-success text-success"
+                                  : job.status === 2
+                                    ? "bg-danger text-danger"
+                                    : "bg-warning text-warning"
+                              }`}
+                              >
+                                {job.status === 0
+                                  ? "Pending"
+                                  : job.status === 1
+                                    ? "Approved"
+                                    : "Rejected"}
+                              </p>
+                            </td>
+                          </>
+                        )}
+                        {role === "Student" && (
+                          <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                            <p className="text-black dark:text-white">
+                              <ApplyButton
+                                path="/company/jobpost-table"
+                                id={job.jobId}
+                                label="Apply Now"
+                              />
+                            </p>
+                          </td>
+                        )}
+                      </tr>
+                    ))}
+                  {/* {jobs.length > 0 && (
+                    <tr>
+                      <td colSpan={6}>Data not found</td>
                     </tr>
-                  ))}
+                  )} */}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
+        {/* <div className="flex justify-between mt-5">
+          <select
+            className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+            name="course"
+            id="course"
+          >
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <nav aria-label="Page navigation example">
+            <ul className="inline-flex -space-x-px text-base h-10 dark:border-strokedark dark:bg-boxdark">
+              <li onClick={handlePreviousClick}>
+                <a
+                  href="#"
+                  className="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white  dark:bg-boxdark dark:hover:bg-meta-4 border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Previous
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white  dark:bg-boxdark dark:hover:bg-meta-4 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  {currentPage}
+                </a>
+              </li>
+              <li onClick={handleNextClick}>
+                <a
+                  href="#"
+                  className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white  dark:bg-boxdark dark:hover:bg-meta-4 border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Next
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div> */}
+        <Pagination value={value} setValue={setValue}/>
       </DefaultLayout>
     </>
   );
