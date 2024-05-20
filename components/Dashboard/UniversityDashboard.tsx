@@ -9,7 +9,7 @@ interface UniversityData {
   selectedStudents: number;
   pendingStudents: number;
   allStudents: number;
-  applyedCompanys: number;
+  totalJobs: number;
 }
 
 const UniversityDashboard: React.FC = () => {
@@ -31,7 +31,7 @@ const UniversityDashboard: React.FC = () => {
       <Link href={"/company/jobpost-table"}>
         <CardDataStats
           title="Total Companies"
-          total={data?.applyedCompanys.toString() ?? "loading..."}
+          total={data?.totalJobs.toString() ?? "loading..."}
           rate=""
         >
           <svg

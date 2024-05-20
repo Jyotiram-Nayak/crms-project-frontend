@@ -1,7 +1,7 @@
 "use client";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import Addbutton from "@/components/FormElements/buttons/Addbutton";
 import { useDispatch } from "react-redux";
 import { deleteStudent, fetchAllStudent } from "@/lib/StudentSlice/StudentSlice";
@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ToastError, ToastSuccess } from "@/components/ToastMessage/ToastMessage";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import { bool, boolean } from "yup";
+import Pagination from "@/components/Pagination";
 
 interface Student {
   userId: string;
@@ -31,35 +32,49 @@ interface Student {
   course: number;
 }
 
+interface pagination {
+  page?: number;
+  pageSize?: number;
+  filterOn?: string;
+  filterQuery?: string;
+  sortBy?: string;
+  isAscending?: boolean;
+}
+
 const AllStudents = () => {
   const dispatch = useDispatch();
   const [students, setStudents] = useState<Student[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null); // State to store selected course
-  const [selected,setSelected] = useState<string | null>(null)
-  const handleCourseChange = (e:React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    setSelectedCourse(value as string); // Update selected course state
-    console.log("selected",value)  
+  const [value, setValue] = useState<pagination>({
+    page: 1,
+    pageSize: 10,
+    filterOn: "",
+    filterQuery: "",
+    sortBy: "",
+    isAscending: true,
+  });
+
+  const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({ ...prevValue, filterOn: e.target.value }));
   };
-  const handleSelectedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { value } = e.target;
-    setSelected(value as string);
+
+  const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setValue((prevValue) => ({ ...prevValue, filterQuery: e.target.value }));
   };
-  
+
+  const handleSortChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({ ...prevValue, sortBy: e.target.value }));
+  };
+
+  const handleOrderChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({
+      ...prevValue,
+      isAscending: e.target.value === "true",
+    }));
+  };
+
   const fetchData = async () => {
     try {
-      var value = {};
-      // Check if course is selected
-      if (selectedCourse) {
-        value = { ...value, course: selectedCourse };
-      }
-
-      // Check if isSelected is selected
-      // const isSelected = getIsSelectedStatus(); // Implement your logic to get the isSelected status
-      if (selected) {
-        value = { ...value, isSelected:selected };
-      }
-      console.log("value:",value)
+      console.log("pagination:", value)
       const response = await dispatch(fetchAllStudent(value));
       console.log(response.payload.data); // This should contain the data from your API response
       response.payload.data && setStudents(response.payload.data);
@@ -88,7 +103,7 @@ const AllStudents = () => {
   }
   useEffect(() => {
     fetchData();
-  }, [selectedCourse,selected]);
+  }, [value]);
   // Run once on component mount
 
   return (
@@ -99,40 +114,48 @@ const AllStudents = () => {
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
               <div className="flex align-middle space-x-2">
-              {/* <h3 className="font-medium text-black dark:text-white text-2xl">Students</h3> */}
-              <select
-                className="rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                name="course"
-                id="course"
-                // value={values.course}
-                onChange={handleCourseChange}
-              >
-                <option value="" disabled>
-                  Select Course
-                </option>
-                <option value="" >All Course</option>
-                {Object.keys(StudentCourse)
-                  .filter(key => isNaN(Number(StudentCourse[key as keyof typeof StudentCourse])))
-                  .map((key) => (
-                    <option key={key} value={StudentCourse[key as keyof typeof StudentCourse]}>
-                      {StudentCourse[key as keyof typeof StudentCourse]}
-                    </option>
-                  ))}
-              </select>
-              <select
-                className="rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                name="course"
-                id="course"
-                // value={values.course}
-                onChange={handleSelectedChange}
-              >
-                <option value="" disabled>
-                  Select Status
-                </option>
-                <option value="" >All Students</option>
-                <option value="true" >Selected</option>
-                <option value="false" >Not Selected</option>
-              </select>
+                <select
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="course"
+                  id="course"
+                  onChange={handleFilterChange}
+                >
+                  <option value="" disabled selected>Filter on</option>
+                  <option value="Title">Title</option>
+                  <option value="FirstName">Name</option>
+                  <option value="City">City</option>
+                  <option value="State">State</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Type to search..."
+                  name="filterQuery"
+                  id="filterQuery"
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  onChange={handleQueryChange}
+                />
+                <select
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="course"
+                  id="course"
+                  onChange={handleSortChange}
+                >
+                  <option value="" selected>Sort by</option>
+                  <option value="Title">Title</option>
+                  <option value="FirstName">Name</option>
+                  <option value="Posted Date">Posted Date</option>
+                  <option value="City">City</option>
+                  <option value="State">State</option>
+                </select>
+                <select
+                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="course"
+                  id="course"
+                  onChange={handleOrderChange}
+                >
+                  <option value="true">Ascending</option>
+                  <option value="false">Descending</option>
+                </select>
               </div>
               <Addbutton path="./student-form/" text="Add new student" />
             </div>
@@ -330,6 +353,7 @@ const AllStudents = () => {
             </div>
           </div>
         </div>
+        <Pagination value={value} setValue={setValue} />
       </DefaultLayout>
     </>
   );

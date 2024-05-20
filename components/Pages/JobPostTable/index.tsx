@@ -40,7 +40,7 @@ interface User {
   rejectedDate: string;
   status: number;
 }
-interface jobParams {
+interface pagination {
   page?: number;
   pageSize?: number;
   filterOn?: string;
@@ -53,7 +53,7 @@ const JobPostTable: React.FC = () => {
   const dispatch = useDispatch();
   const [jobs, setJobs] = useState<User[]>([]);
   const role = getCookie("role");
-  const [value, setValue] = useState<jobParams>({
+  const [value, setValue] = useState<pagination>({
     page: 1,
     pageSize: 10,
     filterOn: "",
@@ -91,7 +91,7 @@ const JobPostTable: React.FC = () => {
       const universityId = user.universityId;
       const response =
         role === "Student"
-          ? await dispatch<any>(fetchAllJobByUniversityId(universityId))
+          ? await dispatch<any>(fetchAllJobByUniversityId({universityId,val:value}))
           : await dispatch<any>(fetchAllJob(value));
       console.log("all jobs", response); // This should contain the data from your API response
       response.payload?.data && setJobs(response.payload.data);
@@ -137,10 +137,17 @@ const JobPostTable: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [value]); // Run once on component mount
 
+  useEffect(() => {
+    // const delayDebounceFn = setTimeout(() => {
+    //   fetchData();
+    //   }, 300);
+      fetchData();
+
+    // return () => clearTimeout(delayDebounceFn);
+  }, [value]);
+
+  // sort the description
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
     return text.slice(0, maxLength) + "...";
@@ -162,9 +169,8 @@ const JobPostTable: React.FC = () => {
                   name="course"
                   id="course"
                   onChange={handleFilterChange}
-                  defaultValue="Filter on"
                 >
-                  {/* <option value="" disabled selected>Filter on</option> */}
+                  <option value="" disabled selected>Filter on</option>
                   <option value="Title">Title</option>
                   <option value="FirstName">Name</option>
                   <option value="City">City</option>
@@ -183,8 +189,8 @@ const JobPostTable: React.FC = () => {
                   name="course"
                   id="course"
                   onChange={handleSortChange}
-                  defaultValue="Sort by"
                 >
+                  <option value="" selected>Sort by</option>
                   <option value="Title">Title</option>
                   <option value="FirstName">Name</option>
                   <option value="Posted Date">Posted Date</option>
@@ -411,46 +417,6 @@ const JobPostTable: React.FC = () => {
             </div>
           </div>
         </div>
-        {/* <div className="flex justify-between mt-5">
-          <select
-            className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-            name="course"
-            id="course"
-          >
-            <option value="10">10</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </select>
-          <nav aria-label="Page navigation example">
-            <ul className="inline-flex -space-x-px text-base h-10 dark:border-strokedark dark:bg-boxdark">
-              <li onClick={handlePreviousClick}>
-                <a
-                  href="#"
-                  className="flex items-center justify-center px-4 h-10 ms-0 leading-tight text-gray-500 bg-white  dark:bg-boxdark dark:hover:bg-meta-4 border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Previous
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white  dark:bg-boxdark dark:hover:bg-meta-4 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  {currentPage}
-                </a>
-              </li>
-              <li onClick={handleNextClick}>
-                <a
-                  href="#"
-                  className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white  dark:bg-boxdark dark:hover:bg-meta-4 border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  Next
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div> */}
         <Pagination value={value} setValue={setValue}/>
       </DefaultLayout>
     </>

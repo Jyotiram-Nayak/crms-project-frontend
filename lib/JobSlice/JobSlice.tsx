@@ -42,12 +42,12 @@ export const fetchAllJob = createAsyncThunk(
 
 export const fetchAllJobByUniversityId = createAsyncThunk(
   "fetchAllJobByUniversityId",
-  async (universityId:string) => {
+  async ({universityId,val}:{universityId:string,val:object}) => {
     const userToken = getCookie("token");
     try {
       const getjob = await axios.get(
         `${BASE_URL}/job/get-all-jobs-by-university/${universityId}`,
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        {params :val, headers: { Authorization: `Bearer ${userToken}` } }
       );
       return getjob.data;
     } catch (error: any) {
