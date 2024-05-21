@@ -1,17 +1,21 @@
 "use client";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import React, { ChangeEvent, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { approveUser, getAllUniversity } from "@/lib/UserSlice/UserSlice";
-import Link from "next/link";
-import { getCookie } from "cookies-next";
+import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Pagination from "@/components/Pagination";
 import {
   ToastError,
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
+import {
+  approveUser,
+  getAllCompany,
+  getAllUniversity,
+} from "@/lib/UserSlice/UserSlice";
+import { getCookie } from "cookies-next";
 import Image from "next/image";
+import Link from "next/link";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 
 interface User {
   id: string;
@@ -36,9 +40,9 @@ interface pagination {
   sortBy?: string;
   isAscending?: boolean;
 }
-const UniversityTable: React.FC = () => {
+const CompanyList = () => {
   const dispatch = useDispatch();
-  const [universities, setUniversities] = useState<User[]>([]);
+  const [companies, setCompanies] = useState<User[]>([]);
   const [value, setValue] = useState<pagination>({
     page: 1,
     pageSize: 10,
@@ -74,9 +78,9 @@ const UniversityTable: React.FC = () => {
   const fetchData = async () => {
     try {
       console.log("pagination", value);
-      const response = await dispatch(getAllUniversity(value));
+      const response = await dispatch(getAllCompany(value));
       console.log(response.payload.data); // This should contain the data from your API response
-      response.payload.data && setUniversities(response.payload.data);
+      response.payload.data && setCompanies(response.payload.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -91,14 +95,14 @@ const UniversityTable: React.FC = () => {
       const response = await dispatch(approveUser(userId));
       console.log("response", response);
       if (response.payload.success) {
-        const tempuniversity = [...universities];
-        tempuniversity[index] = {
-          ...tempuniversity[index],
+        const tempcompanies = [...companies];
+        tempcompanies[index] = {
+          ...tempcompanies[index],
           isApproved: !isApproved,
         };
-        console.log(tempuniversity);
+        console.log(tempcompanies);
         ToastSuccess(response.payload.message);
-        setUniversities(tempuniversity);
+        setCompanies(tempcompanies);
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
@@ -110,11 +114,10 @@ const UniversityTable: React.FC = () => {
   useEffect(() => {
     fetchData();
   }, [value]);
-
   return (
     <>
       <DefaultLayout>
-        <Breadcrumb pageName="University List" />
+        <Breadcrumb pageName="Company List" />
         <div className="flex flex-col gap-9">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
@@ -201,7 +204,7 @@ const UniversityTable: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {universities.map((university, index) => (
+                  {companies.map((company, index) => (
                     <tr key={index}>
                       <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark">
                         <p className="text-sm">{index + 1}</p>
@@ -212,8 +215,7 @@ const UniversityTable: React.FC = () => {
                             width={112}
                             height={112}
                             src={
-                              university.image ??
-                              "/images/user/profile-image.jpg"
+                              company.image ?? "/images/user/profile-image.jpg"
                             }
                             style={{
                               borderRadius: "50%",
@@ -225,71 +227,59 @@ const UniversityTable: React.FC = () => {
                           />
                         </span>
                         <p className="text-black dark:text-white">
-                          {university.firstName + " " + university.lastName}
+                          {company.firstName + " " + company.lastName}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {university.email}
+                          {company.email}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {university.address}
+                          {company.address}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {university.city}
+                          {company.city}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {university.state}
+                          {company.state}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
                           <Link
                             target="blanck"
-                            href={university.website ?? ""}
+                            href={company.website ?? ""}
                             className="text-blue-500 dark:text-blue-300 hover:underline"
                           >
                             visit website
                           </Link>
                         </p>
                       </td>
-                      {role == "Company" && (
-                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                          <p className="text-black dark:text-white">
-                            <Link
-                              href={`/company/jobposting?universityId=${university.id}`}
-                              className="bg-primary font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
-                            >
-                              Apply
-                            </Link>
-                          </p>
-                        </td>
-                      )}
                       {role == "Admin" && (
                         <td
                           className="border-b border-[#eee] px-4 py-5 dark:border-strokedark"
                           onClick={() => {
                             handleApprove(
-                              university.id,
-                              university.isApproved,
+                              company.id,
+                              company.isApproved,
                               index
                             );
                           }}
                         >
                           <p
                             className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${
-                              university.isApproved == true
+                              company.isApproved == true
                                 ? "bg-success text-success"
                                 : "bg-warning text-warning"
                             }`}
                           >
-                            {university.isApproved == true
+                            {company.isApproved == true
                               ? "Approved"
                               : "Pending"}
                           </p>
@@ -308,4 +298,4 @@ const UniversityTable: React.FC = () => {
   );
 };
 
-export default UniversityTable;
+export default CompanyList;

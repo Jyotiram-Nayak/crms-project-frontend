@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import HomeLayout from "@/components/Layouts/HomeLayout";
-import HomePage from "@/components/Home/HomePage";
+import HomePage from "@/components/Pages/Home";
 
 export const metadata: Metadata = {
   title: "Next.js Dashboard | CareerForge - Next.js Dashboard",

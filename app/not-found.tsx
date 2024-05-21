@@ -40,14 +40,14 @@ const Page = () => {
               <p>4</p>
               <svg
                 className="h-30 w-30 text-red-500"
-                width="24"
-                height="24"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
-                stroke-width="2"
+                strokeWidth="2"
                 stroke="currentColor"
                 fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 {" "}
                 <path stroke="none" d="M0 0h24v24H0z" />{" "}
@@ -73,15 +73,15 @@ const Page = () => {
               className="mt-5 me-2 rounded bg-black p-3 font-medium text-gray hover:bg-opacity-90 flex space-x-2" 
             >
               <svg
-                className="h-6 w-6 text-red-500"
-                width="24"
-                height="24"
+                className=" text-red-500"
+                width="20"
+                height="20"
                 viewBox="0 0 24 24"
-                stroke-width="2"
+                strokeWidth="2"
                 stroke="currentColor"
                 fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
                 {" "}
                 <path stroke="none" d="M0 0h24v24H0z" />{" "}
@@ -92,7 +92,7 @@ const Page = () => {
             </button>
             <Link href="/" passHref>
               <button className="mt-5 rounded bg-black p-3 font-medium text-gray hover:bg-opacity-90 flex">
-              <svg className="h-6 w-6 text-red-500"  width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <polyline points="5 12 3 12 12 3 21 12 19 12" />  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />  <rect x="10" y="12" width="4" height="4" /></svg>
+              <svg className="h-6 w-6 text-red-500"  width="20" height="20" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">  <path stroke="none" d="M0 0h24v24H0z"/>  <polyline points="5 12 3 12 12 3 21 12 19 12" />  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />  <rect x="10" y="12" width="4" height="4" /></svg>
               &nbsp;&nbsp;Go to Homepage
               </button>
             </Link>

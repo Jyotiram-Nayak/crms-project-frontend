@@ -32,8 +32,8 @@ const Pagination: React.FC<PaginationProps> = ({ value, setValue }) => {
       <div className="flex justify-between mt-5">
         <select
           className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-          name="course"
-          id="course"
+          name="pagesize"
+          id="pagesize"
           onChange={handlePageSizeChange}
         >
           <option value="10">10</option>

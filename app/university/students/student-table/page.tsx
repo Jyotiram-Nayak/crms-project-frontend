@@ -4,13 +4,20 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import Addbutton from "@/components/FormElements/buttons/Addbutton";
 import { useDispatch } from "react-redux";
-import { deleteStudent, fetchAllStudent } from "@/lib/StudentSlice/StudentSlice";
+import {
+  deleteStudent,
+  fetchAllStudent,
+} from "@/lib/StudentSlice/StudentSlice";
 import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
 import Link from "next/link";
-import { ToastError, ToastSuccess } from "@/components/ToastMessage/ToastMessage";
+import {
+  ToastError,
+  ToastSuccess,
+} from "@/components/ToastMessage/ToastMessage";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import { bool, boolean } from "yup";
 import Pagination from "@/components/Pagination";
+import Image from "next/image";
 
 interface Student {
   userId: string;
@@ -30,6 +37,9 @@ interface Student {
   isApproved: number;
   isSelected: number;
   course: number;
+  city: string;
+  state: string;
+  image:string;
 }
 
 interface pagination {
@@ -54,7 +64,7 @@ const AllStudents = () => {
   });
 
   const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setValue((prevValue) => ({ ...prevValue, filterOn: e.target.value }));
+    setValue((prevValue) => ({ ...prevValue, filterOn: e.target.value, filterQuery:""}));
   };
 
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -72,9 +82,16 @@ const AllStudents = () => {
     }));
   };
 
+  const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({ ...prevValue, filterQuery: e.target.value }));
+  };
+  const handleSelectedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setValue((prevValue) => ({ ...prevValue, filterQuery: e.target.value }));
+  };
+
   const fetchData = async () => {
     try {
-      console.log("pagination:", value)
+      console.log("pagination:", value);
       const response = await dispatch(fetchAllStudent(value));
       console.log(response.payload.data); // This should contain the data from your API response
       response.payload.data && setStudents(response.payload.data);
@@ -85,7 +102,9 @@ const AllStudents = () => {
 
   const onDeleteStudent = async (studentId: string) => {
     try {
-      const confirmed = window.confirm("Are you sure you want to delete this student ?");
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this student ?"
+      );
       if (!confirmed) {
         return;
       }
@@ -93,14 +112,16 @@ const AllStudents = () => {
       const response = await dispatch(deleteStudent(studentId));
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-        setStudents(prevStudents => prevStudents.filter(student => student.userId !== studentId));
+        setStudents((prevStudents) =>
+          prevStudents.filter((student) => student.userId !== studentId)
+        );
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  }
+  };
   useEffect(() => {
     fetchData();
   }, [value]);
@@ -112,45 +133,96 @@ const AllStudents = () => {
         <Breadcrumb pageName="Students" />
         <div className="flex flex-col gap-9">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-              <div className="flex align-middle space-x-2">
+            <div className="flex flex-wrap space-y-2 justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
+              <div className="flex flex-wrap align-middle space-x-2 space-y-2">
                 <select
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="filteron"
+                  id="filteron"
+                  value={value.filterOn}
                   onChange={handleFilterChange}
                 >
-                  <option value="" disabled selected>Filter on</option>
-                  <option value="Title">Title</option>
+                  <option value="" disabled>
+                    Filter on
+                  </option>
+                  <option value="">All Students</option>
                   <option value="FirstName">Name</option>
+                  <option value="RollNo">Roll No</option>
+                  <option value="Email">Email</option>
                   <option value="City">City</option>
                   <option value="State">State</option>
+                  <option value="Course">Course</option>
+                  <option value="isSelected">Status</option>
                 </select>
+                {value.filterOn?.toLowerCase() !== "course" && value.filterOn?.toLowerCase() !== "isselected" &&
                 <input
                   type="text"
                   placeholder="Type to search..."
                   name="filterQuery"
                   id="filterQuery"
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  value={value.filterQuery}
+                  className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   onChange={handleQueryChange}
-                />
+                />}
+                {value.filterOn?.toLowerCase() === "course" &&
                 <select
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  className="rounded-lg border border-stroke bg-transparent py-2 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   name="course"
                   id="course"
+                  onChange={handleCourseChange}
+                >
+                  <option value="" disabled>
+                    Select Course
+                  </option>
+                  <option value="">All Course</option>
+                  {Object.keys(StudentCourse)
+                    .filter((key) =>
+                      isNaN(
+                        Number(StudentCourse[key as keyof typeof StudentCourse])
+                      )
+                    )
+                    .map((key) => (
+                      <option
+                        key={key}
+                        value={StudentCourse[key as keyof typeof StudentCourse]}
+                      >
+                        {StudentCourse[key as keyof typeof StudentCourse]}
+                      </option>
+                    ))}
+                </select>}
+                {value.filterOn?.toLowerCase() === "isselected" &&
+                <select
+                  className="rounded-lg border py-2 border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="state"
+                  id="state"
+                  onChange={handleSelectedChange}
+                >
+                  <option value="" disabled>
+                    Select Status
+                  </option>
+                  <option value="">All Students</option>
+                  <option value="true">Selected</option>
+                  <option value="false">Pending</option>
+                </select>}
+                <select
+                  className="bg-white rounded-lg py-2 border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="sortby"
+                  id="sortby"
+                  value={value.sortBy}
                   onChange={handleSortChange}
                 >
-                  <option value="" selected>Sort by</option>
-                  <option value="Title">Title</option>
+                  <option value="" disabled>
+                    Sort by
+                  </option>
+                  <option value="CreateOn">Register Date</option>
                   <option value="FirstName">Name</option>
-                  <option value="Posted Date">Posted Date</option>
                   <option value="City">City</option>
                   <option value="State">State</option>
                 </select>
                 <select
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="sortqrder"
+                  id="sortqrder"
                   onChange={handleOrderChange}
                 >
                   <option value="true">Ascending</option>
@@ -177,6 +249,12 @@ const AllStudents = () => {
                     </th>
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Address
+                    </th>
+                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                      City
+                    </th>
+                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                      State
                     </th>
                     <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
                       Dob
@@ -219,7 +297,23 @@ const AllStudents = () => {
                       <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark">
                         <p className="text-sm">{index + 1}</p>
                       </td>
-                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                      <td className="border-[#eee] border-b dark:border-strokedark flex items-center px-4 py-5 space-x-2">
+                        <span className="h-12 w-12 rounded-full">
+                          <Image
+                            width={112}
+                            height={112}
+                            src={
+                              student.image ?? "/images/user/profile-image.jpg"
+                            }
+                            style={{
+                              borderRadius: "50%",
+                              width: "auto",
+                              height: "auto",
+                            }}
+                            alt="User"
+                            priority
+                          />
+                        </span>
                         <p className="text-black dark:text-white">
                           {student.firstName + " " + student.lastName}
                         </p>
@@ -241,12 +335,26 @@ const AllStudents = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
+                          {student.city}
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                        <p className="text-black dark:text-white">
+                          {student.state}
+                        </p>
+                      </td>
+                      <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                        <p className="text-black dark:text-white">
                           {DateFilter(student.dob)}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {student.gender === 0 ? "Male" : student.gender === 1 ? "Female" : "Other"}
+                          {student.gender === 0
+                            ? "Male"
+                            : student.gender === 1
+                              ? "Female"
+                              : "Other"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
@@ -283,41 +391,55 @@ const AllStudents = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p
-                          className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${student.isApproved == 1
-                            ? "bg-success text-success"
-                            : student.isApproved == 0
-                              ? "bg-danger text-danger"
-                              : "bg-warning text-warning"
-                            }`}
+                          className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${
+                            student.isApproved == 1
+                              ? "bg-success text-success"
+                              : student.isApproved == 0
+                                ? "bg-danger text-danger"
+                                : "bg-warning text-warning"
+                          }`}
                         >
-                          {student.isApproved == 1
-                            ? "Active"
-                            : "Deactive"}
+                          {student.isApproved == 1 ? "Active" : "Deactive"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p
-                          className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${student.isSelected == 1
-                            ? "bg-success text-success"
-                            : "bg-warning text-warning"
-                            }`}
+                          className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${
+                            student.isSelected == 1
+                              ? "bg-success text-success"
+                              : "bg-warning text-warning"
+                          }`}
                         >
-                          {student.isSelected == 1
-                            ? "Selected"
-                            : "Pending"}
+                          {student.isSelected == 1 ? "Selected" : "Pending"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <div className="flex items-center space-x-3.5">
                           <Link href={`/university/students/${student.userId}`}>
                             <button className="hover:text-primary">
-                              <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
+                              <svg
+                                className="w-6 h-6 text-gray-800 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="20"
+                                height="20"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+                                />
                               </svg>
                             </button>
                           </Link>
-                          <button onClick={() => onDeleteStudent(student.userId)}
-                            className="hover:text-primary">
+                          <button
+                            onClick={() => onDeleteStudent(student.userId)}
+                            className="hover:text-primary"
+                          >
                             <svg
                               className="fill-current"
                               width="18"

@@ -46,7 +46,7 @@ const page = () => {
                             <div className="p-6.5">
                                 <div className="mb-4">
                                     <label className="mb-2.5 block font-medium text-black dark:text-white">
-                                        Email
+                                        Email<span className="text-red">*</span>
                                     </label>
                                     <div className="relative">
                                         <input

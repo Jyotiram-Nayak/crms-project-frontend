@@ -129,12 +129,12 @@ export const resetPassword = createAsyncThunk(
 
 export const getAllUniversity = createAsyncThunk(
   "getAllUniversity",
-  async () => {
+  async (val:object) => {
     const userToken = getCookie("token");
     try {
       const existingUser = await axios.get(
         `${BASE_URL}/Account/get-all-university`,
-        { headers: { Authorization: `Bearer ${userToken}` } }
+        {params:val, headers: { Authorization: `Bearer ${userToken}` } }
       );
       const data = await existingUser.data;
       return data;
@@ -157,6 +157,25 @@ export const getAllCompany = createAsyncThunk("getAllCompany", async () => {
     throw error?.response?.data;
   }
 });
+
+export const approveUser = createAsyncThunk(
+  "approveUser",
+  async (userId: string) => {
+    const userToken = getCookie("token");
+    try {
+      const existingUser = await axios.put(
+        `${BASE_URL}/Account/approve-user/${userId}`,
+
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      const data = await existingUser.data;
+      return data;
+    } catch (error: any) {
+      throw error?.response?.data;
+    }
+  }
+);
+
 
 export const getUniversityDashboard = createAsyncThunk(
   "getUniversityDashboard", async () => {

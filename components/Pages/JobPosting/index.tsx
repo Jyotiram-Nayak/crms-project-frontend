@@ -16,7 +16,7 @@ import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface FormValues {
@@ -49,7 +49,10 @@ const JobPoasting = () => {
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
   const [universities, setUniversities] = useState<University[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
+  const searchParams = useSearchParams();
   const route = useRouter();
+  const universityId =  searchParams.get('universityId');
+
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
       return;
@@ -109,7 +112,7 @@ const JobPoasting = () => {
       onSubmit: async (values, { resetForm }) => {
         values.courses = selected;
         console.log("form values", values);
-        const response = await dispatch(addJob(values));
+        const response = await dispatch<any>(addJob(values));
         console.log(response);
         if (response.payload?.success) {
           ToastSuccess(response.payload?.message);
@@ -163,7 +166,7 @@ const JobPoasting = () => {
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     name="universityId"
                     id="universityId"
-                    value={values.universityId}
+                    value={universityId ?? values.universityId}
                     onChange={handleChange}
                   >
                     <option value="" disabled>
@@ -266,15 +269,15 @@ const JobPoasting = () => {
                             stroke="currentColor"
                           >
                             <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
                               d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                             />
                             <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
                               d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                             />
                           </svg>

@@ -125,8 +125,8 @@ export default function Page({ params }: { params: { userId: string } }) {
   };
 
   useEffect(() => {
-    loadStates()
     fetchData();
+    loadStates()
   }, []);
 
   useEffect(() => {

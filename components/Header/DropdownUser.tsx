@@ -5,21 +5,10 @@ import { logout } from "@/lib/UserSlice/UserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 interface User {
-  id: string;
   firstName: string;
   lastName: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  city: string;
-  state: string;
   role: string;
-  website: string;
-  bio: string;
   image: string;
-  isApproved: boolean;
-  createOn: string;
-  updateOn: string | null;
 }
 const DropdownUser = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -184,7 +173,7 @@ const DropdownUser = () => {
             <Link
               href="/profile/change-password"
               className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base">
-              <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24">
                 <path stroke="currentColor" strokeLinecap="square" strokeLinejoin="round" strokeWidth="2" d="M7 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h1m4-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm7.441 1.559a1.907 1.907 0 0 1 0 2.698l-6.069 6.069L10 19l.674-3.372 6.07-6.07a1.907 1.907 0 0 1 2.697 0Z" />
               </svg>
               Change Password

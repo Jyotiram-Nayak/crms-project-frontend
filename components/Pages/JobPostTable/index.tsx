@@ -20,6 +20,7 @@ import Addbutton from "@/components/FormElements/buttons/Addbutton";
 import ApplyButton from "@/components/FormElements/buttons/ApplyButton";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import Pagination from "@/components/Pagination";
+import Image from "next/image";
 
 interface User {
   jobId: string;
@@ -39,6 +40,7 @@ interface User {
   approvedDate: string;
   rejectedDate: string;
   status: number;
+  image:string;
 }
 interface pagination {
   page?: number;
@@ -63,7 +65,11 @@ const JobPostTable: React.FC = () => {
   });
 
   const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setValue((prevValue) => ({ ...prevValue, filterOn: e.target.value }));
+    setValue((prevValue) => ({
+      ...prevValue,
+      filterOn: e.target.value,
+      filterQuery: "",
+    }));
   };
 
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +97,9 @@ const JobPostTable: React.FC = () => {
       const universityId = user.universityId;
       const response =
         role === "Student"
-          ? await dispatch<any>(fetchAllJobByUniversityId({universityId,val:value}))
+          ? await dispatch<any>(
+              fetchAllJobByUniversityId({ universityId, val: value })
+            )
           : await dispatch<any>(fetchAllJob(value));
       console.log("all jobs", response); // This should contain the data from your API response
       response.payload?.data && setJobs(response.payload.data);
@@ -137,14 +145,8 @@ const JobPostTable: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
-    // const delayDebounceFn = setTimeout(() => {
-    //   fetchData();
-    //   }, 300);
-      fetchData();
-
-    // return () => clearTimeout(delayDebounceFn);
+    fetchData();
   }, [value]);
 
   // sort the description
@@ -159,20 +161,21 @@ const JobPostTable: React.FC = () => {
         <Breadcrumb pageName="Jobs List" />
         <div className="flex flex-col gap-9">
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
-            <div className="flex justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-              <div className="flex space-x-2">
-                <h3 className="font-medium text-black dark:text-white py-2">
-                  Job List
-                </h3>
+            <div className="flex flex-wrap justify-between border-b border-stroke px-6.5 py-4 dark:border-strokedark">
+              <div className="flex flex-wrap space-x-2">
                 <select
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="filteron"
+                  id="filteron"
+                  value={value.filterOn}
                   onChange={handleFilterChange}
                 >
-                  <option value="" disabled selected>Filter on</option>
-                  <option value="Title">Title</option>
+                  <option value="" disabled>
+                    Filter on
+                  </option>
                   <option value="FirstName">Name</option>
+                  <option value="Email">Email</option>
+                  <option value="Title">Title</option>
                   <option value="City">City</option>
                   <option value="State">State</option>
                 </select>
@@ -181,16 +184,20 @@ const JobPostTable: React.FC = () => {
                   placeholder="Type to search..."
                   name="filterQuery"
                   id="filterQuery"
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  value={value.filterQuery}
+                  className="bg-white rounded-lg py-2 border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   onChange={handleQueryChange}
                 />
                 <select
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  className="bg-white rounded-lg border py-2 border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="sortby"
+                  id="sortby"
+                  value={value.sortBy}
                   onChange={handleSortChange}
                 >
-                  <option value="" selected>Sort by</option>
+                  <option value="" disabled>
+                    Sort by
+                  </option>
                   <option value="Title">Title</option>
                   <option value="FirstName">Name</option>
                   <option value="Posted Date">Posted Date</option>
@@ -198,9 +205,9 @@ const JobPostTable: React.FC = () => {
                   <option value="State">State</option>
                 </select>
                 <select
-                  className="bg-white rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  className="bg-white rounded-lg border py-2 border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                  name="sortorder"
+                  id="sortorder"
                   onChange={handleOrderChange}
                 >
                   <option value="true">Ascending</option>
@@ -224,7 +231,7 @@ const JobPostTable: React.FC = () => {
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Email
                     </th>
-                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                    <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white">
                       Address
                     </th>
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
@@ -278,7 +285,24 @@ const JobPostTable: React.FC = () => {
                         <td className="border-b border-[#eee] px-4 py-5 pl-9 dark:border-strokedark">
                           <p className="text-sm">{index + 1}</p>
                         </td>
-                        <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
+                        <td className="border-[#eee] border-b dark:border-strokedark flex items-center px-4 py-5 space-x-2">
+                          <span className="h-12 w-12 rounded-full">
+                            <Image
+                              width={112}
+                              height={112}
+                              src={
+                                job.image ??
+                                "/images/user/profile-image.jpg"
+                              }
+                              style={{
+                                borderRadius: "50%",
+                                width: "auto",
+                                height: "auto",
+                              }}
+                              alt="User"
+                              priority
+                            />
+                          </span>
                           <p className="text-black dark:text-white">
                             {job.firstName + " " + job.lastName}
                           </p>
@@ -290,7 +314,7 @@ const JobPostTable: React.FC = () => {
                         </td>
                         <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                           <p className="text-black dark:text-white">
-                            {job.address}
+                            {truncateText(job.address, 100)}
                           </p>
                         </td>
                         <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
@@ -417,7 +441,7 @@ const JobPostTable: React.FC = () => {
             </div>
           </div>
         </div>
-        <Pagination value={value} setValue={setValue}/>
+        <Pagination value={value} setValue={setValue} />
       </DefaultLayout>
     </>
   );

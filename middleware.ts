@@ -9,11 +9,10 @@ export async function middleware(req: NextRequest) {
 
     // Define the routes and their permitted roles
     const routePermissions: { [key: string]: string[] } = {
-        '/company/application': ['Company'],
         '/company/jobposting': ['Company'],
         '/company/jobpost-table/[jobid]': ['Company'],
         '/company/universitytable': ['Company','Admin'],
-        '/company/jobpost-table': ['University', 'Student', 'Company'],
+        '/company/jobpost-table': ['Admin','University', 'Student', 'Company'],
         '/dashboard': ['University', 'Student', 'Company', 'Admin'],
         '/profile': ['University', 'Student', 'Company', 'Admin'],
         '/profile/change-password': ['University', 'Student', 'Company', 'Admin'],
@@ -21,6 +20,7 @@ export async function middleware(req: NextRequest) {
         '/student/all-apply-jobs/': ['Student','Company'],
         '/student/all-apply-jobs/[applicationId]': ['Student','Company'],
         '/company/jobposting/[jobId]': ['Student'],
+        '/university/company-list': ['Admin','University'],
         '/university/students/[userId]': ['University'],
         '/university/students/student-form': ['University'],
         '/university/students/student-table': ['University'],
