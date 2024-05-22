@@ -12,6 +12,7 @@ import {
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
 import Image from "next/image";
+import Loader from "@/components/common/Loader";
 
 interface User {
   id: string;
@@ -39,6 +40,7 @@ interface pagination {
 const UniversityTable: React.FC = () => {
   const dispatch = useDispatch();
   const [universities, setUniversities] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState<pagination>({
     page: 1,
     pageSize: 10,
@@ -72,6 +74,7 @@ const UniversityTable: React.FC = () => {
   };
   const role = getCookie("role");
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       console.log("pagination", value);
       const response = await dispatch(getAllUniversity(value));
@@ -80,6 +83,7 @@ const UniversityTable: React.FC = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+    setIsLoading(false);
   };
 
   const handleApprove = async (
@@ -113,6 +117,7 @@ const UniversityTable: React.FC = () => {
 
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="University List" />
         <div className="flex flex-col gap-9">

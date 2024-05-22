@@ -21,6 +21,7 @@ import ApplyButton from "@/components/FormElements/buttons/ApplyButton";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import Pagination from "@/components/Pagination";
 import Image from "next/image";
+import Loader from "@/components/common/Loader";
 
 interface User {
   jobId: string;
@@ -55,6 +56,7 @@ const JobPostTable: React.FC = () => {
   const dispatch = useDispatch();
   const [jobs, setJobs] = useState<User[]>([]);
   const role = getCookie("role");
+  const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState<pagination>({
     page: 1,
     pageSize: 10,
@@ -92,6 +94,7 @@ const JobPostTable: React.FC = () => {
   console.log("user", user);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       console.log("parameters value :", value);
       const universityId = user.universityId;
@@ -106,6 +109,7 @@ const JobPostTable: React.FC = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+    setIsLoading(false);
   };
   const getCourseName = (courseValue: number): string => {
     return StudentCourse[courseValue];
@@ -157,6 +161,7 @@ const JobPostTable: React.FC = () => {
 
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="Jobs List" />
         <div className="flex flex-col gap-9">

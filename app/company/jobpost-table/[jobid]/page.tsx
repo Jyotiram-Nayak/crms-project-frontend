@@ -6,6 +6,7 @@ import {
   ToastError,
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
+import Loader from "@/components/common/Loader";
 import { storage } from "@/firebase/firebase";
 import { addJobApplication } from "@/lib/JobApplicationSlice/JobApplicationSlice";
 import { addJob } from "@/lib/JobSlice/JobSlice";
@@ -61,6 +62,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
   const dispatch = useDispatch();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const state = useSelector((state: any) => state.job);
   const jobData = state.job;
@@ -139,6 +141,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
     onSubmit: async (values, { resetForm }) => {
       console.log("form values", values);
       values.jobId = job?.jobId || "";
+      setIsLoading(true);
       const response = await dispatch(addJobApplication(values));
       console.log(response);
       if (response.payload?.success) {
@@ -147,14 +150,14 @@ export default function Page({ params }: { params: { jobid: string } }) {
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
-      resetForm();
-      setFile(null);
+      setIsLoading(false);
     },
   });
   console.log(errors);
 
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <div className="mx-auto max-w-242.5">
           <Breadcrumb pageName="Job Details" />

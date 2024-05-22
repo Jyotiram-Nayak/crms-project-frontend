@@ -54,6 +54,7 @@ interface pagination {
 const AllStudents = () => {
   const dispatch = useDispatch();
   const [students, setStudents] = useState<Student[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState<pagination>({
     page: 1,
     pageSize: 10,
@@ -90,6 +91,7 @@ const AllStudents = () => {
   };
 
   const fetchData = async () => {
+    setIsLoading(true)
     try {
       console.log("pagination:", value);
       const response = await dispatch(fetchAllStudent(value));
@@ -98,6 +100,7 @@ const AllStudents = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+    setIsLoading(false)
   };
 
   const onDeleteStudent = async (studentId: string) => {

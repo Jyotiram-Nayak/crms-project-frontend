@@ -42,7 +42,7 @@ const Navbar = () => {
               <div>{" | "}</div>
               <div>{user?.email}</div>
             </div>
-            <div className="flex" onClick={handleLogout}>
+            <div className="flex items-center space-x-1" onClick={handleLogout}>
               <div>Logout </div>
               <svg
                 className=" text-red-500"
@@ -66,7 +66,7 @@ const Navbar = () => {
         <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
           <Link
             href="/"
-            className="flex items-center space-x-3 rtl:space-x-reverse"
+            className="dark:bg-white flex items-center rounded  space-x-3 rtl:space-x-reverse"
           >
             <Image
               width={210}

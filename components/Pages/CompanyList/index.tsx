@@ -6,6 +6,7 @@ import {
   ToastError,
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
+import Loader from "@/components/common/Loader";
 import {
   approveUser,
   getAllCompany,
@@ -43,6 +44,7 @@ interface pagination {
 const CompanyList = () => {
   const dispatch = useDispatch();
   const [companies, setCompanies] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState<pagination>({
     page: 1,
     pageSize: 10,
@@ -76,6 +78,7 @@ const CompanyList = () => {
   };
   const role = getCookie("role");
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       console.log("pagination", value);
       const response = await dispatch(getAllCompany(value));
@@ -84,6 +87,7 @@ const CompanyList = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+    setIsLoading(false)
   };
 
   const handleApprove = async (
@@ -116,6 +120,7 @@ const CompanyList = () => {
   }, [value]);
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="Company List" />
         <div className="flex flex-col gap-9">

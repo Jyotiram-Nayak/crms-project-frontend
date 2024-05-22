@@ -23,16 +23,17 @@ const words = [
 ];
 const TypewriterEffect = () => {
   const role = getCookie("role");
+  console.log("role",role)
   return (
     <>
       <div
         className="flex flex-col items-center justify-center "
-        style={{ height: "30rem" }}>
+        style={{ height: "40rem" }}>
         <p className="text-neutral-600 dark:text-neutral-200 text-xs sm:text-base  ">
           <strong>The best way to predict your future is to create it.</strong>
         </p>
         <TypewriterEffectSmooth words={words} />
-        {role ?? (
+        {role == null && (
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 space-x-0 md:space-x-4">
             <Link href={"/auth/signin"}>
               <button className="w-40 h-10 rounded-xl bg-black border dark:border-white border-transparent text-white text-sm">

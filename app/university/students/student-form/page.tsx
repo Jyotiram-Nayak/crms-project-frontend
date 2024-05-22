@@ -16,6 +16,7 @@ import { stat } from "fs";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
 import Link from "next/link";
+import Loader from "@/components/common/Loader";
 // import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 enum Gender {
@@ -84,6 +85,7 @@ const Students: React.FC = () => {
   const [fileUrl, setFileUrl] = useState("");
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const config = {
     cUrl: "https://api.countrystatecity.in/v1/countries",
@@ -142,6 +144,7 @@ const Students: React.FC = () => {
         }
       });
       console.log("form values", formData);
+      setIsLoading(true)
       const response = await dispatch(addStudent(formData));
       console.log(response);
       if (response.payload?.success) {
@@ -150,6 +153,7 @@ const Students: React.FC = () => {
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
+      setIsLoading(false)
     },
   });
 
@@ -238,6 +242,7 @@ const Students: React.FC = () => {
 
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="Student Registration" />
         <div className="flex flex-col gap-9">

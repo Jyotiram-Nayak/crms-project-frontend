@@ -18,6 +18,7 @@ import { useDispatch } from "react-redux";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Loader from "@/components/common/Loader";
 
 interface FormValues {
   universityId: string;
@@ -51,6 +52,7 @@ const JobPoasting = () => {
   const [selected, setSelected] = useState<number[]>([]);
   const searchParams = useSearchParams();
   const route = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const universityId =  searchParams.get('universityId');
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +114,7 @@ const JobPoasting = () => {
       onSubmit: async (values, { resetForm }) => {
         values.courses = selected;
         console.log("form values", values);
+        setIsLoading(true);
         const response = await dispatch<any>(addJob(values));
         console.log(response);
         if (response.payload?.success) {
@@ -122,6 +125,7 @@ const JobPoasting = () => {
         } else if (response.error?.message) {
           ToastError(response.error.message || "An error occurred.");
         }
+        setIsLoading(false);
       },
     });
   console.log(errors);
@@ -141,6 +145,7 @@ const JobPoasting = () => {
 
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="Job Posting" />
         <div className="flex flex-col gap-9">

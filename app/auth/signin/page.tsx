@@ -12,6 +12,7 @@ import {
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
 import { getCookie } from "cookies-next";
+import Loader from "@/components/common/Loader";
 
 interface FormValues {
   email: string;
@@ -27,6 +28,7 @@ const page: React.FC = () => {
   const route = useRouter();
   const token = getCookie("token");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const togglePasswordVisibility = () => {
     setPasswordVisible((prev) => !prev);
   };
@@ -41,6 +43,7 @@ const page: React.FC = () => {
       validationSchema: loginSchema,
       onSubmit: async (values: FormValues) => {
         console.log("Form values", values);
+        setIsLoading(true)
         const response = await dispatch(userLogin(values));
         console.log("Response :", response);
 
@@ -50,11 +53,13 @@ const page: React.FC = () => {
         } else if (response.error?.message) {
           ToastError(response.error?.message || "An error occurred.");
         }
+        setIsLoading(false)
       },
     });
 
   return (
     <>
+    {isLoading && <Loader/>}
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap">
           <div

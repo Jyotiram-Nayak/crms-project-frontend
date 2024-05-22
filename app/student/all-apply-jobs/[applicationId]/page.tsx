@@ -4,6 +4,7 @@ import { DateFilter } from '@/components/Filters/DateFilter/DateFilter';
 import generatePatternText from '@/components/Filters/GeneratePatternText/generatePatternText';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { ToastError, ToastSuccess } from '@/components/ToastMessage/ToastMessage';
+import Loader from '@/components/common/Loader';
 import { JobAssessment } from '@/lib/JobApplicationSlice/JobApplicationSlice';
 import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
@@ -54,6 +55,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
     const router = useRouter();
     const dispatch = useDispatch();
     const state = useSelector((state: any) => state.jobApplication);
+    const [isLoading, setIsLoading] = useState(false);
 
     const applicationData = state.jobApplication;
     const fetchData = async () => {
@@ -83,6 +85,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                 console.log("form values", formData);
                 console.log("form values", formData);
                 var applicationId = jobApplication?.applicationId;
+                setIsLoading(true)
                 const response = await dispatch(JobAssessment({ applicationId: applicationId, val: formData }));
                 console.log(response);
                 if (response.payload?.success) {
@@ -92,6 +95,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                 } else if (response.error?.message) {
                     ToastError(response.error.message || "An error occurred.");
                 }
+                setIsLoading(false)
             },
         });
     console.log(errors);
@@ -108,9 +112,6 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
     }
     useEffect(() => {
         fetchData();
-        // const url = createMeetingLink();        // create url for meeting
-        // console.log("url is :", url)
-        // values.assessmentLink = url;
     }, [])
 
     //fill the fetch values
@@ -125,6 +126,8 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
         })
     }, [jobApplication])
     return (
+        <>
+        {isLoading && <Loader/>}
         <DefaultLayout>
             <div className="mx-auto max-w-242.5">
                 <Breadcrumb pageName="Job Details" />
@@ -305,7 +308,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                 </div>
             </div>
         </DefaultLayout>
-
+        </>
     );
 };
 

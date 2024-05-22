@@ -5,6 +5,7 @@ import {
   ToastError,
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
+import Loader from "@/components/common/Loader";
 import { changePassword } from "@/lib/UserSlice/UserSlice";
 import { changePasswordSchema } from "@/schema";
 import { useFormik } from "formik";
@@ -28,6 +29,7 @@ const page = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const dispatch = useDispatch();
   const route = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const togglePasswordVisibility = () => {
     setPasswordVisible((prev) => !prev);
   };
@@ -50,6 +52,7 @@ const page = () => {
     validationSchema: changePasswordSchema,
     onSubmit: async (values) => {
       console.log("form values", values);
+      setIsLoading(true);
       const response = await dispatch(changePassword(values));
       console.log(response);
 
@@ -59,10 +62,12 @@ const page = () => {
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
+      setIsLoading(false);
     },
   });
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <div className="mx-auto max-w-180">
           <Breadcrumb pageName="Change Password" />

@@ -330,6 +330,9 @@ const config: Config = {
       },
     },
   },
+  variants: {
+    extend: {},
+  },
   plugins: [],
 };
 export default config;

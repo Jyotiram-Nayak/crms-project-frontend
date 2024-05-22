@@ -16,6 +16,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
 import { getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
+import Loader from "@/components/common/Loader";
 
 interface SignUpValues {
   firstName: string;
@@ -56,7 +57,7 @@ const page: React.FC = () => {
   const route = useRouter();
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(false);
   const config = {
     cUrl: "https://api.countrystatecity.in/v1/countries",
     ckey: "NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA==",
@@ -148,6 +149,7 @@ const page: React.FC = () => {
     validationSchema: signUpSchema,
     onSubmit: async (values: SignUpValues, { resetForm }) => {
       console.log("form values", values);
+      setIsLoading(true);
       values.phoneNumber = values.phoneNumber.toString();
       uploadImage();
       const response = await dispatch(userRegister(values));
@@ -159,6 +161,7 @@ const page: React.FC = () => {
       } else if (response.error?.message) {
         ToastError(response.error?.message || "An error occurred.");
       }
+      setIsLoading(false);
     },
   });
   console.log(errors);
@@ -175,6 +178,7 @@ const page: React.FC = () => {
 
   return (
     <>
+    {isLoading && <Loader/>}
       <ToastContainer />
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap">

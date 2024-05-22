@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { url } from "inspector";
+import Loader from "@/components/common/Loader";
 
 interface User {
   firstName: string;
@@ -49,6 +50,7 @@ const UpdateProfile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const config = {
     cUrl: 'https://api.countrystatecity.in/v1/countries',
@@ -155,6 +157,8 @@ const UpdateProfile = () => {
       console.log("form values", values);
       // const imageUrl = await uploadImage();
       // values.image = imageUrl || values.image;
+      setIsLoading(true);
+
       const response = await dispatch(updateUserProfile(values));
       console.log(response);
 
@@ -164,6 +168,7 @@ const UpdateProfile = () => {
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
+      setIsLoading(false);
     },
   });
 
@@ -179,6 +184,7 @@ const UpdateProfile = () => {
   console.log(errors);
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <div className="mx-auto max-w-270">
           <Breadcrumb pageName="Settings" />

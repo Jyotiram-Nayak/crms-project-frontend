@@ -10,6 +10,7 @@ import { fetchAllJobApplication } from "@/lib/JobApplicationSlice/JobApplication
 import ApplyButton from "@/components/FormElements/buttons/ApplyButton";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import Pagination from "@/components/Pagination";
+import Loader from "@/components/common/Loader";
 
 interface JobApplication {
   applicationId: string;
@@ -51,6 +52,7 @@ interface pagination {
 const JobApplicationTable = () => {
   const dispatch = useDispatch();
   const [jobApplications, setJobApplications] = useState<JobApplication[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [value, setValue] = useState<pagination>({
     page: 1,
     pageSize: 10,
@@ -92,13 +94,15 @@ const JobApplicationTable = () => {
 
   const role = getCookie("role");
   const fetchData = async () => {
+    setIsLoading(true)
     try {
       const response = await dispatch(fetchAllJobApplication(value));
-      console.log("response : ", response); // This should contain the data from your API response
+      console.log("response : ", response); 
       response.payload?.data && setJobApplications(response.payload.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+    setIsLoading(false)
   };
   const token = getCookie("token");
 
@@ -107,6 +111,7 @@ const JobApplicationTable = () => {
   }, [value]);
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="Job Application List" />
         <div className="flex flex-col gap-9">
@@ -203,8 +208,6 @@ const JobApplicationTable = () => {
                   <option value="AppliedDate">Apply Date</option>
                   <option value="InterviewDate">Interview Date</option>
                   <option value="completiondate">Completion Date</option>
-                  {/* <option value="City">City</option> */}
-                  {/* <option value="State">State</option> */}
                 </select>
                 <select
                   className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"

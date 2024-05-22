@@ -15,6 +15,7 @@ import {
 import { updateStudentSchema } from "@/schema";
 import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
 import { useRouter } from "next/navigation";
+import Loader from "@/components/common/Loader";
 
 enum Gender {
   Male,
@@ -81,6 +82,7 @@ export default function Page({ params }: { params: { userId: string } }) {
   const route = useRouter();
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const config = {
     cUrl: 'https://api.countrystatecity.in/v1/countries',
@@ -170,6 +172,7 @@ export default function Page({ params }: { params: { userId: string } }) {
       });
       console.log("form values", formData);
       const studentId = params.userId
+      setIsLoading(true)
       const response = await dispatch(updateStudent({ studentId: studentId, val: formData }));
       console.log("response ", response);
       if (response.payload?.success) {
@@ -178,6 +181,7 @@ export default function Page({ params }: { params: { userId: string } }) {
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
+      setIsLoading(false)
     },
   });
   console.log(errors);
@@ -198,6 +202,7 @@ export default function Page({ params }: { params: { userId: string } }) {
 
   return (
     <>
+    {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="Student Registration" />
         <div className="flex flex-col gap-9">

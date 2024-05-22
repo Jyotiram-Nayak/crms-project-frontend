@@ -1,17 +1,22 @@
-import React from 'react'
-import StickyScrollReveal from '../../ui/sticky-scroll';
-import TypewriterEffect from '../../ui/typewriter';
+import React from "react";
+import StickyScrollReveal from "../../ui/sticky-scroll";
+import TypewriterEffect from "../../ui/typewriter";
+import ServicesSection from "@/components/ui/ServicesSection";
+import BrandSection from "@/components/ui/BrandSection";
 
 const HomePage: React.FC = () => {
+  return (
+    <>
+      {/* TypewriterEffect */}
+      <TypewriterEffect />
+      {/* Services */}
+      <ServicesSection />
+      {/* StickyScrollReveal */}
+      <StickyScrollReveal />
+      {/* brands */}
+      <BrandSection />
+    </>
+  );
+};
 
-    return (
-        <>
-            {/* TypewriterEffect */}
-            <TypewriterEffect />
-            {/* StickyScrollReveal */}
-            <StickyScrollReveal />
-        </>
-    )
-}
-
-export default HomePage
+export default HomePage;
