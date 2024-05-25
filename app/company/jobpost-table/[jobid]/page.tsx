@@ -1,6 +1,6 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
-import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
+import { DateFilter } from "@/components/Filters/DataFilter/DataFilter";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import {
   ToastError,
@@ -108,12 +108,14 @@ export default function Page({ params }: { params: { jobid: string } }) {
   };
   //function to upload an image in firebase
   const uploadPdf = async () => {
-    const allowedExtensions = ["pdf"];
     if (file == null) return;
+    setIsLoading(true);
+    const allowedExtensions = ["pdf"];
     const fileExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
       console.error("Invalid file type. Only PDF files are allowed.");
       ToastError("Invalid file type. Only .pdf files are allowed.");
+      setIsLoading(false);
       return;
     }
     const randomId = Math.random().toString(36).substring(2);
@@ -131,8 +133,10 @@ export default function Page({ params }: { params: { jobid: string } }) {
     } catch (error) {
       console.error("Error uploading resume:", error);
       ToastError("Failed to Uploaded resume.");
+      setIsLoading(false);
       return null;
     }
+    setIsLoading(false);
   };
 
   const { values, errors, touched, handleSubmit } = useFormik({

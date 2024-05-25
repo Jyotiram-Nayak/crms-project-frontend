@@ -6,26 +6,37 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ value, setValue }) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
 
   const handlePreviousClick = () => {
-    setCurrentPage((prevPage) => {
-      const newPage = Math.max(prevPage - 1, 1);
-      setValue({ ...value, page: newPage });
-      return newPage;
-    });
+    setValue({ ...value, page: Math.max(value.page - 1, 1) });
   };
 
   const handleNextClick = () => {
-    setCurrentPage((prevPage) => {
-      const newPage = prevPage + 1;
-      setValue({ ...value, page: newPage });
-      return newPage;
-    });
+    setValue({ ...value, page: value.page + 1 });
   };
+  // const handlePreviousClick = () => {
+  //   setCurrentPage((prevPage) => {
+  //     const newPage = Math.max(prevPage - 1, 1);
+  //     setValue({ ...value, page: newPage });
+  //     return newPage;
+  //   });
+  // };
+
+  // const handleNextClick = () => {
+  //   setCurrentPage((prevPage) => {
+  //     const newPage = prevPage + 1;
+  //     setValue({ ...value, page: newPage });
+  //     return newPage;
+  //   });
+  // };
 
   const handlePageSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setValue((prevValue) => ({ ...prevValue, pageSize: e.target.value }));
+    setValue((prevValue) => ({
+      ...prevValue,
+      pageSize: e.target.value,
+      page: 1,
+    }));
   };
   return (
     <>
@@ -56,7 +67,7 @@ const Pagination: React.FC<PaginationProps> = ({ value, setValue }) => {
                 href="#"
                 className="flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white  dark:bg-boxdark dark:hover:bg-meta-4 border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
               >
-                {currentPage}
+                {value.page}
               </a>
             </li>
             <li onClick={handleNextClick}>

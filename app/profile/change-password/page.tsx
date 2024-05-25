@@ -58,7 +58,7 @@ const page = () => {
 
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-        route.push("/profile");
+        route.replace("/profile");
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }

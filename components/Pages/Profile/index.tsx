@@ -5,7 +5,7 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
+import { DateFilter } from "@/components/Filters/DataFilter/DataFilter";
 
 interface User {
   id: string;
@@ -27,11 +27,11 @@ interface User {
 
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
-
   const state = useSelector((stete: any) => stete.user);
-  const users = state?.user;
-  console.log("user from redux :", users);
+
   const fetchData = async () => {
+    const users = state?.user;
+    console.log("user from redux :", users);
     users && setUser(users)
     users ?? console.log("user not found")
   };
@@ -51,8 +51,10 @@ const Profile = () => {
               <Image
                 src={"/images/cover/cover-01.png"}
                 alt="profile cover"
-                className="w-full h-full rounded-tl-sm rounded-tr-sm object-cover object-center"
-                layout="fill"
+                className="rounded-tl-sm rounded-tr-sm object-cover object-center"
+                fill
+                // style={{width:"100%",height:"100%"}}
+                loading="eager"
                 priority
               />
             </div>
@@ -69,8 +71,7 @@ const Profile = () => {
                   height={160}
                   style={{
                     borderRadius: "50%",
-                    width: "auto",
-                    height: "auto",
+                    objectFit: "cover"
                   }}
                   alt="profile"
                 />

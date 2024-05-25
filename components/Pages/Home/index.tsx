@@ -9,10 +9,10 @@ const HomePage: React.FC = () => {
     <>
       {/* TypewriterEffect */}
       <TypewriterEffect />
-      {/* Services */}
-      <ServicesSection />
       {/* StickyScrollReveal */}
       <StickyScrollReveal />
+      {/* Services */}
+      <ServicesSection />
       {/* brands */}
       <BrandSection />
     </>

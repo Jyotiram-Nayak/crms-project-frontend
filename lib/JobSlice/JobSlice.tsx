@@ -24,6 +24,39 @@ export const addJob = createAsyncThunk(
   }
 );
 
+export const updateJob = createAsyncThunk(
+  "updateJob",
+  async ({jobid,val}:{jobid:string,val: object}) => {
+    const userToken = getCookie("token");
+    try {
+      const createJob = await axios.put(
+        `${BASE_URL}/job/update-job/${jobid}`,
+        val,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return createJob.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
+export const deleteJob = createAsyncThunk(
+  "deleteJob",
+  async (jobid:string) => {
+    const userToken = getCookie("token");
+    try {
+      const createJob = await axios.delete(
+        `${BASE_URL}/job/delete-job/${jobid}`,
+        { headers: { Authorization: `Bearer ${userToken}` } }
+      );
+      return createJob.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
 export const fetchAllJob = createAsyncThunk(
   "fetchAllJob",
   async (val:object) => {

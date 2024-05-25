@@ -3,6 +3,7 @@ import CardDataStats from "../CardDataStats";
 import { useDispatch } from "react-redux";
 import { getCompanyDashboard, getUniversityDashboard } from "@/lib/UserSlice/UserSlice";
 import Link from "next/link";
+import Loader from "../common/Loader";
 
 interface CompanyData {
 totalJobs:number,
@@ -15,11 +16,14 @@ rejectedStudents:number,
 const CompanyDashboard: React.FC = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState<CompanyData | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const fetchData = async () => {
     console.log("start:");
     const response = await dispatch(getCompanyDashboard());
-    console.log("University dashboard :", response);
+    console.log("Company dashboard :", response);
     response.payload?.data && setData(response.payload.data);
+    setLoading(false)
   };
   useEffect(() => {
     console.log("Hello from university Dashboard");
@@ -27,6 +31,7 @@ const CompanyDashboard: React.FC = () => {
   }, []);
   return (
     <>
+    {loading && <Loader/>}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         <Link href={"/company/jobpost-table"}>
         <CardDataStats

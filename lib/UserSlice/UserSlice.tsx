@@ -222,6 +222,21 @@ export const getStudentDashboard = createAsyncThunk(
   }
 });
 
+export const getAdminDashboard = createAsyncThunk(
+  "getAdminDashboard", async () => {
+  try {
+    const userToken = getCookie("token");
+    const existingUser = await axios.get(
+      `${BASE_URL}/Account/admin-dashboard`,
+      { headers: { Authorization: `Bearer ${userToken}` } }
+    );
+    const data = await existingUser.data;
+    return data;
+  } catch (error: any) {
+    throw error?.response?.data;
+  }
+});
+
 //user initial state
 const initialState = {
   user: {},

@@ -95,7 +95,7 @@ const page: React.FC = () => {
 
   const token = getCookie("token");
   if (token) {
-    route.push("/");
+    route.replace("/");
   }
   const togglePasswordVisibility = () => {
     setPasswordVisible((prev) => !prev);
@@ -151,13 +151,13 @@ const page: React.FC = () => {
       console.log("form values", values);
       setIsLoading(true);
       values.phoneNumber = values.phoneNumber.toString();
-      uploadImage();
+      await uploadImage();
       const response = await dispatch(userRegister(values));
       console.log(response);
 
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-        route.push("/auth/signin");
+        route.replace("/auth/signin");
       } else if (response.error?.message) {
         ToastError(response.error?.message || "An error occurred.");
       }
@@ -204,8 +204,8 @@ const page: React.FC = () => {
                 the right place!
               </p>
               <Image
-                src="/images/login_animation.gif"
-                alt="Login GIF"
+                src="/images/register.png"
+                alt="Register"
                 width={500}
                 height={500}
                 style={{ width: "500px", height: "500px" }}
@@ -636,7 +636,7 @@ const page: React.FC = () => {
                       <option value="" disabled>
                         Select Role
                       </option>
-                      <option value="university">University/Collage</option>
+                      <option value="university">University/College</option>
                       <option value="company">Company</option>
                     </select>
                     {errors.role && touched.role ? (

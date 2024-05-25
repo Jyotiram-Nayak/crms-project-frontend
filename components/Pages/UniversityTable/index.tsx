@@ -13,6 +13,7 @@ import {
 } from "@/components/ToastMessage/ToastMessage";
 import Image from "next/image";
 import Loader from "@/components/common/Loader";
+import { truncateText } from "@/components/Filters/DataFilter/DataFilter";
 
 interface User {
   id: string;
@@ -55,6 +56,7 @@ const UniversityTable: React.FC = () => {
       ...prevValue,
       filterOn: e.target.value,
       filterQuery: "",
+      page: 1,
     }));
   };
 
@@ -188,7 +190,7 @@ const UniversityTable: React.FC = () => {
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
                       Email
                     </th>
-                    <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                    <th className="min-w-[220px] px-4 py-4 font-medium text-black dark:text-white">
                       Address
                     </th>
                     <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
@@ -240,7 +242,7 @@ const UniversityTable: React.FC = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {university.address}
+                          {truncateText(university.address,50)}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">

@@ -8,17 +8,18 @@ import {
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
 import { storage } from "@/firebase/firebase";
-import { addJob } from "@/lib/JobSlice/JobSlice";
+import { addJob, updateJob } from "@/lib/JobSlice/JobSlice";
 import { getAllUniversity } from "@/lib/UserSlice/UserSlice";
 import { jobSchema } from "@/schema";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useFormik } from "formik";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Loader from "@/components/common/Loader";
+import { DateFilter } from "@/components/Filters/DataFilter/DataFilter";
 
 interface FormValues {
   universityId: string;
@@ -44,16 +45,43 @@ interface University {
   lastName: string;
 }
 
-const JobPoasting = () => {
+const Page = ({ params }: { params: { jobid: string } }) => {
   const dispatch = useDispatch();
   const [file, setFile] = useState<File | null>(null);
   const [pdfPreview, setPdfPreview] = useState<string | null>(null);
   const [universities, setUniversities] = useState<University[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
-  const searchParams = useSearchParams();
   const route = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const universityId = searchParams.get("universityId");
+  //const [job, setJob] = useState<FormValues | null>(null);
+
+  const state = useSelector((state: any) => state.job);
+  const jobData = state.job;
+  console.log("job data :", jobData);
+
+  useEffect(() => {
+    // Convert jobData to an array if it is an object
+    let jobArray = Array.isArray(jobData) ? jobData : Object.values(jobData);
+
+    if (Array.isArray(jobArray)) {
+      console.log("jobArray is:", jobArray);
+      const singleJob = jobArray.find((job: any) => job.jobId === params.jobid);
+      console.log("Found job:", singleJob);
+      if (singleJob) {
+        // setJob(singleJob);
+        setFieldValue("universityId", singleJob.universityId);
+        // setSelected(singleJob.course)
+        setFieldValue("title", singleJob.title);
+        setFieldValue("description", singleJob.description);
+        setFieldValue("deadline", DateFilter(singleJob.deadline));
+        setFieldValue("document", singleJob.document);
+      } else {
+        console.log("Job not found in array.");
+      }
+    } else {
+      console.log("jobData is neither an array nor an object:", jobData);
+    }
+  }, [jobData, params.jobid]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) {
@@ -70,10 +98,6 @@ const JobPoasting = () => {
   };
 
   useEffect(() => {
-    setFieldValue("universityId", universityId);
-  }, [universityId]);
-
-  useEffect(() => {
     if (file && file.type === "application/pdf") {
       const fileURL = URL.createObjectURL(file);
       setPdfPreview(fileURL);
@@ -83,14 +107,12 @@ const JobPoasting = () => {
   //function to upload an image in firebase
   const uploadPdf = async () => {
     if (file == null) return;
-    setIsLoading(true);
     const allowedExtensions = ["pdf"];
     // const fileExtension = file.name.split(".").pop().toLowerCase();
     const fileExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
       console.error("Invalid file type. Only PDF files are allowed.");
       ToastError("Invalid file type. Only PDF files are allowed.");
-      setIsLoading(false);
       return;
     }
     const randomId = Math.random().toString(36).substring(2);
@@ -109,10 +131,8 @@ const JobPoasting = () => {
     } catch (error) {
       console.error("Error uploading pdf:", error);
       ToastError("Failed to Uploaded pdf.");
-      setIsLoading(false);
       return null;
     }
-    setIsLoading(false);
   };
 
   const {
@@ -130,7 +150,7 @@ const JobPoasting = () => {
       values.courses = selected;
       console.log("form values", values);
       setIsLoading(true);
-      const response = await dispatch<any>(addJob(values));
+      const response = await dispatch<any>(updateJob({jobid:params.jobid,val:values}));
       console.log(response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
@@ -154,7 +174,6 @@ const JobPoasting = () => {
         console.error("Error fetching universities:", error);
       }
     };
-
     fetchData();
   }, []);
 
@@ -186,7 +205,7 @@ const JobPoasting = () => {
                     className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     name="universityId"
                     id="universityId"
-                    value={universityId ?? values.universityId}
+                    value={values.universityId}
                     onChange={handleChange}
                   >
                     <option value="" disabled>
@@ -344,4 +363,4 @@ const JobPoasting = () => {
   );
 };
 
-export default JobPoasting;
+export default Page;

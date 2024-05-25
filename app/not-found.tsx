@@ -12,7 +12,7 @@ const Page = () => {
       route.back();
     } else {
       // Fallback to home page if no history
-      route.push("/");
+      route.replace("/");
     }
   };
   return (

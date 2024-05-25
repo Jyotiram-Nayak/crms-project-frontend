@@ -13,3 +13,10 @@ export const DateFilter = (timestamp: string) => {
 
   return formattedDate;
 };
+
+
+  // sort the description
+ export const truncateText = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + "...";
+  };

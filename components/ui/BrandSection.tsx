@@ -96,7 +96,7 @@ const BrandSection = () => {
           TOP COMPANIES
         </h1>
       </div>
-      <section className="relative flex flex-col items-center py-6 bg-white ">
+      <section className="relative flex flex-col items-center py-6 bg-white border-b-4 border-b-stone-950">
         <div className="w-full max-w-7xl overflow-hidden">
           <div
             className="flex transition-transform duration-300"

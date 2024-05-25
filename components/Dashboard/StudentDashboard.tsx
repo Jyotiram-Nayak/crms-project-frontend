@@ -3,6 +3,7 @@ import CardDataStats from "../CardDataStats";
 import { useDispatch } from "react-redux";
 import { getCompanyDashboard, getStudentDashboard } from "@/lib/UserSlice/UserSlice";
 import Link from "next/link";
+import Loader from "../common/Loader";
 interface StudentData {
   totalJobs: string;
   totalApplication: string;
@@ -11,15 +12,20 @@ interface StudentData {
 const StudentDashboard: React.FC = () => {
   const dispatch = useDispatch();
   const [data, setData] = useState<StudentData | null>(null);
+  const [loading, setLoading] = useState(true);
   const fetchData = async () => {
     const response = await dispatch(getStudentDashboard());
+    console.log("Student Dashboard",response)
     response.payload?.data && setData(response.payload.data);
+    setLoading(false)
   };
   useEffect(() => {
+    console.log("dashboard load")
     fetchData();
   }, []);
   return (
     <>
+    {loading && <Loader/>}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         <Link href={"/company/jobpost-table"}>
           <CardDataStats

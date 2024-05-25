@@ -1,6 +1,6 @@
 "use client"
 import Breadcrumb from '@/components/Breadcrumbs/Breadcrumb';
-import { DateFilter } from '@/components/Filters/DateFilter/DateFilter';
+import { DateFilter } from '@/components/Filters/DataFilter/DataFilter';
 import generatePatternText from '@/components/Filters/GeneratePatternText/generatePatternText';
 import DefaultLayout from '@/components/Layouts/DefaultLayout';
 import { ToastError, ToastSuccess } from '@/components/ToastMessage/ToastMessage';

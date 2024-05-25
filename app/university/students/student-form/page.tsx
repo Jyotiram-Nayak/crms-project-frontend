@@ -144,16 +144,16 @@ const Students: React.FC = () => {
         }
       });
       console.log("form values", formData);
-      setIsLoading(true)
+      setIsLoading(true);
       const response = await dispatch(addStudent(formData));
       console.log(response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-        route.push("student-table");
+        route.replace("student-table");
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
-      setIsLoading(false)
+      setIsLoading(false);
     },
   });
 
@@ -224,16 +224,18 @@ const Students: React.FC = () => {
   const impostExcel = async () => {
     const formData = new FormData();
     formData.append("fileUrl", fileUrl); // Append fileUrl to the formData
+    setIsLoading(true);
     var response = await dispatch(importExcelFile(formData));
     console.log(response);
     if (response.payload?.success) {
       ToastSuccess(response.payload?.message);
-      route.push("student-table");
+      route.replace("student-table");
     } else if (response.error?.message) {
       ToastError(response.error.message || "An error occurred.");
     }
+    setIsLoading(false);
   };
-
+  
   useEffect(() => {
     if (fileUrl) {
       impostExcel();
@@ -242,7 +244,7 @@ const Students: React.FC = () => {
 
   return (
     <>
-    {isLoading && <Loader/>}
+      {isLoading && <Loader />}
       <DefaultLayout>
         <Breadcrumb pageName="Student Registration" />
         <div className="flex flex-col gap-9">

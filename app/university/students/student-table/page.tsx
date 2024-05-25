@@ -8,7 +8,7 @@ import {
   deleteStudent,
   fetchAllStudent,
 } from "@/lib/StudentSlice/StudentSlice";
-import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
+import { DateFilter } from "@/components/Filters/DataFilter/DataFilter";
 import Link from "next/link";
 import {
   ToastError,
@@ -39,7 +39,7 @@ interface Student {
   course: number;
   city: string;
   state: string;
-  image:string;
+  image: string;
 }
 
 interface pagination {
@@ -65,7 +65,12 @@ const AllStudents = () => {
   });
 
   const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setValue((prevValue) => ({ ...prevValue, filterOn: e.target.value, filterQuery:""}));
+    setValue((prevValue) => ({
+      ...prevValue,
+      filterOn: e.target.value,
+      filterQuery: "",
+      page: 1,
+    }));
   };
 
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -84,14 +89,22 @@ const AllStudents = () => {
   };
 
   const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue((prevValue) => ({ ...prevValue, filterQuery: e.target.value }));
+    setValue((prevValue) => ({
+      ...prevValue,
+      filterQuery: e.target.value,
+      page: 1,
+    }));
   };
   const handleSelectedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setValue((prevValue) => ({ ...prevValue, filterQuery: e.target.value }));
+    setValue((prevValue) => ({
+      ...prevValue,
+      filterQuery: e.target.value,
+      page: 1,
+    }));
   };
 
   const fetchData = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       console.log("pagination:", value);
       const response = await dispatch(fetchAllStudent(value));
@@ -100,7 +113,7 @@ const AllStudents = () => {
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-    setIsLoading(false)
+    setIsLoading(false);
   };
 
   const onDeleteStudent = async (studentId: string) => {
@@ -157,56 +170,64 @@ const AllStudents = () => {
                   <option value="Course">Course</option>
                   <option value="isSelected">Status</option>
                 </select>
-                {value.filterOn?.toLowerCase() !== "course" && value.filterOn?.toLowerCase() !== "isselected" &&
-                <input
-                  type="text"
-                  placeholder="Type to search..."
-                  name="filterQuery"
-                  id="filterQuery"
-                  value={value.filterQuery}
-                  className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  onChange={handleQueryChange}
-                />}
-                {value.filterOn?.toLowerCase() === "course" &&
-                <select
-                  className="rounded-lg border border-stroke bg-transparent py-2 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
-                  onChange={handleCourseChange}
-                >
-                  <option value="" disabled>
-                    Select Course
-                  </option>
-                  <option value="">All Course</option>
-                  {Object.keys(StudentCourse)
-                    .filter((key) =>
-                      isNaN(
-                        Number(StudentCourse[key as keyof typeof StudentCourse])
+                {value.filterOn?.toLowerCase() !== "course" &&
+                  value.filterOn?.toLowerCase() !== "isselected" && (
+                    <input
+                      type="text"
+                      placeholder="Type to search..."
+                      name="filterQuery"
+                      id="filterQuery"
+                      value={value.filterQuery}
+                      className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      onChange={handleQueryChange}
+                    />
+                  )}
+                {value.filterOn?.toLowerCase() === "course" && (
+                  <select
+                    className="rounded-lg border border-stroke bg-transparent py-2 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    name="course"
+                    id="course"
+                    onChange={handleCourseChange}
+                  >
+                    <option value="" disabled>
+                      Select Course
+                    </option>
+                    <option value="">All Course</option>
+                    {Object.keys(StudentCourse)
+                      .filter((key) =>
+                        isNaN(
+                          Number(
+                            StudentCourse[key as keyof typeof StudentCourse]
+                          )
+                        )
                       )
-                    )
-                    .map((key) => (
-                      <option
-                        key={key}
-                        value={StudentCourse[key as keyof typeof StudentCourse]}
-                      >
-                        {StudentCourse[key as keyof typeof StudentCourse]}
-                      </option>
-                    ))}
-                </select>}
-                {value.filterOn?.toLowerCase() === "isselected" &&
-                <select
-                  className="rounded-lg border py-2 border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="state"
-                  id="state"
-                  onChange={handleSelectedChange}
-                >
-                  <option value="" disabled>
-                    Select Status
-                  </option>
-                  <option value="">All Students</option>
-                  <option value="true">Selected</option>
-                  <option value="false">Pending</option>
-                </select>}
+                      .map((key) => (
+                        <option
+                          key={key}
+                          value={
+                            StudentCourse[key as keyof typeof StudentCourse]
+                          }
+                        >
+                          {StudentCourse[key as keyof typeof StudentCourse]}
+                        </option>
+                      ))}
+                  </select>
+                )}
+                {value.filterOn?.toLowerCase() === "isselected" && (
+                  <select
+                    className="rounded-lg border py-2 border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    name="state"
+                    id="state"
+                    onChange={handleSelectedChange}
+                  >
+                    <option value="" disabled>
+                      Select Status
+                    </option>
+                    <option value="">All Students</option>
+                    <option value="true">Selected</option>
+                    <option value="false">Pending</option>
+                  </select>
+                )}
                 <select
                   className="bg-white rounded-lg py-2 border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                   name="sortby"

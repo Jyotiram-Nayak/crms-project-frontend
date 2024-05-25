@@ -13,7 +13,7 @@ import {
   ToastSuccess,
 } from "@/components/ToastMessage/ToastMessage";
 import { updateStudentSchema } from "@/schema";
-import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
+import { DateFilter } from "@/components/Filters/DataFilter/DataFilter";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/common/Loader";
 
@@ -177,7 +177,7 @@ export default function Page({ params }: { params: { userId: string } }) {
       console.log("response ", response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-        route.push("student-table")
+        route.replace("student-table")
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
@@ -187,7 +187,7 @@ export default function Page({ params }: { params: { userId: string } }) {
   console.log(errors);
 
   const cancelUpdate = () => {
-    route.push("student-table")
+    route.replace("student-table")
   }
 
     // validation for string

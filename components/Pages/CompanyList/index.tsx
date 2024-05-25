@@ -1,5 +1,6 @@
 "use client";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
+import { truncateText } from "@/components/Filters/DataFilter/DataFilter";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Pagination from "@/components/Pagination";
 import {
@@ -59,6 +60,7 @@ const CompanyList = () => {
       ...prevValue,
       filterOn: e.target.value,
       filterQuery: "",
+      page:1
     }));
   };
 
@@ -242,7 +244,7 @@ const CompanyList = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {company.address}
+                          {truncateText(company.address,50)}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">

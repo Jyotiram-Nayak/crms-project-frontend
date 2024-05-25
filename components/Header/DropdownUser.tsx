@@ -17,11 +17,11 @@ const DropdownUser = () => {
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
   const [user, setUser] = useState<User | null>(null);
-
   const state = useSelector((stete: any) => stete.user);
-  const users = state?.user;
-  // console.log("user from redux :", users);
+  
   const fetchData = async () => {
+    const users = state?.user;
+    console.log("user from redux :", users);
     users && setUser(users)
     users ?? console.log("user not found")
   };

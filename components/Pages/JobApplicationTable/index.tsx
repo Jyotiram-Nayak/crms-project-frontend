@@ -4,7 +4,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import Link from "next/link";
-import { DateFilter } from "@/components/Filters/DateFilter/DateFilter";
+import { DateFilter } from "@/components/Filters/DataFilter/DataFilter";
 import { getCookie } from "cookies-next";
 import { fetchAllJobApplication } from "@/lib/JobApplicationSlice/JobApplicationSlice";
 import ApplyButton from "@/components/FormElements/buttons/ApplyButton";
@@ -67,6 +67,7 @@ const JobApplicationTable = () => {
       ...prevValue,
       filterOn: e.target.value,
       filterQuery: "",
+      page:1
     }));
   };
 
@@ -109,6 +110,7 @@ const JobApplicationTable = () => {
   useEffect(() => {
     fetchData();
   }, [value]);
+
   return (
     <>
     {isLoading && <Loader/>}
@@ -120,8 +122,8 @@ const JobApplicationTable = () => {
               <div className="flex flex-wrap align-middle space-x-2">
                 <select
                   className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  name="filteron"
+                  id="filteron"
                   value={value.filterOn}
                   onChange={handleFilterChange}
                 >
@@ -182,8 +184,8 @@ const JobApplicationTable = () => {
                 {value.filterOn?.toLowerCase() === "isselected" && (
                   <select
                     className="rounded-lg border py-2 border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                    name="course"
-                    id="course"
+                    name="status"
+                    id="status"
                     onChange={handleSelectedChange}
                   >
                     <option value="" disabled>
@@ -196,8 +198,8 @@ const JobApplicationTable = () => {
                 )}
                 <select
                   className="bg-white rounded-lg py-2 border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  name="sortby"
+                  id="sortby"
                   value={value.sortBy}
                   onChange={handleSortChange}
                 >
@@ -211,8 +213,8 @@ const JobApplicationTable = () => {
                 </select>
                 <select
                   className="bg-white py-2 rounded-lg border border-stroke bg-transparent pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  name="course"
-                  id="course"
+                  name="sortorder"
+                  id="sortorder"
                   onChange={handleOrderChange}
                 >
                   <option value="true">Ascending</option>

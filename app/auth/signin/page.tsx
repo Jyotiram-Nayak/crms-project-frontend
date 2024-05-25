@@ -34,7 +34,7 @@ const page: React.FC = () => {
   };
   useEffect(() => {
     if (token) {
-      route.push("/dashboard");
+      route.replace("/dashboard");
     }
   }, [token]);
   const { values, errors, touched, handleBlur, handleChange, handleSubmit } =
@@ -49,7 +49,7 @@ const page: React.FC = () => {
 
         if (response.payload?.success) {
           ToastSuccess(response.payload?.message);
-          route.push("/");
+          route.replace("/");
         } else if (response.error?.message) {
           ToastError(response.error?.message || "An error occurred.");
         }
@@ -84,8 +84,8 @@ const page: React.FC = () => {
                 features.
               </p>
               <Image
-                src="/images/login_animation.gif"
-                alt="Login GIF"
+                src="/images/login.png"
+                alt="Login"
                 width={500}
                 height={500}
                 style={{ width: "500px", height: "500px" }}
