@@ -237,6 +237,22 @@ export const getAdminDashboard = createAsyncThunk(
   }
 });
 
+//register new user
+export const contactUsMail = createAsyncThunk(
+  "contactUsMail",
+  async (val: object) => {
+    try {
+      const createUser = await axios.post(
+        `${BASE_URL}/Account/contact-us`,
+        val
+      );
+      return createUser.data;
+    } catch (error: any) {
+      throw error.response.data;
+    }
+  }
+);
+
 //user initial state
 const initialState = {
   user: {},

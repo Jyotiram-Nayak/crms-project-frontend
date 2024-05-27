@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
 
 interface User {
   jobId: string;
@@ -90,6 +91,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
     const fileExtension = newfile.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
       ToastError("Invalid file type. Only PDF files are allowed.");
+      setFile(null)
       return;
     }
     setFile(e.target.files[0]);
@@ -129,6 +131,8 @@ export default function Page({ params }: { params: { jobid: string } }) {
         console.log("resume URL:", downloadURL);
         values.resume = downloadURL;
         ToastSuccess("resume Uploaded successfully.");
+        errors.resume = "";
+        setFile(null)
       }
     } catch (error) {
       console.error("Error uploading resume:", error);
@@ -150,7 +154,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
       console.log(response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-        router.back();
+        router.replace("/student/all-apply-jobs");
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
       }
@@ -161,6 +165,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
 
   return (
     <>
+    <ToastContainer/>
     {isLoading && <Loader/>}
       <DefaultLayout>
         <div className="mx-auto max-w-242.5">

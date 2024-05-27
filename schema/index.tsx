@@ -52,7 +52,6 @@ export const studentSchema = Yup.object({
     .oneOf([Yup.ref("password"), "", "Password must match"]),
   rollNo: Yup.string().required("Please enter Roll number"),
   dob: Yup.string().nullable(),
-  // dob: Yup.date().nullable().max(new Date(), 'Joining date cannot be greater than today'),
   gender: Yup.string().required("Please select Gender"),
   course:Yup.string().required("Please select Course"),
   maritalStatus: Yup.string().required("Please select Marital status"),
@@ -61,16 +60,6 @@ export const studentSchema = Yup.object({
   state: Yup.string().required("Please enter State"),
   joiningDate: Yup.string().required("Please select Joining date"),
   graduationDate: Yup.string().nullable(),
-  // joiningDate: Yup.date()
-  //   .required('Joining date is required')
-  //   .max(new Date(), 'Joining date cannot be greater than today'),
-  // graduationDate: Yup.date()
-  //   .nullable() // Allows null or empty string values
-  //   .when('joiningDate', (joiningDate, schema) => {
-  //     return joiningDate
-  //       ? schema.min(joiningDate, 'Graduation date must be after joining date')
-  //       : schema;
-  //   }),
 });
 
 export const jobSchema = Yup.object({
@@ -121,4 +110,12 @@ export const resetPasswordSchema=Yup.object({
   newPassword:Yup.string().required("Please enter New Password").min(8,"Please enter a strong password"),
   confirmPassword:Yup.string().required("Please enter Confirm Password")
   .oneOf([Yup.ref("newPassword"), "", "Password and Confirm Password must match"]),
+})
+
+export const contactUsSchema = Yup.object({
+  email:Yup.string().required("Please enter First Name"),
+  firstName:Yup.string().required("Please enter Last Name"),
+  lastName:Yup.string().required("Please enter Email address"),
+  contact:Yup.number().required("Please enter phone number"),
+  message:Yup.string().required("Please enter message")
 })

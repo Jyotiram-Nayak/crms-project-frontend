@@ -53,7 +53,7 @@ const StudentDashboard: React.FC = () => {
             </svg>
           </CardDataStats>
         </Link>
-        <Link href={"/university/students/student-table"}>
+        <Link href={"/student/all-apply-jobs"}>
           <CardDataStats
             title="Total Applications"
             total={data?.totalApplication.toString() ?? "loading..."}

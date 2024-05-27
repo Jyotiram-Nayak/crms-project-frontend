@@ -280,7 +280,7 @@ const CompanyList = () => {
                           }}
                         >
                           <p
-                            className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${
+                            className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium  ${role === "Admin" && "hover:bg-opacity-50 hover:text-white"} ${
                               company.isApproved == true
                                 ? "bg-success text-success"
                                 : "bg-warning text-warning"

@@ -1,8 +1,51 @@
-import React from "react";
+"use client";
+import {
+  ToastError,
+  ToastSuccess,
+} from "@/components/ToastMessage/ToastMessage";
+import Loader from "@/components/common/Loader";
+import { contactUsMail } from "@/lib/UserSlice/UserSlice";
+import { contactUsSchema } from "@/schema";
+import { Formik, useFormik } from "formik";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+
+const initialValues = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  contact: null,
+  message: "",
+};
 
 const Contact = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { values, errors, touched, handleChange, handleSubmit } = useFormik({
+    initialValues,
+    validationSchema: contactUsSchema,
+    onSubmit: async (values, { resetForm }) => {
+      try {
+        console.log("Form values", values);
+        setIsLoading(true);
+        const response = await dispatch(contactUsMail(values));
+        if (response.payload?.success) {
+          ToastSuccess(response.data?.message);
+        } else if (response.error?.message) {
+          ToastError(response.error?.message);
+        }
+      } catch (error) {
+        setIsLoading(false);
+      }
+      setIsLoading(false);
+      resetForm();
+    },
+  });
+  console.log(errors);
+
   return (
     <>
+      {isLoading ?? <Loader />}
       <section
         className="relative w-full flex items-center bg-cover bg-center bg-no-repeat"
         style={{
@@ -62,21 +105,66 @@ const Contact = () => {
             as soon as possible.
           </p>
           <p className="text-gray-700 mb-4">
-          406 Luxuria Business Hub, Near VR mall, Surat - Dumas Rd, Surat, Gujarat 395007
+            406 Luxuria Business Hub, Near VR mall, Surat - Dumas Rd, Surat,
+            Gujarat 395007
           </p>
-          <p className="text-gray-700 mb-4">info@careerforge.in</p>
-          <p className="text-gray-700 mb-4">+91-8255006150, +91-7445890536</p>
+          <p className="text-gray-700 mb-4 text-2xl"><strong>info@careerforge.in</strong></p>
+          <p className="text-gray-700 mb-4 text-2xl">
+            <strong>+91-8255006150, +91-7445890536</strong>
+          </p>
         </div>
-        <div className="flex flex-col gap-9" style={{width:"35rem"}}>
+        <div className="flex flex-col gap-9" style={{ width: "35rem" }}>
           {/* <!-- Contact Form --> */}
           <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
             <div className="border-b border-stroke px-6.5 py-4 dark:border-strokedark">
-              <h3 className="font-medium text-black dark:text-white">
-                Contact Us
+              <h3 className="font-medium text-black dark:text-white text-3xl">
+                Write to us!
               </h3>
+              <p>
+                <strong>
+                  Need any help, just write us here and we will get back to you
+                  within 24 hours
+                </strong>
+              </p>
             </div>
-            <form action="#">
+            <form onSubmit={handleSubmit}>
               <div className="p-6.5">
+                <div className="grid grid-cols-2 space-x-2">
+                  <div className="mb-4.5">
+                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      First Name <span className="text-meta-1">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your FirstName"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      id="firstName"
+                      name="firstName"
+                      value={values.firstName}
+                      onChange={handleChange}
+                    />{" "}
+                    {errors.firstName && touched.firstName ? (
+                      <p className="text-red">{errors.firstName}</p>
+                    ) : null}
+                  </div>
+                  <div className="mb-4.5">
+                    <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                      Last Name <span className="text-meta-1">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter your email address"
+                      className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                      id="lastName"
+                      name="lastName"
+                      value={values.lastName}
+                      onChange={handleChange}
+                    />{" "}
+                    {errors.lastName && touched.lastName ? (
+                      <p className="text-red">{errors.lastName}</p>
+                    ) : null}
+                  </div>
+                </div>
                 <div className="mb-4.5">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                     Email <span className="text-meta-1">*</span>
@@ -85,18 +173,36 @@ const Contact = () => {
                     type="email"
                     placeholder="Enter your email address"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
+                    id="email"
+                    name="email"
+                    value={values.email}
+                    onChange={handleChange}
+                  />{" "}
+                  {errors.email && touched.email ? (
+                    <p className="text-red">{errors.email}</p>
+                  ) : null}
                 </div>
 
                 <div className="mb-4.5">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                    Subject <span className="text-meta-1">*</span>
+                    Contact No. <span className="text-meta-1">*</span>
                   </label>
                   <input
-                    type="text"
+                    type="tel"
                     placeholder="Select subject"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  />
+                    id="contact"
+                    name="contact"
+                    minLength={10}
+                    maxLength={10}
+                    pattern="\d{10}"
+                    value={values.contact ?? ""}
+                    title="Please enter a valid 10-digit phone number"
+                    onChange={handleChange}
+                  />{" "}
+                  {errors.contact && touched.contact ? (
+                    <p className="text-red">{errors.contact}</p>
+                  ) : null}
                 </div>
                 <div className="mb-6">
                   <label className="mb-3 block text-sm font-medium text-black dark:text-white">
@@ -106,7 +212,14 @@ const Contact = () => {
                     rows={6}
                     placeholder="Type your message"
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
-                  ></textarea>
+                    id="message"
+                    name="message"
+                    value={values.message}
+                    onChange={handleChange}
+                  ></textarea>{" "}
+                  {errors.message && touched.message ? (
+                    <p className="text-red">{errors.message}</p>
+                  ) : null}
                 </div>
 
                 <button className="flex w-full justify-center rounded bg-black p-3 font-medium text-gray hover:bg-opacity-90">

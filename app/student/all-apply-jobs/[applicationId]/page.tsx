@@ -10,6 +10,7 @@ import { useFormik } from 'formik';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { ToastContainer } from 'react-toastify';
 
 interface JobAppDetails {
     applicationId: string;
@@ -56,7 +57,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
     const dispatch = useDispatch();
     const state = useSelector((state: any) => state.jobApplication);
     const [isLoading, setIsLoading] = useState(false);
-
+    const today = new Date().toISOString().split("T")[0];
     const applicationData = state.jobApplication;
     const fetchData = async () => {
         const Application = applicationData.find(
@@ -127,6 +128,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
     }, [jobApplication])
     return (
         <>
+        <ToastContainer/>
         {isLoading && <Loader/>}
         <DefaultLayout>
             <div className="mx-auto max-w-242.5">
@@ -211,6 +213,7 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                                                         id="interviewDate"
                                                         value={DateFilter(values.interviewDate)}
                                                         onChange={handleChange}
+                                                        min={today}
                                                     />
                                                     {errors.interviewDate && touched.interviewDate ? (
                                                         <p className="text-red">{errors.interviewDate.toString()}</p>

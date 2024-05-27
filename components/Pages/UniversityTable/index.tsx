@@ -14,6 +14,7 @@ import {
 import Image from "next/image";
 import Loader from "@/components/common/Loader";
 import { truncateText } from "@/components/Filters/DataFilter/DataFilter";
+import { ToastContainer } from "react-toastify";
 
 interface User {
   id: string;
@@ -119,6 +120,7 @@ const UniversityTable: React.FC = () => {
 
   return (
     <>
+    <ToastContainer/>
     {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="University List" />
@@ -290,7 +292,7 @@ const UniversityTable: React.FC = () => {
                           }}
                         >
                           <p
-                            className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium ${
+                            className={`inline-flex rounded-full bg-opacity-10 px-3 py-1 text-sm font-medium hover:bg-opacity-50 hover:text-white ${
                               university.isApproved == true
                                 ? "bg-success text-success"
                                 : "bg-warning text-warning"

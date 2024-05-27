@@ -26,9 +26,10 @@ const TypewriterEffect = () => {
   console.log("role",role)
   return (
     <>
-      <div
-        className="flex flex-col items-center justify-center "
-        style={{ height: "40rem" }}>
+    
+      <div 
+        className="flex flex-col items-center justify-center bg-cover mt-20"
+        style={{ height: "40rem",marginTop:"80px" ,backgroundImage:'url("/images/cover/homeImage.jpg")'}}>
         <p className="text-neutral-600 dark:text-neutral-200 text-xs sm:text-base  ">
           <strong>The best way to predict your future is to create it.</strong>
         </p>

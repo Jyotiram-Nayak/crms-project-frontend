@@ -13,6 +13,7 @@ import {
 } from "@/components/ToastMessage/ToastMessage";
 import { getCookie } from "cookies-next";
 import Loader from "@/components/common/Loader";
+import { ToastContainer } from "react-toastify";
 
 interface FormValues {
   email: string;
@@ -59,6 +60,7 @@ const page: React.FC = () => {
 
   return (
     <>
+    <ToastContainer/>
     {isLoading && <Loader/>}
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="flex flex-wrap">

@@ -18,6 +18,7 @@ import { StudentCourse } from "@/components/Enum/StudentCourse";
 import { bool, boolean } from "yup";
 import Pagination from "@/components/Pagination";
 import Image from "next/image";
+import { ToastContainer } from "react-toastify";
 
 interface Student {
   userId: string;
@@ -145,6 +146,7 @@ const AllStudents = () => {
 
   return (
     <>
+    <ToastContainer/>
       <DefaultLayout>
         <Breadcrumb pageName="Students" />
         <div className="flex flex-col gap-9">

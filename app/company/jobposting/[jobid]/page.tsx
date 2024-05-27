@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Loader from "@/components/common/Loader";
 import { DateFilter } from "@/components/Filters/DataFilter/DataFilter";
+import { ToastContainer } from "react-toastify";
 
 interface FormValues {
   universityId: string;
@@ -58,6 +59,7 @@ const Page = ({ params }: { params: { jobid: string } }) => {
   const state = useSelector((state: any) => state.job);
   const jobData = state.job;
   console.log("job data :", jobData);
+  const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
     // Convert jobData to an array if it is an object
@@ -92,6 +94,7 @@ const Page = ({ params }: { params: { jobid: string } }) => {
     const fileExtension = newfile.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
       ToastError("Invalid file type. Only PDF files are allowed.");
+      setFile(null)
       return;
     }
     setFile(e.target.files[0]);
@@ -126,6 +129,7 @@ const Page = ({ params }: { params: { jobid: string } }) => {
         console.log("pdf URL:", downloadURL);
         values.document = downloadURL;
         ToastSuccess("pdf Uploaded successfully.");
+        errors.document = "";
         setFile(null);
       }
     } catch (error) {
@@ -155,7 +159,6 @@ const Page = ({ params }: { params: { jobid: string } }) => {
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
         route.replace("/company/jobpost-table");
-        // resetForm();
         setFile(null);
       } else if (response.error?.message) {
         ToastError(response.error.message || "An error occurred.");
@@ -179,6 +182,7 @@ const Page = ({ params }: { params: { jobid: string } }) => {
 
   return (
     <>
+    <ToastContainer/>
       {isLoading && <Loader />}
       <DefaultLayout>
         <Breadcrumb pageName="Job Posting" />
@@ -283,6 +287,7 @@ const Page = ({ params }: { params: { jobid: string } }) => {
                     value={values.deadline}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    min={today}
                   />
                   {errors.deadline && touched.deadline ? (
                     <p className="text-red">{errors.deadline}</p>

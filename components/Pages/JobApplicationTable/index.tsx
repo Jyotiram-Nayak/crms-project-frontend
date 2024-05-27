@@ -11,6 +11,7 @@ import ApplyButton from "@/components/FormElements/buttons/ApplyButton";
 import { StudentCourse } from "@/components/Enum/StudentCourse";
 import Pagination from "@/components/Pagination";
 import Loader from "@/components/common/Loader";
+import { ToastContainer } from "react-toastify";
 
 interface JobApplication {
   applicationId: string;
@@ -113,6 +114,7 @@ const JobApplicationTable = () => {
 
   return (
     <>
+    <ToastContainer/>
     {isLoading && <Loader/>}
       <DefaultLayout>
         <Breadcrumb pageName="Job Application List" />

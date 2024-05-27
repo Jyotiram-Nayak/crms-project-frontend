@@ -17,6 +17,7 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "@/firebase/firebase";
 import Link from "next/link";
 import Loader from "@/components/common/Loader";
+import { ToastContainer } from "react-toastify";
 // import { StudentCourse } from "@/components/Enum/StudentCourse";
 
 enum Gender {
@@ -118,6 +119,7 @@ const Students: React.FC = () => {
       .catch((error) => console.error("Error loading cities:", error));
   };
 
+  const today = new Date().toISOString().split("T")[0];
   useEffect(() => {
     loadStates();
   }, []);
@@ -175,7 +177,9 @@ const Students: React.FC = () => {
     const allowedExtensions = ["xlsx", "xls", "csv"];
     const fileExtension = newfile.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
+      console.log("Please select a valid Excel file: XLSX, XLS, or CSV.");
       ToastError("Please select a valid Excel file: XLSX, XLS, or CSV.");
+      setFile(null);
       return;
     }
     setFile(e.target.files[0]);
@@ -235,7 +239,7 @@ const Students: React.FC = () => {
     }
     setIsLoading(false);
   };
-  
+
   useEffect(() => {
     if (fileUrl) {
       impostExcel();
@@ -244,6 +248,7 @@ const Students: React.FC = () => {
 
   return (
     <>
+      <ToastContainer />
       {isLoading && <Loader />}
       <DefaultLayout>
         <Breadcrumb pageName="Student Registration" />
@@ -375,6 +380,10 @@ const Students: React.FC = () => {
                       value={values.phoneNumber}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      minLength={10}
+                      maxLength={10}
+                      pattern="\d{10}"
+                      title="Please enter a valid 10-digit phone number"
                     />
                     {errors.phoneNumber && touched.phoneNumber ? (
                       <p className="text-red">{errors.phoneNumber}</p>
@@ -629,6 +638,7 @@ const Students: React.FC = () => {
                       value={values.joiningDate}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      min={today}
                     />
                     {errors.joiningDate && touched.joiningDate ? (
                       <p className="text-red">{errors.joiningDate}</p>

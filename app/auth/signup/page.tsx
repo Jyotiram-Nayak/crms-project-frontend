@@ -309,14 +309,18 @@ const page: React.FC = () => {
                     </label>
                     <div className="relative">
                       <input
-                        type="number"
+                        type="tel"
                         className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                         placeholder="Enter your Phone Number"
                         name="phoneNumber"
                         id="phoneNumber"
+                        minLength={10}
+                        maxLength={10}
+                        pattern="\d{10}"
                         value={values.phoneNumber}
                         onChange={handleChange}
                         onBlur={handleBlur}
+                        title="Please enter a valid 10-digit phone number"
                       />
                       {errors.phoneNumber && touched.phoneNumber ? (
                         <p className="text-red">{errors.phoneNumber}</p>

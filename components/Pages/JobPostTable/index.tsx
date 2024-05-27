@@ -23,6 +23,7 @@ import { StudentCourse } from "@/components/Enum/StudentCourse";
 import Pagination from "@/components/Pagination";
 import Image from "next/image";
 import Loader from "@/components/common/Loader";
+import { ToastContainer } from "react-toastify";
 
 interface Jobs {
   jobId: string;
@@ -181,6 +182,7 @@ const JobPostTable: React.FC = () => {
 
   return (
     <>
+    <ToastContainer/>
       {isLoading && <Loader />}
       <DefaultLayout>
         <Breadcrumb pageName="Jobs List" />
@@ -296,11 +298,11 @@ const JobPostTable: React.FC = () => {
                         </th>
                       </>
                     )}
-                    {/* {role == "Student" || role == "Company" && ( */}
+                    {(role == "Student" || role == "Company") && (
                       <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
                         Action
                       </th>
-                    {/* )} */}
+                     )}
                   </tr>
                 </thead>
                 <tbody>
@@ -455,9 +457,9 @@ const JobPostTable: React.FC = () => {
                         )}
                         {role === "Company" && (
                           <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                            <p className="text-black dark:text-white">
-                              <Link href={`/company/jobposting/${job.jobId}`}>
-                                <button className="hover:text-primary">
+                            <p className="flex text-black dark:text-white">
+                              <Link href={`/company/jobposting/${job.jobId}`} className="hover:text-primary">
+                                {/* <button className="hover:text-primary"> */}
                                   <svg
                                     className="w-6 h-6 text-gray-800 dark:text-white"
                                     aria-hidden="true"
@@ -475,7 +477,7 @@ const JobPostTable: React.FC = () => {
                                       d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
                                     />
                                   </svg>
-                                </button>
+                                {/* </button> */}
                               </Link>
                               <button
                             onClick={() => onDeleteStudent(job.jobId)}
