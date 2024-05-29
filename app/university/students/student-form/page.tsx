@@ -108,15 +108,20 @@ const Students: React.FC = () => {
 
   const loadCities = (selectedStateCode: string) => {
     // values.state =
-    console.log("State code :", selectedStateCode);
     fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, {
       headers: { "X-CSCAPI-KEY": config.ckey },
     })
       .then((response) => response.json())
       .then((data) => {
-        setCities(data);
+        const filteredCities = data.filter((city:any) => city.name !== "Amod" && city.name !== "Nadiad");
+        setCities(filteredCities);
       })
       .catch((error) => console.error("Error loading cities:", error));
+  };
+
+  // Prevent pasting
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
   };
 
   const today = new Date().toISOString().split("T")[0];
@@ -145,10 +150,8 @@ const Students: React.FC = () => {
           formData.append(key, value);
         }
       });
-      console.log("form values", formData);
       setIsLoading(true);
       const response = await dispatch(addStudent(formData));
-      console.log(response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
         route.replace("student-table");
@@ -177,13 +180,11 @@ const Students: React.FC = () => {
     const allowedExtensions = ["xlsx", "xls", "csv"];
     const fileExtension = newfile.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
-      console.log("Please select a valid Excel file: XLSX, XLS, or CSV.");
       ToastError("Please select a valid Excel file: XLSX, XLS, or CSV.");
       setFile(null);
       return;
     }
     setFile(e.target.files[0]);
-    console.log("file set" + file);
   };
 
   useEffect(() => {
@@ -210,10 +211,8 @@ const Students: React.FC = () => {
     const imageRef = ref(storage, imagePath);
     try {
       await uploadBytes(imageRef, file);
-      console.log("File uploaded");
       const downloadURL = await getDownloadURL(imageRef);
       if (downloadURL != null) {
-        console.log("File URL:", downloadURL);
         setFileUrl(downloadURL);
         ToastSuccess("File Uploaded successfully.");
       }
@@ -230,7 +229,6 @@ const Students: React.FC = () => {
     formData.append("fileUrl", fileUrl); // Append fileUrl to the formData
     setIsLoading(true);
     var response = await dispatch(importExcelFile(formData));
-    console.log(response);
     if (response.payload?.success) {
       ToastSuccess(response.payload?.message);
       route.replace("student-table");
@@ -372,7 +370,7 @@ const Students: React.FC = () => {
                       Phone Number<span className="text-red">*</span>
                     </label>
                     <input
-                      type="number"
+                      type="tel"
                       placeholder="Enter student Phone Nummber"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="phoneNumber"
@@ -403,6 +401,7 @@ const Students: React.FC = () => {
                       onChange={handleChange}
                       onBlur={handleBlur}
                       autoComplete="new-password"
+                      onPaste={handlePaste}
                     />
                     {errors.password && touched.password ? (
                       <p className="text-red">{errors.password}</p>
@@ -422,6 +421,8 @@ const Students: React.FC = () => {
                       value={values.confirmPassword}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      autoComplete="new password"
+                      onPaste={handlePaste}
                     />
                     {errors.confirmPassword && touched.confirmPassword ? (
                       <p className="text-red">{errors.confirmPassword}</p>
@@ -460,6 +461,7 @@ const Students: React.FC = () => {
                       value={values.dob}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      
                     />
                     {errors.dob && touched.dob ? (
                       <p className="text-red">{errors.dob.toString()}</p>
@@ -638,7 +640,7 @@ const Students: React.FC = () => {
                       value={values.joiningDate}
                       onChange={handleChange}
                       onBlur={handleBlur}
-                      min={today}
+                      max={today}
                     />
                     {errors.joiningDate && touched.joiningDate ? (
                       <p className="text-red">{errors.joiningDate}</p>
@@ -654,9 +656,11 @@ const Students: React.FC = () => {
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="graduationDate"
                       id="graduationDate"
+                      disabled={values.joiningDate ? false : true}
                       value={values.graduationDate}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      min={values.joiningDate}
                     />
                     {errors.graduationDate && touched.graduationDate ? (
                       <p className="text-red">

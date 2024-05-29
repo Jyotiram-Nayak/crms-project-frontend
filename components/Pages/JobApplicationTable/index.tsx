@@ -12,6 +12,7 @@ import { StudentCourse } from "@/components/Enum/StudentCourse";
 import Pagination from "@/components/Pagination";
 import Loader from "@/components/common/Loader";
 import { ToastContainer } from "react-toastify";
+import { useSearchParams } from "next/navigation";
 
 interface JobApplication {
   applicationId: string;
@@ -63,6 +64,20 @@ const JobApplicationTable = () => {
     isAscending: true,
   });
 
+  const searchParams = useSearchParams();
+  const isSelected = searchParams.get("isSelected");
+
+  useEffect(() => {
+    if (isSelected != null) {
+      setValue((prevValue) => ({
+        ...prevValue,
+        filterOn: "isSelected",
+        filterQuery: isSelected,
+        page: 1,
+      }));
+    }
+  }, [isSelected]);
+
   const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setValue((prevValue) => ({
       ...prevValue,
@@ -99,7 +114,6 @@ const JobApplicationTable = () => {
     setIsLoading(true)
     try {
       const response = await dispatch(fetchAllJobApplication(value));
-      console.log("response : ", response); 
       response.payload?.data && setJobApplications(response.payload.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -138,7 +152,7 @@ const JobApplicationTable = () => {
                   <option value="City">City</option>
                   <option value="State">State</option>
                   <option value="Course">Course</option>
-                  {/* <option value="isSelected">Status</option> */}
+                  <option value="isSelected">Status</option>
                 </select>
                 {value.filterOn?.toLowerCase() !== "course" &&
                   value.filterOn?.toLowerCase() !== "isselected" && (
@@ -194,8 +208,9 @@ const JobApplicationTable = () => {
                       Select Status
                     </option>
                     <option value="">All Students</option>
-                    <option value="true">Selected</option>
-                    <option value="false">Pending</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Selected">Selected</option>
+                    <option value="Rejected">Rejected</option>
                   </select>
                 )}
                 <select
@@ -361,8 +376,8 @@ const JobApplicationTable = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {jobApplication.appliedDate &&
-                            DateFilter(jobApplication.appliedDate)}
+                          {jobApplication.appliedDate ?
+                            DateFilter(jobApplication.appliedDate) : "--"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">

@@ -5,9 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import Displaybutton from "@/components/FormElements/buttons/Displaybutton";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  updateStudent,
-} from "@/lib/StudentSlice/StudentSlice";
+import { updateStudent } from "@/lib/StudentSlice/StudentSlice";
 import {
   ToastError,
   ToastSuccess,
@@ -20,7 +18,7 @@ import Loader from "@/components/common/Loader";
 enum Gender {
   Male,
   Female,
-  Other
+  Other,
 }
 
 enum MaritalStatus {
@@ -55,7 +53,6 @@ interface FormValues {
   course: StudentCourse;
 }
 
-
 const initialValues: FormValues = {
   firstName: "",
   lastName: "",
@@ -72,7 +69,7 @@ const initialValues: FormValues = {
   state: "",
   joiningDate: "",
   graduationDate: "",
-  course: StudentCourse.MCA
+  course: StudentCourse.MCA,
 };
 
 export default function Page({ params }: { params: { userId: string } }) {
@@ -85,55 +82,60 @@ export default function Page({ params }: { params: { userId: string } }) {
   const [isLoading, setIsLoading] = useState(false);
 
   const config = {
-    cUrl: 'https://api.countrystatecity.in/v1/countries',
-    ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+    cUrl: "https://api.countrystatecity.in/v1/countries",
+    ckey: "NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA==",
   };
 
   const countryCode = "IN";
 
   const loadStates = () => {
-    fetch(`${config.cUrl}/${countryCode}/states`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-      .then(response => response.json())
-      .then(data => {
+    fetch(`${config.cUrl}/${countryCode}/states`, {
+      headers: { "X-CSCAPI-KEY": config.ckey },
+    })
+      .then((response) => response.json())
+      .then((data) => {
         setStates(data);
+        fetchData(data);
       })
-      .catch(error => console.error('Error loading states:', error));
+      .catch((error) => console.error("Error loading states:", error));
   };
 
   const loadCities = (selectedStateCode: string) => {
-    // values.state = 
-    console.log("State code :",selectedStateCode)
-    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-      .then(response => response.json())
-      .then(data => {
-        setCities(data);
+    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, {
+      headers: { "X-CSCAPI-KEY": config.ckey },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const filteredCities = data.filter((city:any) => city.name !== "Amod" && city.name !== "Nadiad");
+        setCities(filteredCities);
       })
-      .catch(error => console.error('Error loading cities:', error));
+      .catch((error) => console.error("Error loading cities:", error));
   };
 
   // const studentData = Object.values(state.student);
   const studentData = state.student;
-  console.log("student data :", studentData);
 
-  const fetchData = async () => {
+  const fetchData = async (statesList: any[]) => {
     const singleStudent = studentData.find(
       (student: any) => student.userId === params.userId
     );
-    console.log("get from selector :", singleStudent);
     if (singleStudent != null) {
       setStudent(singleStudent);
     }
-
+    const stateDetail = statesList.find(
+      (state: any) => state.name === singleStudent.state
+    );
+    if (stateDetail && stateDetail.iso2) {
+      loadCities(stateDetail.iso2);
+    }
   };
 
   useEffect(() => {
-    fetchData();
-    loadStates()
+    loadStates();
   }, []);
 
   useEffect(() => {
     if (student) {
-      console.log("Student data", student);
       setValues({
         firstName: student?.firstName || "",
         lastName: student?.lastName || "",
@@ -155,54 +157,63 @@ export default function Page({ params }: { params: { userId: string } }) {
     }
   }, [student]);
 
-
   var formData = new FormData();
-  const { values, errors, touched, handleBlur, handleChange, handleSubmit, setValues, setFieldValue } = useFormik({
+  const {
+    values,
+    errors,
+    touched,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    setValues,
+    setFieldValue,
+  } = useFormik({
     initialValues,
     validationSchema: updateStudentSchema,
     onSubmit: async (values, { resetForm }) => {
-      values.course = values.course
+      values.course = values.course;
       Object.entries(values).forEach(([key, value]) => {
         // Convert enum values to numbers if necessary
-        if (typeof value === 'number' && !isNaN(value)) {
+        if (typeof value === "number" && !isNaN(value)) {
           formData.append(key, value.toString()); // Convert number to string
         } else {
           formData.append(key, value);
         }
       });
-      console.log("form values", formData);
-      const studentId = params.userId
-      setIsLoading(true)
-      const response = await dispatch(updateStudent({ studentId: studentId, val: formData }));
-      console.log("response ", response);
+      const studentId = params.userId;
+      setIsLoading(true);
+      const response = await dispatch(
+        updateStudent({ studentId: studentId, val: formData })
+      );
+      console.log("response",response)
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
-        route.replace("student-table")
+        route.replace("student-table");
       } else if (response.error?.message) {
-        ToastError(response.error.message || "An error occurred.");
+        ToastError(response.error?.message || "An error occurred.");
+        console.log(response.error?.message || "An error occurred.")
       }
-      setIsLoading(false)
+      setIsLoading(false);
     },
   });
-  console.log(errors);
 
   const cancelUpdate = () => {
-    route.replace("student-table")
-  }
+    route.replace("student-table");
+  };
 
-    // validation for string
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = e.target;
-      const { name } = e.target;
-      const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
-      if (regex.test(value) || value === '') {
-        setFieldValue(name, value);
-      }
+  // validation for string
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const { name } = e.target;
+    const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
+    if (regex.test(value) || value === "") {
+      setFieldValue(name, value);
     }
+  };
 
   return (
     <>
-    {isLoading && <Loader/>}
+      {isLoading && <Loader />}
       <DefaultLayout>
         <Breadcrumb pageName="Student Registration" />
         <div className="flex flex-col gap-9">
@@ -219,7 +230,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      First name
+                      First name <span className="text-red">*</span>
                     </label>
                     <input
                       type="text"
@@ -238,7 +249,7 @@ export default function Page({ params }: { params: { userId: string } }) {
 
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Last name
+                      Last name <span className="text-red">*</span>
                     </label>
                     <input
                       type="text"
@@ -256,7 +267,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                   </div>
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Email
+                      Email <span className="text-red">*</span>
                     </label>
                     <input
                       type="email"
@@ -267,6 +278,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                       value={values.email}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      autoComplete="new email"
                     />
                     {errors.email && touched.email ? (
                       <p className="text-red">{errors.email}</p>
@@ -276,10 +288,10 @@ export default function Page({ params }: { params: { userId: string } }) {
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Phone Number
+                      Phone Number <span className="text-red">*</span>
                     </label>
                     <input
-                      type="number"
+                      type="tel"
                       placeholder="Enter student Phone Nummber"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="phoneNumber"
@@ -287,6 +299,10 @@ export default function Page({ params }: { params: { userId: string } }) {
                       value={values.phoneNumber}
                       onChange={handleChange}
                       onBlur={handleBlur}
+                      minLength={10}
+                      maxLength={10}
+                      pattern="\d{10}"
+                      title="Please enter a valid 10-digit phone number"
                     />
                     {errors.phoneNumber && touched.phoneNumber ? (
                       <p className="text-red">{errors.phoneNumber}</p>
@@ -302,7 +318,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="password"
                       id="password"
-                      value={values.password}
+                      value={values.password ?? ""}
                       onChange={handleChange}
                       onBlur={handleBlur}
                       autoComplete="new password"
@@ -314,7 +330,7 @@ export default function Page({ params }: { params: { userId: string } }) {
 
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Confirm Password
+                      Confirm Password 
                     </label>
                     <input
                       type="password"
@@ -334,7 +350,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Roll No
+                      Roll No <span className="text-red">*</span>
                     </label>
                     <input
                       type="text"
@@ -352,7 +368,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                   </div>
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Date Of Birth
+                      Date Of Birth <span className="text-red">*</span>
                     </label>
                     <input
                       type="date"
@@ -371,7 +387,7 @@ export default function Page({ params }: { params: { userId: string } }) {
 
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Gender
+                      Gender <span className="text-red">*</span>
                     </label>
                     <select
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -395,7 +411,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Marital Status<span className="text-red">*</span>
+                      Marital Status <span className="text-red">*</span>
                     </label>
                     <select
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -416,7 +432,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                   </div>
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      State<span className="text-red">*</span>
+                      State <span className="text-red">*</span>
                     </label>
                     <select
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
@@ -425,13 +441,20 @@ export default function Page({ params }: { params: { userId: string } }) {
                       value={values.state}
                       onChange={(e) => {
                         handleChange(e);
-                        loadCities(e.target.selectedOptions[0].id);}}
+                        loadCities(e.target.selectedOptions[0].id);
+                      }}
                     >
                       <option value="" disabled>
                         Select State
                       </option>
                       {states.map((state: any) => (
-                        <option key={state.name} value={state.name} id={state.iso2}>{state.name}</option>
+                        <option
+                          key={state.name}
+                          value={state.name}
+                          id={state.iso2}
+                        >
+                          {state.name}
+                        </option>
                       ))}
                     </select>
                     {errors.state && touched.state ? (
@@ -441,20 +464,26 @@ export default function Page({ params }: { params: { userId: string } }) {
 
                   <div className="w-full xl:w-1/3">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      City<span className="text-red">*</span>
+                      City <span className="text-red">*</span>
                     </label>
                     <select
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="city"
                       id="city"
                       value={values.city}
-                      onChange={handleChange}
+                      onChange={(e) => handleChange(e)}
                     >
                       <option value="" disabled>
                         Select City
                       </option>
                       {cities.map((city: any) => (
-                        <option key={city.name} value={city.name} id={city.iso2}>{city.name}</option>
+                        <option
+                          key={city.name}
+                          value={city.name}
+                          id={city.iso2}
+                        >
+                          {city.name}
+                        </option>
                       ))}
                     </select>
                     {errors.city && touched.city ? (
@@ -465,7 +494,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
                   <div className="w-full xl:w-1/2">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
-                      Address<span className="text-red">*</span>
+                      Address <span className="text-red">*</span>
                     </label>
                     <input
                       type="text"
@@ -489,17 +518,26 @@ export default function Page({ params }: { params: { userId: string } }) {
                       className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       name="course"
                       id="course"
-                      value={values.course}
+                      value={StudentCourse[values.course]}
                       onChange={handleChange}
                     >
                       <option value="" disabled>
                         Select Course
                       </option>
                       {Object.keys(StudentCourse)
-                        .filter(key => isNaN(Number(StudentCourse[key as keyof typeof StudentCourse])))
+                        .filter((key) =>
+                          isNaN(
+                            Number(
+                              StudentCourse[key as keyof typeof StudentCourse]
+                            )
+                          )
+                        )
                         .map((key) => (
-                          <option key={key} value={StudentCourse[key as keyof typeof StudentCourse]} 
-                          // selected={StudentCourse[key as keyof typeof StudentCourse] === values.course ? true : false}
+                          <option
+                            key={key}
+                            value={
+                              StudentCourse[key as keyof typeof StudentCourse]
+                            }
                           >
                             {StudentCourse[key as keyof typeof StudentCourse]}
                           </option>
@@ -511,7 +549,6 @@ export default function Page({ params }: { params: { userId: string } }) {
                   </div>
                 </div>
                 <div className="mb-4.5 flex flex-col gap-6 xl:flex-row">
-
                   <div className="w-full xl:w-1/2">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Joining Date<span className="text-red">*</span>
@@ -530,7 +567,7 @@ export default function Page({ params }: { params: { userId: string } }) {
                       <p className="text-red">{errors.joiningDate}</p>
                     ) : null}
                   </div>
-                  <div className="w-full xl:w-1/3">
+                  <div className="w-full xl:w-1/2">
                     <label className="mb-3 block text-sm font-medium text-black dark:text-white">
                       Graduation Date<span className="text-red">*</span>
                     </label>

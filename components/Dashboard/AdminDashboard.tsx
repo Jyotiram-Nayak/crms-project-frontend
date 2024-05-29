@@ -16,16 +16,13 @@ const AdminDashboard: React.FC = () => {
   const [data, setData] = useState<AdminData | null>(null);
   const [loading, setLoading] = useState(true);
   const fetchData = async () => {
-    console.log("start:");
     const response = await dispatch(getAdminDashboard());
-    console.log("Admin dashboard :", response);
     response.payload?.data && setData(response.payload.data);
     setLoading(false);
   };
   useEffect(() => {
-    console.log("Hello from admin Dashboard");
     fetchData();
-  }, []);
+  },[]);
   return (
     <>
     {loading && <Loader/>}

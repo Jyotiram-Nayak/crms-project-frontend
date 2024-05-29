@@ -53,42 +53,50 @@ const UpdateProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const config = {
-    cUrl: 'https://api.countrystatecity.in/v1/countries',
-    ckey: 'NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA=='
+    cUrl: "https://api.countrystatecity.in/v1/countries",
+    ckey: "NHhvOEcyWk50N2Vna3VFTE00bFp3MjFKR0ZEOUhkZlg4RTk1MlJlaA==",
   };
 
   const countryCode = "IN";
 
   const loadStates = () => {
-    fetch(`${config.cUrl}/${countryCode}/states`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-      .then(response => response.json())
-      .then(data => {
+    fetch(`${config.cUrl}/${countryCode}/states`, {
+      headers: { "X-CSCAPI-KEY": config.ckey },
+    })
+      .then((response) => response.json())
+      .then((data) => {
         setStates(data);
+        fetchData(data);
       })
-      .catch(error => console.error('Error loading states:', error));
+      .catch((error) => console.error("Error loading states:", error));
   };
 
   const loadCities = (selectedStateCode: string) => {
-    // values.state = 
-    console.log("State code :", selectedStateCode)
-    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, { headers: { "X-CSCAPI-KEY": config.ckey } })
-      .then(response => response.json())
-      .then(data => {
-        setCities(data);
+    // values.state =
+    fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, {
+      headers: { "X-CSCAPI-KEY": config.ckey },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const filteredCities = data.filter((city:any) => city.name !== "Amod" && city.name !== "Nadiad");
+        setCities(filteredCities);
       })
-      .catch(error => console.error('Error loading cities:', error));
+      .catch((error) => console.error("Error loading cities:", error));
   };
   const state = useSelector((stete: any) => stete.user);
   const users = state?.user;
-  console.log("user from redux :", users);
-  const fetchData = async () => {
-    users && setUser(users)
-    users ?? console.log("user not found")
+  const fetchData = async (statesList: any[]) => {
+    users && setUser(users);
+    const stateDetail = statesList.find(
+      (state: any) => state.name === users.state
+    );
+    if (stateDetail && stateDetail.iso2) {
+      loadCities(stateDetail.iso2);
+    }
   };
 
   useEffect(() => {
     loadStates();
-    fetchData();
   }, []);
 
   useEffect(() => {
@@ -114,7 +122,10 @@ const UpdateProfile = () => {
       return;
     }
     setFile(e.target.files[0]);
-    console.log("file set" + file);
+  };
+
+  const clearSelectedFile = () => {
+    setFile(null);
   };
 
   //function to upload an image in firebase
@@ -126,12 +137,11 @@ const UpdateProfile = () => {
     const imageRef = ref(storage, imagePath);
     try {
       await uploadBytes(imageRef, file);
-      console.log("imgae uploaded");
       const downloadURL = await getDownloadURL(imageRef);
       if (downloadURL != null) {
-        console.log("Image URL:", downloadURL);
         values.image = downloadURL;
         ToastSuccess("Image Uploaded successfully.");
+        setFile(null);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -139,8 +149,7 @@ const UpdateProfile = () => {
       return null;
     }
   };
-
-
+  // const formData = new FormData();
   const {
     values,
     errors,
@@ -149,18 +158,14 @@ const UpdateProfile = () => {
     handleChange,
     handleSubmit,
     setValues,
-    setFieldValue
+    setFieldValue,
   } = useFormik<User>({
     initialValues: initialValues,
     validationSchema: updateUserSchema,
     onSubmit: async (values: User, { resetForm }) => {
-      console.log("form values", values);
-      // const imageUrl = await uploadImage();
-      // values.image = imageUrl || values.image;
       setIsLoading(true);
-
+      values.phoneNumber = values.phoneNumber.toString();
       const response = await dispatch(updateUserProfile(values));
-      console.log(response);
 
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
@@ -177,14 +182,13 @@ const UpdateProfile = () => {
     const { value } = e.target;
     const { name } = e.target;
     const regex = /^[a-zA-Z\s]*$/; // Regex to allow only letters and spaces
-    if (regex.test(value) || value === '') {
+    if (regex.test(value) || value === "") {
       setFieldValue(name, value);
     }
-  }
-  console.log(errors);
+  };
   return (
     <>
-    {isLoading && <Loader/>}
+      {isLoading && <Loader />}
       <DefaultLayout>
         <div className="mx-auto max-w-270">
           <Breadcrumb pageName="Settings" />
@@ -203,7 +207,7 @@ const UpdateProfile = () => {
                       <div className="w-full sm:w-1/2">
                         <label
                           className="mb-3 block text-sm font-medium text-black dark:text-white"
-                          htmlFor="fullName"
+                          htmlFor="firstName"
                         >
                           First Name
                           <span className="text-red">*</span>
@@ -253,7 +257,7 @@ const UpdateProfile = () => {
                       <div className="w-full sm:w-1/2">
                         <label
                           className="mb-3 block text-sm font-medium text-black dark:text-white"
-                          htmlFor="fullName"
+                          htmlFor="lastName"
                         >
                           Last Name
                           <span className="text-red">*</span>
@@ -304,7 +308,7 @@ const UpdateProfile = () => {
                       <div className="w-full sm:w-1/2">
                         <label
                           className="mb-3 block text-sm font-medium text-black dark:text-white"
-                          htmlFor="emailAddress"
+                          htmlFor="email"
                         >
                           Email Address
                           <span className="text-red">*</span>
@@ -344,6 +348,7 @@ const UpdateProfile = () => {
                             value={values.email}
                             onChange={handleChange}
                             onBlur={handleBlur}
+                            autoComplete="new Email"
                           />
                           {errors.email && touched.email ? (
                             <p className="text-red">{errors.email}</p>
@@ -360,13 +365,17 @@ const UpdateProfile = () => {
                         </label>
                         <input
                           className="w-full rounded border border-stroke bg-gray px-4.5 py-3 text-black focus:border-primary focus-visible:outline-none dark:border-strokedark dark:bg-meta-4 dark:text-white dark:focus:border-primary"
-                          type="number"
+                          type="tel"
                           placeholder="Enter your Phone Number"
                           name="phoneNumber"
                           id="phoneNumber"
                           value={values.phoneNumber}
                           onChange={handleChange}
                           onBlur={handleBlur}
+                          minLength={10}
+                          maxLength={10}
+                          pattern="\d{10}"
+                          title="Please enter a valid 10-digit phone number"
                         />
                         {errors.phoneNumber && touched.phoneNumber ? (
                           <p className="text-red">{errors.phoneNumber}</p>
@@ -377,7 +386,7 @@ const UpdateProfile = () => {
                       <div className="w-full sm:w-1/2">
                         <label
                           className="mb-3 block text-sm font-medium text-black dark:text-white"
-                          htmlFor="fullName"
+                          htmlFor="state"
                         >
                           State
                           <span className="text-red">*</span>
@@ -397,7 +406,13 @@ const UpdateProfile = () => {
                               Select State
                             </option>
                             {states.map((state: any) => (
-                              <option key={state.name} value={state.name} id={state.iso2}>{state.name}</option>
+                              <option
+                                key={state.name}
+                                value={state.name}
+                                id={state.iso2}
+                              >
+                                {state.name}
+                              </option>
                             ))}
                           </select>
                           {errors.state && touched.state ? (
@@ -409,7 +424,7 @@ const UpdateProfile = () => {
                       <div className="w-full sm:w-1/2">
                         <label
                           className="mb-3 block text-sm font-medium text-black dark:text-white"
-                          htmlFor="fullName"
+                          htmlFor="city"
                         >
                           City
                           <span className="text-red">*</span>
@@ -426,7 +441,13 @@ const UpdateProfile = () => {
                               Select City
                             </option>
                             {cities.map((city: any) => (
-                              <option key={city.name} value={city.name} id={city.iso2}>{city.name}</option>
+                              <option
+                                key={city.name}
+                                value={city.name}
+                                id={city.iso2}
+                              >
+                                {city.name}
+                              </option>
                             ))}
                           </select>
                           {errors.city && touched.city ? (
@@ -438,7 +459,7 @@ const UpdateProfile = () => {
                     <div className="w-full">
                       <label
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="fullName"
+                        htmlFor="address"
                       >
                         Address
                         <span className="text-red">*</span>
@@ -478,6 +499,7 @@ const UpdateProfile = () => {
                           value={values.address}
                           onChange={handleChange}
                           onBlur={handleBlur}
+                          autoComplete="new address"
                         />
                         {errors.address && touched.address ? (
                           <p className="text-red">{errors.address}</p>
@@ -488,7 +510,7 @@ const UpdateProfile = () => {
                     <div className="w-full">
                       <label
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="fullName"
+                        htmlFor="website"
                       >
                         Website
                       </label>
@@ -537,7 +559,7 @@ const UpdateProfile = () => {
                     <div className="mb-5.5">
                       <label
                         className="mb-3 block text-sm font-medium text-black dark:text-white"
-                        htmlFor="Username"
+                        htmlFor="bio"
                       >
                         BIO
                       </label>
@@ -578,7 +600,7 @@ const UpdateProfile = () => {
                           rows={6}
                           placeholder="Enter your Bio"
                           name="bio"
-                          id="website"
+                          id="bio"
                           value={values.bio}
                           onChange={handleChange}
                           onBlur={handleBlur}
@@ -642,7 +664,8 @@ const UpdateProfile = () => {
 
                     <div
                       id="FileUpload"
-                      className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5">
+                      className="relative mb-5.5 block w-full cursor-pointer appearance-none rounded border border-dashed border-primary bg-gray px-4 py-4 dark:bg-meta-4 sm:py-7.5"
+                    >
                       <input
                         type="file"
                         accept="image/*"
@@ -652,13 +675,15 @@ const UpdateProfile = () => {
                         id="file"
                         onChange={onFileChange}
                       />
-                      {file ?
+                      {file ? (
                         <Image
                           src={URL.createObjectURL(file)}
                           alt="Selected file"
                           layout="fixed"
                           width={300}
-                          height={300} /> :
+                          height={300}
+                        />
+                      ) : (
                         <div className="flex flex-col items-center justify-center space-y-3">
                           <span className="flex h-10 w-10 items-center justify-center rounded-full border border-stroke bg-white dark:border-strokedark dark:bg-boxdark">
                             <svg
@@ -689,21 +714,26 @@ const UpdateProfile = () => {
                             </svg>
                           </span>
                           <p>
-                            <span className="text-primary">Click to upload</span>{" "}
+                            <span className="text-primary">
+                              Click to upload
+                            </span>{" "}
                             or drag and drop
                           </p>
                           <p className="mt-1.5">SVG, PNG, JPG or GIF</p>
                           <p>(max, 800 X 800px)</p>
                         </div>
-                      }
+                      )}
                     </div>
                     <div className="flex justify-end gap-4.5">
-                      {/* <button
-                        className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
-                        type="submit"
-                      >
-                        Cancel
-                      </button> */}
+                      {file && (
+                        <button
+                          className="flex justify-center rounded border border-stroke px-6 py-2 font-medium text-black hover:shadow-1 dark:border-strokedark dark:text-white"
+                          type="button"
+                          onClick={clearSelectedFile}
+                        >
+                          Cancel
+                        </button>
+                      )}
                       <button
                         onClick={uploadImage}
                         className="flex justify-center rounded bg-primary px-6 py-2 font-medium text-gray hover:bg-opacity-90"

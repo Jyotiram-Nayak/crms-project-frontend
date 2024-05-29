@@ -19,6 +19,7 @@ import { bool, boolean } from "yup";
 import Pagination from "@/components/Pagination";
 import Image from "next/image";
 import { ToastContainer } from "react-toastify";
+import { useSearchParams } from "next/navigation";
 
 interface Student {
   userId: string;
@@ -65,6 +66,20 @@ const AllStudents = () => {
     isAscending: true,
   });
 
+  const searchParams = useSearchParams();
+  const isSelected = searchParams.get("isSelected");
+
+  useEffect(() => {
+    if (isSelected != null) {
+      setValue((prevValue) => ({
+        ...prevValue,
+        filterOn: "isSelected",
+        filterQuery: isSelected,
+        page: 1,
+      }));
+    }
+  }, [isSelected]);
+
   const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setValue((prevValue) => ({
       ...prevValue,
@@ -107,9 +122,7 @@ const AllStudents = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      console.log("pagination:", value);
       const response = await dispatch(fetchAllStudent(value));
-      console.log(response.payload.data); // This should contain the data from your API response
       response.payload.data && setStudents(response.payload.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -146,7 +159,7 @@ const AllStudents = () => {
 
   return (
     <>
-    <ToastContainer/>
+      <ToastContainer />
       <DefaultLayout>
         <Breadcrumb pageName="Students" />
         <div className="flex flex-col gap-9">
@@ -397,22 +410,30 @@ const AllStudents = () => {
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {DateFilter(student.joiningDate)}
+                          {student.joiningDate
+                            ? DateFilter(student.joiningDate)
+                            : "--"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {DateFilter(student.graduationDate)}
+                          {student.graduationDate
+                            ? DateFilter(student.graduationDate)
+                            : "--"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {DateFilter(student.createOn)}
+                          {student.createOn
+                            ? DateFilter(student.createOn)
+                            : "--"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                         <p className="text-black dark:text-white">
-                          {DateFilter(student.updateOn) ?? "--"}
+                          {student.updateOn
+                            ? DateFilter(student.updateOn)
+                            : "--"}
                         </p>
                       </td>
                       <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">

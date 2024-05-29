@@ -26,8 +26,6 @@ const page = () => {
     // Extract uid and token from the URL
     const uid = searchParams.get('uid');
     const token = searchParams.get('token');
-    console.log("uid : " ,uid)
-    console.log("token : " ,token)
 
     const togglePasswordVisibility = () => {
         setPasswordVisible((prev) => !prev);
@@ -46,9 +44,7 @@ const page = () => {
                 ToastError("Invalid reset link.");
                 return;
             }
-            console.log("form values", values);
             const response = await dispatch(resetPassword({...values,uid,token}));
-            console.log(response);
 
             if (response.payload?.success) {
                 ToastSuccess(response.payload?.message);

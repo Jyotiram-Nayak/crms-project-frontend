@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { getUniversityDashboard } from "@/lib/UserSlice/UserSlice";
 import Link from "next/link";
 import Loader from "../common/Loader";
+import PieChartUniversity from "../PieChart/PieChartUniversity";
 
 interface UniversityData {
   selectedStudents: number;
@@ -15,17 +16,19 @@ interface UniversityData {
 
 const UniversityDashboard: React.FC = () => {
   const dispatch = useDispatch();
-  const [data, setData] = useState<UniversityData | null>(null);
+  const [data, setData] = useState<UniversityData>({
+    selectedStudents: 0,
+    pendingStudents: 0,
+    allStudents: 0,
+    totalJobs: 0,
+  });
   const [loading, setLoading] = useState(true);
   const fetchData = async () => {
-    console.log("start:");
     const response = await dispatch(getUniversityDashboard());
-    console.log("University dashboard :", response);
     response.payload?.data && setData(response.payload.data);
     setLoading(false);
   };
   useEffect(() => {
-    console.log("Hello from university Dashboard");
     fetchData();
   }, []);
   return (
@@ -81,55 +84,61 @@ const UniversityDashboard: React.FC = () => {
             </svg>
           </CardDataStats>
         </Link>
-        <CardDataStats
-          title="Selected Students"
-          total={data?.selectedStudents.toString() ?? "loading..."}
-          rate=""
-        >
-          <svg
-            className="h-6 w-6 text-red-500"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            stroke="currentColor"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        <Link href={`university/students/student-table?isSelected=true`}>
+          <CardDataStats
+            title="Selected Students"
+            total={data?.selectedStudents.toString() ?? "loading..."}
+            rate=""
           >
-            {" "}
-            <path stroke="none" d="M0 0h24v24H0z" />{" "}
-            <circle cx="9" cy="7" r="4" />{" "}
-            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />{" "}
-            <path d="M16 11l2 2l4 -4" />
-          </svg>
-        </CardDataStats>
-        <CardDataStats
-          title="Pending Students"
-          total={data?.pendingStudents.toString() ?? "loading..."}
-          rate=""
-        >
-          <svg
-            className="h-6 w-6 text-red-500"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            strokeWidth="2"
-            stroke="currentColor"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            <svg
+              className="h-6 w-6 text-red-500"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {" "}
+              <path stroke="none" d="M0 0h24v24H0z" />{" "}
+              <circle cx="9" cy="7" r="4" />{" "}
+              <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />{" "}
+              <path d="M16 11l2 2l4 -4" />
+            </svg>
+          </CardDataStats>
+        </Link>
+        <Link href={`university/students/student-table?isSelected=false`}>
+          <CardDataStats
+            title="Pending Students"
+            total={data?.pendingStudents.toString() ?? "loading..."}
+            rate=""
           >
-            {" "}
-            <path stroke="none" d="M0 0h24v24H0z" />{" "}
-            <circle cx="9" cy="7" r="4" />{" "}
-            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />{" "}
-            <path d="M17 9l4 4m0 -4l-4 4" />
-          </svg>
-        </CardDataStats>
+            <svg
+              className="h-6 w-6 text-red-500"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+              stroke="currentColor"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {" "}
+              <path stroke="none" d="M0 0h24v24H0z" />{" "}
+              <circle cx="9" cy="7" r="4" />{" "}
+              <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />{" "}
+              <path d="M17 9l4 4m0 -4l-4 4" />
+            </svg>
+          </CardDataStats>
+        </Link>
       </div>
 
-      <div className="mt-4 md:mt-6 md:gap-6 2xl:mt-7.5"></div>
+      <div className="mt-4 md:mt-6 md:gap-6 2xl:mt-7.5">
+        <PieChartUniversity data={data} />
+      </div>
     </>
   );
 };

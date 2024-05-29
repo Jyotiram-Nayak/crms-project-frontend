@@ -16,7 +16,7 @@ export async function middleware(req: NextRequest) {
         '/dashboard': ['University', 'Student', 'Company', 'Admin'],
         '/profile': ['University', 'Student', 'Company', 'Admin'],
         '/profile/change-password': ['University', 'Student', 'Company', 'Admin'],
-        '/profile/update-profile': ['University', 'Student', 'Company', 'Admin'],
+        '/profile/update-profile': ['University', 'Company', 'Admin'],
         '/student/all-apply-jobs/': ['Student','Company'],
         '/student/all-apply-jobs/[applicationId]': ['Student','Company'],
         '/company/jobposting/[jobId]': ['Student'],

@@ -63,7 +63,6 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
         const Application = applicationData.find(
             (application: any) => application.applicationId === params.applicationId
         );
-        // console.log("get from selector :", Application);
         if (Application != null) {
             setjobApplication(Application);
         }
@@ -83,12 +82,9 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                         formData.append(key, value);
                     }
                 });
-                console.log("form values", formData);
-                console.log("form values", formData);
                 var applicationId = jobApplication?.applicationId;
                 setIsLoading(true)
                 const response = await dispatch(JobAssessment({ applicationId: applicationId, val: formData }));
-                console.log(response);
                 if (response.payload?.success) {
                     ToastSuccess(response.payload?.message);
                     router.back()
@@ -99,7 +95,6 @@ const ApplicationDetails = ({ params }: { params: { applicationId: string } }) =
                 setIsLoading(false)
             },
         });
-    console.log(errors);
 
     const cancelApply = () => {
         router.back();

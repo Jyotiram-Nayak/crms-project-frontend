@@ -156,7 +156,6 @@ const JobSlice = createSlice({
       })
       .addCase(fetchAllJob.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
-        console.log("<<<", action.payload.data)
         state.job = {...action.payload.data}
       })
       .addCase(fetchAllJob.rejected, (state: any, action: any) => {
@@ -191,7 +190,6 @@ const JobSlice = createSlice({
       })
       .addCase(fetchAllJobByUniversityId.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
-        // console.log("<<<", action.payload.data)
         state.job = action.payload.data;
       })
       .addCase(fetchAllJobByUniversityId.rejected, (state: any, action: any) => {
@@ -201,5 +199,4 @@ const JobSlice = createSlice({
   },
 });
 
-// export const {student} = StudentSlice.actions;
 export default JobSlice.reducer;

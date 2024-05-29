@@ -1,5 +1,8 @@
 import * as Yup from "yup";
 
+const date = new Date();
+const eighteenYearsAgo = new Date(date.getFullYear() - 18, date.getMonth(), date.getDate());
+
 export const loginSchema = Yup.object({
   email: Yup.string().email().required("Please enter Email"),
   password: Yup.string()
@@ -13,10 +16,17 @@ export const signUpSchema = Yup.object({
   email: Yup.string().email().required("Please enter Email"),
   phoneNumber: Yup.string().required("Please enter Phone Number"),
   password: Yup.string()
-    .min(8, "Please enter a strong password")
-    .required("Please enter Password"),
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
   confirmPassword: Yup.string()
-    .required("Please enter Confirm Password")
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    )
     .oneOf([Yup.ref("password"), "", "Password must match"]),
   address: Yup.string().required("Please enter Address"),
   city: Yup.string().required("Please enter Address"),
@@ -45,15 +55,25 @@ export const studentSchema = Yup.object({
   email: Yup.string().email().required("Please enter Email"),
   phoneNumber: Yup.string().required("Please enter Phone Number"),
   password: Yup.string()
-    .min(8, "Please enter a strong password")
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    )
     .required("Please enter Password"),
   confirmPassword: Yup.string()
-    .required("Please enter Confirm Password")
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    )
     .oneOf([Yup.ref("password"), "", "Password must match"]),
   rollNo: Yup.string().required("Please enter Roll number"),
-  dob: Yup.string().nullable(),
+  dob: Yup.date()
+    .max(eighteenYearsAgo, 'Dob must be at least before 18 years old')
+    .required('Date of Birth is required').nullable(),
   gender: Yup.string().required("Please select Gender"),
-  course:Yup.string().required("Please select Course"),
+  course: Yup.string().required("Please select Course"),
   maritalStatus: Yup.string().required("Please select Marital status"),
   address: Yup.string().required("Please enter Address"),
   city: Yup.string().required("Please enter City"),
@@ -77,9 +97,17 @@ export const updateStudentSchema = Yup.object({
   email: Yup.string().email().required("Please enter Email"),
   phoneNumber: Yup.string().required("Please enter Phone Number"),
   password: Yup.string()
-    .min(8, "Please enter a strong password").nullable(),
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    )
+    .nullable(),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password"), "", "Password must match"]).nullable(),
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    )
+    .nullable(),
   rollNo: Yup.string().required("Please enter Roll number"),
   dob: Yup.string().nullable(),
   gender: Yup.string().required("Please select Gender"),
@@ -91,31 +119,60 @@ export const updateStudentSchema = Yup.object({
   graduationDate: Yup.string().nullable(),
 });
 
-export const jobApplicationSchema=Yup.object({
-  resume:Yup.string().required("Please upload your Resume")
-})
+export const jobApplicationSchema = Yup.object({
+  resume: Yup.string().required("Please upload your Resume"),
+});
 
-export const changePasswordSchema=Yup.object({
-  currentPassword:Yup.string().required("Please enter Current Password"),
-  newPassword:Yup.string().required("Please enter New Password").min(8,"Please enter a strong password"),
-  confirmPassword:Yup.string().required("Please enter Confirm Password")
-  .oneOf([Yup.ref("newPassword"), "", "Password and Confirm Password must match"]),
-})
+export const changePasswordSchema = Yup.object({
+  // currentPassword:Yup.string().required("Please enter Current Password"),
+  currentPassword: Yup.string()
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+  newPassword: Yup.string()
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+  confirmPassword: Yup.string()
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    ),
+});
 
-export const forgotPasswordSchema=Yup.object({
-  email:Yup.string().required("Please enter Email")
-})
+export const forgotPasswordSchema = Yup.object({
+  email: Yup.string().required("Please enter Email"),
+});
 
-export const resetPasswordSchema=Yup.object({
-  newPassword:Yup.string().required("Please enter New Password").min(8,"Please enter a strong password"),
-  confirmPassword:Yup.string().required("Please enter Confirm Password")
-  .oneOf([Yup.ref("newPassword"), "", "Password and Confirm Password must match"]),
-})
+export const resetPasswordSchema = Yup.object({
+  newPassword: Yup.string()
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    )
+    .min(8, "Please enter a strong password"),
+  confirmPassword: Yup.string()
+    .required("Password is required")
+    .matches(
+      /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character"
+    ).oneOf([
+      Yup.ref("newPassword"),
+      "",
+      "Password and Confirm Password must match",
+    ]),
+});
 
 export const contactUsSchema = Yup.object({
-  email:Yup.string().required("Please enter First Name"),
-  firstName:Yup.string().required("Please enter Last Name"),
-  lastName:Yup.string().required("Please enter Email address"),
-  contact:Yup.number().required("Please enter phone number"),
-  message:Yup.string().required("Please enter message")
-})
+  email: Yup.string().required("Please enter First Name"),
+  firstName: Yup.string().required("Please enter Last Name"),
+  lastName: Yup.string().required("Please enter Email address"),
+  contact: Yup.number().required("Please enter phone number"),
+  message: Yup.string().required("Please enter message"),
+});

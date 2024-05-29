@@ -26,7 +26,6 @@ const Contact = () => {
     validationSchema: contactUsSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
-        console.log("Form values", values);
         setIsLoading(true);
         const response = await dispatch(contactUsMail(values));
         if (response.payload?.success) {
@@ -41,7 +40,6 @@ const Contact = () => {
       resetForm();
     },
   });
-  console.log(errors);
 
   return (
     <>
@@ -100,15 +98,23 @@ const Contact = () => {
         <div className="max-w-2xl p-6 bg-gray-100 rounded-lg">
           <p className="text-4xl font-bold mb-4">Contact us for more info</p>
           <p className="text-gray-700 mb-4">
-            Have a question, comment, or just want to say hello? We’d love to
-            hear from you. Fill out the form, and Our team will get back to you
-            as soon as possible.
+            <strong>
+              {" "}
+              Have a question, comment, or just want to say hello? We’d love to
+              hear from you. Fill out the form, and Our team will get back to
+              you as soon as possible.{" "}
+            </strong>
           </p>
           <p className="text-gray-700 mb-4">
-            406 Luxuria Business Hub, Near VR mall, Surat - Dumas Rd, Surat,
-            Gujarat 395007
+            <strong>
+              {" "}
+              406 Luxuria Business Hub, Near VR mall, Surat - Dumas Rd, Surat,
+              Gujarat 395007
+            </strong>
           </p>
-          <p className="text-gray-700 mb-4 text-2xl"><strong>info@careerforge.in</strong></p>
+          <p className="text-gray-700 mb-4 text-2xl">
+            <strong>info@careerforge.in</strong>
+          </p>
           <p className="text-gray-700 mb-4 text-2xl">
             <strong>+91-8255006150, +91-7445890536</strong>
           </p>
@@ -153,7 +159,7 @@ const Contact = () => {
                     </label>
                     <input
                       type="text"
-                      placeholder="Enter your email address"
+                      placeholder="Enter your Last Name"
                       className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                       id="lastName"
                       name="lastName"
@@ -189,7 +195,7 @@ const Contact = () => {
                   </label>
                   <input
                     type="tel"
-                    placeholder="Select subject"
+                    placeholder="Enter your Contact no."
                     className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     id="contact"
                     name="contact"

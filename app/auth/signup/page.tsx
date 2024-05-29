@@ -78,7 +78,6 @@ const page: React.FC = () => {
 
   const loadCities = (selectedStateCode: string) => {
     // values.state =
-    console.log("State code :", selectedStateCode);
     fetch(`${config.cUrl}/${countryCode}/states/${selectedStateCode}/cities`, {
       headers: { "X-CSCAPI-KEY": config.ckey },
     })
@@ -112,7 +111,6 @@ const page: React.FC = () => {
       return;
     }
     setFile(e.target.files[0]);
-    console.log("file set" + file);
   };
   const onClick = (e: React.MouseEvent<HTMLInputElement>) => {
     e.currentTarget.value = "";
@@ -127,12 +125,9 @@ const page: React.FC = () => {
     const imageRef = ref(storage, imagePath);
     try {
       await uploadBytes(imageRef, file);
-      console.log("imgae uploaded");
       const downloadURL = await getDownloadURL(imageRef);
       values.image = downloadURL;
-      console.log("Image URL:", downloadURL);
     } catch (error) {
-      console.error("Error uploading image:", error);
     }
   };
 
@@ -148,12 +143,10 @@ const page: React.FC = () => {
     initialValues,
     validationSchema: signUpSchema,
     onSubmit: async (values: SignUpValues, { resetForm }) => {
-      console.log("form values", values);
       setIsLoading(true);
       values.phoneNumber = values.phoneNumber.toString();
       await uploadImage();
       const response = await dispatch(userRegister(values));
-      console.log(response);
 
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
@@ -164,7 +157,6 @@ const page: React.FC = () => {
       setIsLoading(false);
     },
   });
-  console.log(errors);
 
   // validation for string
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -314,12 +306,12 @@ const page: React.FC = () => {
                         placeholder="Enter your Phone Number"
                         name="phoneNumber"
                         id="phoneNumber"
+                        onChange={handleChange}
+                        value={values.phoneNumber}
+                        onBlur={handleBlur}
                         minLength={10}
                         maxLength={10}
                         pattern="\d{10}"
-                        value={values.phoneNumber}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
                         title="Please enter a valid 10-digit phone number"
                       />
                       {errors.phoneNumber && touched.phoneNumber ? (

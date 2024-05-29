@@ -21,9 +21,7 @@ const page = () => {
         initialValues: initialValues,
         validationSchema: forgotPasswordSchema,
         onSubmit: async (values: FormValue, { resetForm }) => {
-            console.log("form values", values);
             const response = await dispatch(forgotPassword(values.email));
-            console.log(response);
             if (response.payload?.success) {
                 ToastSuccess(response.payload?.message);
                 resetForm();

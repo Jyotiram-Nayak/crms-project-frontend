@@ -58,7 +58,6 @@ const Page = ({ params }: { params: { jobid: string } }) => {
 
   const state = useSelector((state: any) => state.job);
   const jobData = state.job;
-  console.log("job data :", jobData);
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
@@ -66,9 +65,7 @@ const Page = ({ params }: { params: { jobid: string } }) => {
     let jobArray = Array.isArray(jobData) ? jobData : Object.values(jobData);
 
     if (Array.isArray(jobArray)) {
-      console.log("jobArray is:", jobArray);
       const singleJob = jobArray.find((job: any) => job.jobId === params.jobid);
-      console.log("Found job:", singleJob);
       if (singleJob) {
         // setJob(singleJob);
         setFieldValue("universityId", singleJob.universityId);
@@ -123,10 +120,8 @@ const Page = ({ params }: { params: { jobid: string } }) => {
     const imageRef = ref(storage, imagePath);
     try {
       await uploadBytes(imageRef, file);
-      console.log("pdf uploaded");
       const downloadURL = await getDownloadURL(imageRef);
       if (downloadURL != null) {
-        console.log("pdf URL:", downloadURL);
         values.document = downloadURL;
         ToastSuccess("pdf Uploaded successfully.");
         errors.document = "";
@@ -152,10 +147,8 @@ const Page = ({ params }: { params: { jobid: string } }) => {
     validationSchema: jobSchema,
     onSubmit: async (values, { resetForm }) => {
       values.courses = selected;
-      console.log("form values", values);
       setIsLoading(true);
       const response = await dispatch<any>(updateJob({jobid:params.jobid,val:values}));
-      console.log(response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
         route.replace("/company/jobpost-table");
@@ -166,13 +159,11 @@ const Page = ({ params }: { params: { jobid: string } }) => {
       setIsLoading(false);
     },
   });
-  console.log(errors);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await dispatch(getAllUniversity());
         response?.payload?.data && setUniversities(response?.payload?.data);
-        console.log("all university", response?.payload?.data);
       } catch (error) {
         console.error("Error fetching universities:", error);
       }
@@ -297,8 +288,7 @@ const Page = ({ params }: { params: { jobid: string } }) => {
                 <div className="w-full ">
                   <div className="flex justify-between mb-2 my-1">
                     <label className="block text-sm font-medium text-black dark:text-white">
-                      Document
-                      <span className="text-red">*</span>
+                      Document 
                     </label>
                     {pdfPreview && (
                       <Link href={pdfPreview} target="blanck">

@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { getCompanyDashboard, getUniversityDashboard } from "@/lib/UserSlice/UserSlice";
 import Link from "next/link";
 import Loader from "../common/Loader";
+import PieChartCompany from "../PieChart/PieChartCompany";
 
 interface CompanyData {
 totalJobs:number,
@@ -15,18 +16,21 @@ rejectedStudents:number,
 
 const CompanyDashboard: React.FC = () => {
   const dispatch = useDispatch();
-  const [data, setData] = useState<CompanyData | null>(null);
+  const [data, setData] = useState<CompanyData>({
+    totalJobs:0,
+    totalApplication:0,
+    pendingStudents:0,
+    selectedStudents:0,
+    rejectedStudents:0,
+    });
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
-    console.log("start:");
     const response = await dispatch(getCompanyDashboard());
-    console.log("Company dashboard :", response);
     response.payload?.data && setData(response.payload.data);
     setLoading(false)
   };
   useEffect(() => {
-    console.log("Hello from university Dashboard");
     fetchData();
   }, []);
   return (
@@ -59,7 +63,7 @@ const CompanyDashboard: React.FC = () => {
           </svg>
         </CardDataStats>
         </Link>
-        <Link href={"/university/students/student-table"}>
+        <Link href={"/university/company-list"}>
         <CardDataStats
           title="Total Applications"
           total={data?.totalApplication.toString() ?? "loading..."}
@@ -80,6 +84,7 @@ const CompanyDashboard: React.FC = () => {
           </svg>
         </CardDataStats>
         </Link>
+        <Link href={"/student/all-apply-jobs?isSelected=Selected"}>
         <CardDataStats
           title="Selected Students"
           total={data?.selectedStudents.toString() ?? "loading..."}
@@ -103,6 +108,8 @@ const CompanyDashboard: React.FC = () => {
             <path d="M16 11l2 2l4 -4" />
           </svg>
         </CardDataStats>
+        </Link>
+        <Link href={"/student/all-apply-jobs?isSelected=Pending"}>
         <CardDataStats
           title="Pending Students"
           total={data?.pendingStudents.toString() ?? "loading..."}
@@ -126,6 +133,8 @@ const CompanyDashboard: React.FC = () => {
             <path d="M17 9l4 4m0 -4l-4 4" />
           </svg>
         </CardDataStats>
+        </Link>
+        <Link href={"/student/all-apply-jobs?isSelected=Rejected"}>
         <CardDataStats
           title="Rejected Students"
           total={data?.rejectedStudents.toString() ?? "loading..."}
@@ -149,6 +158,10 @@ const CompanyDashboard: React.FC = () => {
             <path d="M17 9l4 4m0 -4l-4 4" />
           </svg>
         </CardDataStats>
+        </Link>
+      </div>
+      <div className="mt-4 md:mt-6 md:gap-6 2xl:mt-7.5">
+        <PieChartCompany data={data} />
       </div>
     </>
   );

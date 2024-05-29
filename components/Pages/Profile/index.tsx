@@ -32,9 +32,7 @@ const Profile = () => {
 
   const fetchData = async () => {
     const users = state?.user;
-    console.log("user from redux :", users);
     users && setUser(users);
-    users ?? console.log("user not found");
   };
 
   useEffect(() => {
@@ -43,7 +41,7 @@ const Profile = () => {
 
   return (
     <>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <DefaultLayout>
         <div className="mx-auto max-w-242.5">
           <Breadcrumb pageName="Profile" />
@@ -158,11 +156,11 @@ const Profile = () => {
                             {user?.role}
                           </p>
                           <p className="text-gray-600 min-w-[150px]">
-                            {user?.createOn ? DateFilter(user.createOn) : ""}
+                            {user?.createOn ? DateFilter(user.createOn) : "--"}
                           </p>
                           {user?.updateOn && (
                             <p className="text-gray-600 min-w-[150px]">
-                              {user?.updateOn ? DateFilter(user.updateOn) : ""}
+                              {user?.updateOn ? DateFilter(user.updateOn) : "--"}
                             </p>
                           )}
                         </div>

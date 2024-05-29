@@ -15,12 +15,10 @@ const StudentDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const fetchData = async () => {
     const response = await dispatch(getStudentDashboard());
-    console.log("Student Dashboard",response)
     response.payload?.data && setData(response.payload.data);
     setLoading(false)
   };
   useEffect(() => {
-    console.log("dashboard load")
     fetchData();
   }, []);
   return (

@@ -51,10 +51,8 @@ const page = () => {
     initialValues: initialValues,
     validationSchema: changePasswordSchema,
     onSubmit: async (values) => {
-      console.log("form values", values);
       setIsLoading(true);
       const response = await dispatch(changePassword(values));
-      console.log(response);
 
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
@@ -80,7 +78,7 @@ const page = () => {
             <form onSubmit={handleSubmit}>
               <div className="p-6.5">
                 <div className="mb-4.5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="currentPassword">
                     Current Password
                     <span className="text-red">*</span>
                   </label>
@@ -100,7 +98,7 @@ const page = () => {
                 </div>
 
                 <div className="mb-4">
-                  <label className="mb-2.5 block font-medium text-black dark:text-white">
+                  <label className="mb-2.5 block font-medium text-black dark:text-white" htmlFor="newPassword">
                     New Password
                     <span className="text-red">*</span>
                   </label>
@@ -167,7 +165,7 @@ const page = () => {
                 </div>
 
                 <div className="mb-4.5">
-                  <label className="mb-3 block text-sm font-medium text-black dark:text-white">
+                  <label className="mb-3 block text-sm font-medium text-black dark:text-white" htmlFor="confirmPassword">
                     Confirm Password
                     <span className="text-red">*</span>
                   </label>

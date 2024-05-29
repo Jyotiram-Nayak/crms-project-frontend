@@ -87,7 +87,6 @@ const JobApplicationSlice = createSlice({
       })
       .addCase(fetchAllJobApplication.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
-        console.log("<<<jobApplication", action.payload.data);
         state.jobApplication = action.payload.data;
       })
       .addCase(fetchAllJobApplication.rejected, (state: any, action: any) => {

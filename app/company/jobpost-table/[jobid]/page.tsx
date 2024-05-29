@@ -67,11 +67,9 @@ export default function Page({ params }: { params: { jobid: string } }) {
 
   const state = useSelector((state: any) => state.job);
   const jobData = state.job;
-  console.log("job data :", jobData);
 
   const fetchData = async () => {
     const singleJob = jobData.find((job: any) => job.jobId === params.jobid);
-    console.log("get from selector :", singleJob);
     if (singleJob != null) {
       setJob(singleJob);
     }
@@ -91,11 +89,10 @@ export default function Page({ params }: { params: { jobid: string } }) {
     const fileExtension = newfile.name.split(".").pop()?.toLowerCase() ?? "";
     if (!allowedExtensions.includes(fileExtension)) {
       ToastError("Invalid file type. Only PDF files are allowed.");
-      setFile(null)
+      setFile(null);
       return;
     }
     setFile(e.target.files[0]);
-    console.log("file set" + file);
   };
 
   useEffect(() => {
@@ -125,14 +122,12 @@ export default function Page({ params }: { params: { jobid: string } }) {
     const imageRef = ref(storage, imagePath);
     try {
       await uploadBytes(imageRef, file);
-      console.log("resume uploaded");
       const downloadURL = await getDownloadURL(imageRef);
       if (downloadURL != null) {
-        console.log("resume URL:", downloadURL);
         values.resume = downloadURL;
         ToastSuccess("resume Uploaded successfully.");
         errors.resume = "";
-        setFile(null)
+        setFile(null);
       }
     } catch (error) {
       console.error("Error uploading resume:", error);
@@ -146,12 +141,10 @@ export default function Page({ params }: { params: { jobid: string } }) {
   const { values, errors, touched, handleSubmit } = useFormik({
     initialValues,
     validationSchema: jobApplicationSchema,
-    onSubmit: async (values, { resetForm }) => {
-      console.log("form values", values);
+    onSubmit: async (values) => {
       values.jobId = job?.jobId || "";
       setIsLoading(true);
       const response = await dispatch(addJobApplication(values));
-      console.log(response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
         router.replace("/student/all-apply-jobs");
@@ -161,12 +154,11 @@ export default function Page({ params }: { params: { jobid: string } }) {
       setIsLoading(false);
     },
   });
-  console.log(errors);
 
   return (
     <>
-    <ToastContainer/>
-    {isLoading && <Loader/>}
+      <ToastContainer />
+      {isLoading && <Loader />}
       <DefaultLayout>
         <div className="mx-auto max-w-242.5">
           <Breadcrumb pageName="Job Details" />
@@ -220,7 +212,7 @@ export default function Page({ params }: { params: { jobid: string } }) {
                           Deadline
                         </dt>
                         <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                          {job?.deadline && DateFilter(job?.deadline)}
+                          {job?.deadline ? DateFilter(job?.deadline) : "--"}
                         </dd>
                       </div>
                       <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">

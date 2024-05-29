@@ -79,9 +79,7 @@ const UniversityTable: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      console.log("pagination", value);
       const response = await dispatch(getAllUniversity(value));
-      console.log(response.payload.data); // This should contain the data from your API response
       response.payload.data && setUniversities(response.payload.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -96,14 +94,12 @@ const UniversityTable: React.FC = () => {
   ) => {
     try {
       const response = await dispatch(approveUser(userId));
-      console.log("response", response);
       if (response.payload.success) {
         const tempuniversity = [...universities];
         tempuniversity[index] = {
           ...tempuniversity[index],
           isApproved: !isApproved,
         };
-        console.log(tempuniversity);
         ToastSuccess(response.payload.message);
         setUniversities(tempuniversity);
       } else if (response.error?.message) {
@@ -275,7 +271,7 @@ const UniversityTable: React.FC = () => {
                               href={`/company/jobposting?universityId=${university.id}`}
                               className="bg-primary font-medium gap-2.5 hover:bg-opacity-90 inline-flex items-center px-2 py-2 text-white"
                             >
-                              Apply
+                              Post Job
                             </Link>
                           </p>
                         </td>

@@ -24,18 +24,15 @@ export const userRegister = createAsyncThunk(
 //login user
 export const userLogin = createAsyncThunk("userLogin", async (val: object) => {
   try {
-    console.log("Values",val)
     const existingUser = await axios.post(
       `${BASE_URL}/Account/login-user`,
       val
     );
     const data = await existingUser.data;
-    console.log(data);
     setCookie("role", data?.data?.role);
     setCookie("token", data?.data?.token);
     return data;
   } catch (error: any) {
-    console.log(error);
     throw error?.response?.data?.message;
   }
 });
@@ -63,7 +60,6 @@ export const updateUserProfile = createAsyncThunk(
     try {
       const existingUser = await axios.put(
         `${BASE_URL}/Account/update-user`,updatedata,
-
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
       const data = await existingUser.data;
@@ -291,7 +287,6 @@ const UserSlice = createSlice({
       })
       .addCase(userLogin.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
-        console.log("<<<", action.payload.data.user)
         state.user = {...action.payload.data.user}
       })
       .addCase(userLogin.rejected, (state: any, action: any) => {

@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <div className="dark:bg-boxdark-2 dark:text-bodydark">
-          <ToastContainer/>
+          <ToastContainer/> 
           <Provider store={store}>
             <PersistGate persistor={persistor}>
               {loading ? <Loader /> : children}

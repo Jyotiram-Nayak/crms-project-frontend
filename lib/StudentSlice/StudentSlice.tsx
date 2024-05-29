@@ -55,13 +55,11 @@ export const fetchStudentById = createAsyncThunk(
 export const updateStudent = createAsyncThunk(
   "updateStudent",
   async ({studentId, val} :{studentId:string, val:object} ) => {
-    console.log(val);
     try {
       const userToken = getCookie("token");
       const student = await axios.put(`${BASE_URL}/Student/update-student/${studentId}`,val,
         { headers: { Authorization: `Bearer ${userToken}` } }
       );
-      console.log(student.data);
       return student.data;
     } catch (error: any) {
       throw error.response.data;
@@ -130,7 +128,6 @@ const StudentSlice = createSlice({
       })
       .addCase(fetchAllStudent.fulfilled, (state: any, action: any) => {
         state.status = "succeeded";
-        console.log("<<<", action.payload.data)
         state.student = action.payload.data
       })
       .addCase(fetchAllStudent.rejected, (state: any, action: any) => {

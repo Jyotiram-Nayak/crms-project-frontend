@@ -23,7 +23,6 @@ const words = [
 ];
 const TypewriterEffect = () => {
   const role = getCookie("role");
-  console.log("role",role)
   return (
     <>
     

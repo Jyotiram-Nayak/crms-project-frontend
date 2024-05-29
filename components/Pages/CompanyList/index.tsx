@@ -82,9 +82,7 @@ const CompanyList = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      console.log("pagination", value);
       const response = await dispatch(getAllCompany(value));
-      console.log(response.payload.data); // This should contain the data from your API response
       response.payload.data && setCompanies(response.payload.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -99,14 +97,12 @@ const CompanyList = () => {
   ) => {
     try {
       const response = await dispatch(approveUser(userId));
-      console.log("response", response);
       if (response.payload.success) {
         const tempcompanies = [...companies];
         tempcompanies[index] = {
           ...tempcompanies[index],
           isApproved: !isApproved,
         };
-        console.log(tempcompanies);
         ToastSuccess(response.payload.message);
         setCompanies(tempcompanies);
       } else if (response.error?.message) {

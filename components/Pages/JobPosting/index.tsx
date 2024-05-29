@@ -98,10 +98,8 @@ const JobPoasting = () => {
     const imageRef = ref(storage, imagePath);
     try {
       await uploadBytes(imageRef, file);
-      console.log("pdf uploaded");
       const downloadURL = await getDownloadURL(imageRef);
       if (downloadURL != null) {
-        console.log("pdf URL:", downloadURL);
         values.document = downloadURL;
         ToastSuccess("pdf Uploaded successfully.");
         errors.document = "";
@@ -129,10 +127,8 @@ const JobPoasting = () => {
     validationSchema: jobSchema,
     onSubmit: async (values, { resetForm }) => {
       values.courses = selected;
-      console.log("form values", values);
       setIsLoading(true);
       const response = await dispatch<any>(addJob(values));
-      console.log(response);
       if (response.payload?.success) {
         ToastSuccess(response.payload?.message);
         route.replace("/company/jobpost-table");
@@ -143,13 +139,11 @@ const JobPoasting = () => {
       setIsLoading(false);
     },
   });
-  console.log(errors);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await dispatch(getAllUniversity());
         response?.payload?.data && setUniversities(response?.payload?.data);
-        console.log("all university", response?.payload?.data);
       } catch (error) {
         console.error("Error fetching universities:", error);
       }
@@ -184,10 +178,10 @@ const JobPoasting = () => {
                     <span className="text-red">*</span>
                   </label>
                   <select
-                    className="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    className="w-full rounded mb-2 border border-stroke bg-transparent py-3 pl-6 pr-10 text-black outline-none focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     name="universityId"
                     id="universityId"
-                    value={universityId ?? values.universityId}
+                    value={universityId ? values.universityId : ""}
                     onChange={handleChange}
                   >
                     <option value="" disabled>
@@ -223,7 +217,7 @@ const JobPoasting = () => {
                   <input
                     type="text"
                     placeholder="Enter your Title"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    className="w-full rounded  mb-2 border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     name="title"
                     id="title"
                     value={values.title}
@@ -241,7 +235,7 @@ const JobPoasting = () => {
                   </label>
                   <textarea
                     rows={6}
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    className="w-full rounded mb-2 border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     placeholder="Type your Description"
                     name="description"
                     id="description"
@@ -259,7 +253,7 @@ const JobPoasting = () => {
                   <input
                     type="date"
                     placeholder="Enter deadline for the post"
-                    className="w-full rounded border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+                    className="w-full rounded mb-2 border-[1.5px] border-stroke bg-transparent px-5 py-3 text-black outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
                     name="deadline"
                     id="deadline"
                     value={values.deadline}
@@ -276,7 +270,7 @@ const JobPoasting = () => {
                   <div className="flex justify-between mb-2 my-1">
                     <label className="block text-sm font-medium text-black dark:text-white">
                       Document
-                      <span className="text-red">*</span>
+                      <span className="text-red">*</span>{file && file.name}
                     </label>
                     {pdfPreview && (
                       <Link href={pdfPreview} target="blanck">
@@ -311,7 +305,7 @@ const JobPoasting = () => {
                   <div className="flex">
                     <input
                       type="file"
-                      className="w-full me-2 cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                      className="w-full me-2 mb-2 cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:px-5 file:py-3 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
                       placeholder="Plese select an Image"
                       name="file"
                       id="file"

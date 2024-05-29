@@ -7,6 +7,7 @@ import CompanyDashboard from "@/components/Dashboard/CompanyDashboard";
 import StudentDashboard from "@/components/Dashboard/StudentDashboard";
 import dynamic from "next/dynamic";
 import Loader from "@/components/common/Loader";
+import { ToastContainer } from "react-toastify";
 
 const DynamicAdminDashboard = dynamic(
   () => import("@/components/Dashboard/AdminDashboard"),
@@ -18,9 +19,9 @@ const DynamicAdminDashboard = dynamic(
 
 const Home = () => {
   const role = getCookie("role");
-  console.log("Role dashboard:", role);
   return (
     <>
+    <ToastContainer/>
       <DefaultLayout>
         {role == "Admin" && <DynamicAdminDashboard />}
         {role == "University" && <UniversityDashboard />}

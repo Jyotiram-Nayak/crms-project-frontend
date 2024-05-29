@@ -43,11 +43,8 @@ const page: React.FC = () => {
       initialValues: initialValues,
       validationSchema: loginSchema,
       onSubmit: async (values: FormValues) => {
-        console.log("Form values", values);
         setIsLoading(true)
         const response = await dispatch(userLogin(values));
-        console.log("Response :", response);
-
         if (response.payload?.success) {
           ToastSuccess(response.payload?.message);
           route.replace("/");

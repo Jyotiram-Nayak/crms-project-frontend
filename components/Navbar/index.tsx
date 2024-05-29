@@ -19,7 +19,6 @@ const Navbar = () => {
   useEffect(() => {
     const newuser = state.user;
     setUser(newuser);
-    console.log("user", newuser);
   }, []);
   const role = getCookie("role");
 
