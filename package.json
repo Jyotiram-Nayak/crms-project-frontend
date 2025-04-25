@@ -18,7 +18,7 @@
     "firebase": "^10.11.1",
     "formik": "^2.4.5",
     "framer-motion": "^11.1.9",
-    "next": "14.2.2",
+    "next": "14.2.10",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
